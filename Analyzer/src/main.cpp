@@ -5,6 +5,7 @@
 #include <Windows.h>
 
 #include "ImGui/imgui.h"
+#include "ImPlot/implot.h"
 
 #include "SettingsWindow.h"
 #include "Window.h"
@@ -78,6 +79,13 @@ int main()
         const ImVec2 windowSize = window.GetSize();
         ImageWindow(windowSize, i.Resolution(), i.GetGpuImage());
         sw.Show(windowSize, pos, mInfo);
+
+        ImGui::Begin("Plotting Demo");
+        ImPlot::CreateContext();
+        ImPlot::ShowDemoWindow();
+        ImPlot::DestroyContext();
+        ImGui::End();
+
         window.EndFrame();
     }
     return 0;

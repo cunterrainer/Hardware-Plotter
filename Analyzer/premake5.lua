@@ -14,6 +14,7 @@ project "Analyzer"
         "vendor",
         "../Dependencies/glfw/include",
         "../Dependencies/imgui/include",
+        "../Dependencies/implot/include",
         "../Dependencies/nativefiledialog/include"
     }
 
@@ -28,6 +29,7 @@ project "Analyzer"
         "glfw",
         "nativefiledialog",
         "ImGui",
+        "ImPlot",
         "gdi32",
         "opengl32",
         "shell32",
