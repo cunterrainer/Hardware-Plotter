@@ -1,10 +1,10 @@
-workspace "MouseTracker"
+workspace "Analyzer"
     platforms { "x64", "x86" }
     configurations {
         "Debug",
         "Release"
     }
-    startproject "MouseTracker"
+    startproject "Analyzer"
 
 outputdir = "/BIN/%{cfg.buildcfg}/%{cfg.architecture}/"
 -- get current working directory
@@ -43,7 +43,7 @@ staticruntime "on"
 removeunreferencedcodedata "on"
 defines "USING_IMGUI"
 
-include "MouseTracker"
+include "Analyzer"
 include "Dependencies/glfw"
 include "Dependencies/imgui"
 include "Dependencies/nativefiledialog"
