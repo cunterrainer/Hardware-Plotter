@@ -9,9 +9,9 @@
 struct Logger
 {
 public:
-    static std::string Error(int error)
+    static std::string Error(DWORD error)
     {
-        return "Error: " + std::to_string(error) + " (" + std::system_category().message(error) + ")";
+        return "Error: " + std::to_string(error) + " (" + std::system_category().message(static_cast<int>(error)) + ")";
     }
 private:
     const char* const m_LogInfo;

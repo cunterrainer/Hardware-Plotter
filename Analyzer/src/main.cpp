@@ -47,7 +47,7 @@ void Connect(const std::string& port, int selectedBaudRate)
     }
     
     char incomingData[256] = "";
-    int dataLength = 255;
+    unsigned int dataLength = 255;
     int readResult = 0;
 
     while (serial.IsConnected())
@@ -82,7 +82,7 @@ int main()
         static int selectedRate = 0;
         if (ImGui::Button("Listen", {150, 0}))
         {
-            Connect(ports[selectedPort].com, selectedRate);
+            Connect(ports[(size_t)selectedPort].com, selectedRate);
         }
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);

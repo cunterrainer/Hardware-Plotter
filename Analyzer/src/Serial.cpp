@@ -20,7 +20,7 @@ namespace Serial
         }
 
         //If connected we try to set the comm parameters
-        DCB dcbSerialParams = {0};
+        DCB dcbSerialParams;
         if (!GetCommState(m_SerialHandle, &dcbSerialParams))
         {
             m_LastErrorMsg = "Failed to get current serial parameters!";
@@ -65,8 +65,8 @@ namespace Serial
         DWORD bytesRead;
         unsigned int toRead;
 
-        DWORD lastError = 0;
-        COMSTAT status = {0};
+        DWORD lastError;
+        COMSTAT status;
         ClearCommError(m_SerialHandle, &lastError, &status); // Get info about the serial port
 
         //Check if there is something to read
@@ -82,7 +82,7 @@ namespace Serial
 
             //Try to read the require number of chars, and return the number of read bytes on success
             if (ReadFile(m_SerialHandle, buffer, toRead, &bytesRead, NULL))
-                return bytesRead;
+                return (int)bytesRead;
             else
             {
                 m_LastErrorMsg = "Failed to read from serial connection. " + GetWinError();
@@ -98,11 +98,11 @@ namespace Serial
         DWORD bytesSend;
 
         //Try to write the buffer on the Serial port
-        if (!WriteFile(m_SerialHandle, (void*)buffer, nbChar, &bytesSend, 0))
+        if (!WriteFile(m_SerialHandle, (const void*)buffer, nbChar, &bytesSend, 0))
         {
             //In case it don't work get comm error and return false
             DWORD lastError = 0;
-            COMSTAT status = { 0 };
+            COMSTAT status;
             ClearCommError(m_SerialHandle, &lastError, &status);
             m_LastErrorMsg = GetWinError();
             return false;
