@@ -3,6 +3,7 @@
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
 
+#include "Serial.h"
 #include "Window.h"
 #include "Clang.h"
 #include "Log.h"
@@ -35,13 +36,38 @@ void LinePlot()
 }
 
 
-int main()
+int W()
 {
     const Window window;
     while (window.IsOpen())
     {
         window.StartFrame();
         window.EndFrame();
+    }
+    return 0;
+}
+
+
+int main()
+{
+    Serial serial("\\\\.\\COM3");
+    //Serial* SP = new Serial("\\\\.\\COM3");    // adjust as needed
+
+    if (serial.IsConnected())
+        Log << "Serial connected" << Endl;
+
+    char incomingData[256] = "";
+    int dataLength = 255;
+    int readResult = 0;
+
+    while (serial.IsConnected())
+    {
+        readResult = serial.ReadData(incomingData, dataLength);
+        incomingData[readResult] = 0;
+
+        printf("%s", incomingData);
+
+        //Sleep(500);
     }
     return 0;
 }
