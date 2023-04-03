@@ -36,9 +36,9 @@ void LinePlot()
 }
 
 
-void Connect(const std::string& port)
+void Connect(const std::string& port, int selectedBaudRate)
 {
-    Serial::Serial serial("\\\\.\\" + port);
+    Serial::Serial serial("\\\\.\\" + port, selectedBaudRate);
     //Serial* SP = new Serial("\\\\.\\COM3");    // adjust as needed
 
     if (serial.IsConnected())
@@ -54,8 +54,6 @@ void Connect(const std::string& port)
         incomingData[readResult] = 0;
 
         printf("%s", incomingData);
-
-        //Sleep(500);
     }
 }
 
@@ -82,7 +80,7 @@ int main()
         static int selectedRate = 0;
         if (ImGui::Button("Listen"))
         {
-            Connect(ports[selectedPort].com);
+            Connect(ports[selectedPort].com, selectedRate);
         }
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
@@ -93,15 +91,5 @@ int main()
         ImGui::End();
         window.EndFrame();
     }
-    return 0;
-}
-
-
-int W()
-{
-    std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
-    for (auto c : ports)
-        std::cout << c.com << ": " << c.device << std::endl;
-    std::cin.get();
     return 0;
 }

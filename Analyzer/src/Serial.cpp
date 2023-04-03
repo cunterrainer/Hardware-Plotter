@@ -7,7 +7,7 @@
 
 namespace Serial
 {
-    Serial::Serial(const std::string& portName)
+    Serial::Serial(const std::string& portName, int selectedBaudRate)
     {
         //Try to connect to the given port
         m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -18,7 +18,7 @@ namespace Serial
         }
 
         //If connected we try to set the comm parameters
-        DCB dcbSerialParams = { 0 };
+        DCB dcbSerialParams = {0};
         if (!GetCommState(m_SerialHandle, &dcbSerialParams))
         {
             Err << "Failed to get current serial parameters!" << Endl;
@@ -26,7 +26,7 @@ namespace Serial
         }
         
         //Define serial connection parameters for the arduino board
-        dcbSerialParams.BaudRate = CBR_9600;
+        dcbSerialParams.BaudRate = BaudRateMap.at(selectedBaudRate);
         dcbSerialParams.ByteSize = 8;
         dcbSerialParams.StopBits = ONESTOPBIT;
         dcbSerialParams.Parity = NOPARITY;
