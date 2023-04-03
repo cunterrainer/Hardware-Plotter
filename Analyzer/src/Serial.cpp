@@ -52,19 +52,44 @@ namespace Serial
 
     Serial::~Serial()
     {
+        Disconnect();
+    }
+
+    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_LastErrorMsg(other.m_LastErrorMsg)
+    {
+        other.m_SerialHandle = nullptr;
+        other.m_Connected = false;
+        other.m_LastErrorMsg.clear();
+    }
+
+
+    Serial& Serial::operator=(Serial&& other) noexcept
+    {
+        m_SerialHandle = other.m_SerialHandle;
+        m_Connected = other.m_Connected;
+        m_LastErrorMsg = other.m_LastErrorMsg;
+
+        other.m_SerialHandle = nullptr;
+        other.m_Connected = false;
+        other.m_LastErrorMsg.clear();
+        return *this;
+    }
+
+
+    void Serial::Disconnect() noexcept
+    {
         if (m_Connected)
         {
             m_Connected = false;
             CloseHandle(m_SerialHandle);
+            m_LastErrorMsg = std::string();
+            m_SerialHandle = nullptr;
         }
     }
 
 
-    int Serial::ReadData(char* buffer, unsigned int nbChar)
+    std::string Serial::ReadData() noexcept
     {
-        DWORD bytesRead;
-        unsigned int toRead;
-
         DWORD lastError;
         COMSTAT status;
         ClearCommError(m_SerialHandle, &lastError, &status); // Get info about the serial port
@@ -72,24 +97,21 @@ namespace Serial
         //Check if there is something to read
         if (status.cbInQue > 0)
         {
-            //If there is we check if there is enough data to read the required number
-            //of characters, if not we'll read only the available characters to prevent
-            //locking of the application.
-            if (status.cbInQue > nbChar)
-                toRead = nbChar;
-            else
-                toRead = status.cbInQue;
-
-            //Try to read the require number of chars, and return the number of read bytes on success
-            if (ReadFile(m_SerialHandle, buffer, toRead, &bytesRead, NULL))
-                return (int)bytesRead;
+            DWORD bytesRead;
+            std::string msg(status.cbInQue + 1, 0);
+            if (ReadFile(m_SerialHandle, msg.data(), status.cbInQue, &bytesRead, NULL))
+            {
+                if (bytesRead != status.cbInQue)
+                    Log << "Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
+                return msg;
+            }
             else
             {
                 m_LastErrorMsg = "Failed to read from serial connection. " + GetWinError();
                 Err << m_LastErrorMsg << Endl;
             }
         }
-        return 0;
+        return std::string();
     }
 
 

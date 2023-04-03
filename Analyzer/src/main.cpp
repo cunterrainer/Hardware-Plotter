@@ -1,4 +1,6 @@
 #include <string>
+#include <optional>
+#include <utility>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -36,27 +38,16 @@ void LinePlot()
 }
 
 
-void Connect(const std::string& port, int selectedBaudRate)
+std::optional<Serial::Serial> Connect(const std::string& port, int selectedBaudRate)
 {
     Serial::Serial serial(port, selectedBaudRate);
     if (!serial.IsConnected())
     {
         Err << serial.GetLastErrorMsg() << Endl;
         MsgBoxError(serial.GetLastErrorMsg().data());
-        return;
+        return std::nullopt;
     }
-    
-    char incomingData[256] = "";
-    unsigned int dataLength = 255;
-    int readResult = 0;
-
-    while (serial.IsConnected())
-    {
-        readResult = serial.ReadData(incomingData, dataLength);
-        incomingData[readResult] = 0;
-
-        printf("%s", incomingData);
-    }
+    return std::move(serial);
 }
 
 
@@ -71,6 +62,7 @@ int main()
         return content;
     }();
 
+    Serial::Serial serial;
     const Window window;
     while (window.IsOpen())
     {
@@ -82,7 +74,12 @@ int main()
         static int selectedRate = 0;
         if (ImGui::Button("Listen", {150, 0}))
         {
-            Connect(ports[(size_t)selectedPort].com, selectedRate);
+            if (serial.IsConnected())
+                serial.Disconnect();
+
+            std::optional<Serial::Serial> optSerial = Connect(ports[(size_t)selectedPort].com, selectedRate);
+            if (optSerial.has_value())
+                serial = std::move(optSerial.value());
         }
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
@@ -91,6 +88,13 @@ int main()
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
         ImGui::End();
+
+        if (serial.IsConnected())
+        {
+            std::string e = serial.ReadData();
+            if(!e.empty())
+                printf("%s ", e.c_str());
+        }
         window.EndFrame();
     }
     return 0;
