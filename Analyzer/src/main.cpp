@@ -36,45 +36,14 @@ void LinePlot()
 }
 
 
-int main()
+void Connect(const std::string& port)
 {
-    const Window window;
-    while (window.IsOpen())
-    {
-        window.StartFrame();
-        ImGui::SetNextWindowPos({0, 0});
-        ImGui::SetNextWindowSize({ window.GetSize().x, 43.f });
-        ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
-        static int selectedItem = 0;
-        ImGui::SetNextItemWidth(150);
-
-        static std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
-        static std::string comboboxContent = [&]() {
-            std::string content;
-            for (const Serial::Port& port : ports)
-                content += port.com + '\n' + port.device + '\0';
-            return content; 
-        }();
-        ImGui::Combo("##PortCombo", &selectedItem, comboboxContent.c_str());
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(150);
-        ImGui::Combo("baud", &selectedItem, Serial::Serial::BaudRates.data());
-        ImGui::End();
-        ImGui::ShowMetricsWindow();
-        window.EndFrame();
-    }
-    return 0;
-}
-
-
-void Connect()
-{
-    Serial::Serial serial("\\\\.\\COM3");
+    Serial::Serial serial("\\\\.\\" + port);
     //Serial* SP = new Serial("\\\\.\\COM3");    // adjust as needed
 
     if (serial.IsConnected())
         Log << "Serial connected" << Endl;
-
+    
     char incomingData[256] = "";
     int dataLength = 255;
     int readResult = 0;
@@ -88,6 +57,43 @@ void Connect()
 
         //Sleep(500);
     }
+}
+
+
+int main()
+{
+    const std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
+    const std::string comboboxContent = [&]()
+    {
+        std::string content;
+        for (const Serial::Port& port : ports)
+            content += port.com + '\n' + port.device + '\0';
+        return content;
+    }();
+
+    const Window window;
+    while (window.IsOpen())
+    {
+        window.StartFrame();
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize({ window.GetSize().x, 43.f });
+        ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
+        static int selectedPort = 0;
+        static int selectedRate = 0;
+        if (ImGui::Button("Listen"))
+        {
+            Connect(ports[selectedPort].com);
+        }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(150);
+        ImGui::Combo("##PortCombo", &selectedPort, comboboxContent.c_str());
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(150);
+        ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
+        ImGui::End();
+        window.EndFrame();
+    }
+    return 0;
 }
 
 

@@ -7,18 +7,13 @@
 
 namespace Serial
 {
-    Serial::Serial(const char* portName)
+    Serial::Serial(const std::string& portName)
     {
         //Try to connect to the given port
-        m_SerialHandle = CreateFileA(portName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
+        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
-            const DWORD lastError = GetLastError();
-            if (lastError == ERROR_FILE_NOT_FOUND)
-                Err << "Handle was not attached. Reason: '" << portName << "' not available" << Endl;
-            else
-                Err << "Handle was not attached. Error: " << lastError << Endl;
+            Err << "Handle was not attached. '" << portName << "' " << LogWinError() << Endl;
             return;
         }
 
@@ -93,6 +88,10 @@ namespace Serial
             {
                 return bytesRead;
             }
+            else
+            {
+                Err << "Failed to read from serial connection. " << LogWinError() << Endl;
+            }
         }
         //If nothing has been read, or that an error was detected return 0
         return 0;
@@ -141,8 +140,8 @@ namespace Serial
             if (error == 0)
             {
                 error = GetLastError();
-                if (error == ERROR_INSUFFICIENT_BUFFER)
-                    Err << "Failed to query ports due to insufficient buffer" << Endl;
+                if (error != ERROR_FILE_NOT_FOUND) // Is probably the case for most since we check 255 ports
+                    Err << "Failed to query ports. " << Logger::Error(error) << Endl;
             }
             else
                 ports.push_back({ comStr, ExtractDeviceName(targetPath) });

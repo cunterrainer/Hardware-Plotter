@@ -21,7 +21,7 @@ namespace Serial
         DWORD m_LastError;
     public:
         //Initialize Serial communication with the given COM port
-        explicit Serial(const char* portName);
+        explicit Serial(const std::string& portName);
         //Close the connection
         ~Serial();
         //Read data in a buffer, if nbChar is greater than the
