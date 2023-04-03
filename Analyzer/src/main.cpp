@@ -48,14 +48,17 @@ int main()
         static int selectedItem = 0;
         ImGui::SetNextItemWidth(150);
 
-        static std::vector<Serial::Port> ports = Serial::GetPorts();
+        static std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
         static std::string comboboxContent = [&]() {
             std::string content;
             for (const Serial::Port& port : ports)
                 content += port.com + '\n' + port.device + '\0';
             return content; 
         }();
-        ImGui::Combo("Port", &selectedItem, comboboxContent.c_str());
+        ImGui::Combo("##PortCombo", &selectedItem, comboboxContent.c_str());
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(150);
+        ImGui::Combo("baud", &selectedItem, Serial::Serial::BaudRates.data());
         ImGui::End();
         ImGui::ShowMetricsWindow();
         window.EndFrame();
@@ -90,7 +93,7 @@ void Connect()
 
 int W()
 {
-    std::vector<Serial::Port> ports = Serial::GetPorts();
+    std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
     for (auto c : ports)
         std::cout << c.com << ": " << c.device << std::endl;
     std::cin.get();

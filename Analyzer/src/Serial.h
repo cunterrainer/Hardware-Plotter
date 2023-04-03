@@ -1,12 +1,15 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <string_view>
 #include <Windows.h>
 
 namespace Serial
 {
     class Serial
     {
+    public:
+        static constexpr std::string_view BaudRates = "300""\0""600""\0""750""\0""1200""\0""2400""\0""4800""\0""9600""\0""19200""\0""31250""\0""38400""\0""57600""\0""74880""\0""115200""\0""230400""\0""250000""\0""460800""\0""500000""\0""921600""\0""1000000""\0""2000000";
     private:
         //Serial comm handler
         HANDLE m_SerialHandle;
@@ -38,6 +41,11 @@ namespace Serial
         std::string device;
     };
 
-    std::string ExtractDeviceName(const std::string& str) noexcept;
-    std::vector<Port> GetPorts() noexcept;
+    class PortListener
+    {
+    private:
+        static std::string ExtractDeviceName(const std::string& str) noexcept;
+    public:
+        static std::vector<Port> GetPorts() noexcept;
+    };
 }

@@ -29,7 +29,7 @@ namespace Serial
             Err << "Failed to get current serial parameters!" << Endl;
             return;
         }
-
+        
         //Define serial connection parameters for the arduino board
         dcbSerialParams.BaudRate = CBR_9600;
         dcbSerialParams.ByteSize = 8;
@@ -116,7 +116,7 @@ namespace Serial
     }
 
 
-    std::string ExtractDeviceName(const std::string& str) noexcept
+    std::string PortListener::ExtractDeviceName(const std::string& str) noexcept
     {
         std::string deviceName;
         for (size_t i = str.size() - 1; i != (std::numeric_limits<size_t>::max)(); --i)
@@ -130,7 +130,7 @@ namespace Serial
     }
 
 
-    std::vector<Port> GetPorts() noexcept
+    std::vector<Port> PortListener::GetPorts() noexcept
     {
         char targetPath[255] = { 0 };
         std::vector<Port> ports;
