@@ -7,25 +7,25 @@
 #include "Arial.h"
 #include "Log.h"
 
-Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
+Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
 {
-    glfwSetErrorCallback([](int error, const char* description){ Err << "Glfw Error " << error << ": " << description << End; });
+    glfwSetErrorCallback([](int error, const char* description){ Err << "Glfw Error " << error << ": " << description << Endl; });
 
     if (!glfwInit())
     {
-        Err << "glfwInit() failed!" << End;
+        Err << "glfwInit() failed!" << Endl;
         return;
     }
-    Log << "glfwInit() succeeded!" << End;
+    Log << "glfwInit() succeeded!" << Endl;
 
     // Create window with graphics context
     m_Window = glfwCreateWindow(width, height, title, monitor, share);
     if (m_Window == NULL)
     {
-        Err << "glfwCreateWindow() failed! w: " << width << " h : " << height << " t : " << title << End;
+        Err << "glfwCreateWindow() failed! w: " << width << " h : " << height << " t : " << title << Endl;
         return;
     }
-    Log << "Created window w: " << width << " h: " << height << " t: " << title << End;
+    Log << "Created window w: " << width << " h: " << height << " t: " << title << Endl;
         
     // center the window
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -36,27 +36,34 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     ImGuiInit();
     ImPlot::CreateContext();
-    Log << "Initialised ImPlot" << End;
+    Log << "Initialised ImPlot" << Endl;
 }
 
 
-Window::~Window()
+Window::~Window() noexcept
 {
     // Cleanup
     ImPlot::DestroyContext();
-    Log << "Shutdown ImPlot" << End;
+    Log << "Shutdown ImPlot" << Endl;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    Log << "Shutdown ImGui" << End;
+    Log << "Shutdown ImGui" << Endl;
 
     glfwDestroyWindow(m_Window);
     glfwTerminate();
-    Log << "Shutdown glfw" << End;
+    Log << "Shutdown glfw" << Endl;
 }
 
 
-void Window::ImGuiInit(const char* iniFileName) const
+ImVec2 Window::GetSize() const noexcept
+{
+    const ImGuiIO& io = ImGui::GetIO();
+    return { io.DisplaySize.x, io.DisplaySize.y };
+}
+
+
+void Window::ImGuiInit(const char* iniFileName) const noexcept
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -66,11 +73,11 @@ void Window::ImGuiInit(const char* iniFileName) const
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
     ImGui::StyleColorsDark();
-    Log << "Initialised ImGui" << End;
+    Log << "Initialised ImGui" << Endl;
 }
 
 
-void Window::ImGuiStartFrame() const
+void Window::ImGuiStartFrame() const noexcept
 {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -79,7 +86,7 @@ void Window::ImGuiStartFrame() const
 }
 
 
-void Window::ImGuiRender() const
+void Window::ImGuiRender() const noexcept
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

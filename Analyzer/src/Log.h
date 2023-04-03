@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <ostream>
-#define End std::endl
+#define Endl std::endl
 
 #ifdef DEBUG
 struct Logger

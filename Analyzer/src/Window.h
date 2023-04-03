@@ -8,20 +8,22 @@ class Window
 private:
 	GLFWwindow* m_Window = nullptr;
 public:
-	Window(int width = 1600, int height = 920, const char* title = "Window", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL);
-	~Window();
+	Window(int width = 1600, int height = 920, const char* title = "Window", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
+	~Window() noexcept;
 
 	// loop
-	inline bool IsOpen()     const { return !glfwWindowShouldClose(m_Window); }
-	inline void Swap()       const { glfwSwapBuffers(m_Window);               }
-	inline void Clear()      const { glClear(GL_COLOR_BUFFER_BIT);            }
-	inline void PollEvents() const { glfwPollEvents();                        }
-	inline void WaitEvents() const { glfwWaitEvents();                        }
-	inline void StartFrame() const { Clear(); ImGuiStartFrame();              }
-	inline void EndFrame()   const { ImGuiRender(); PollEvents(); Swap();     }
+	inline bool IsOpen()     const noexcept { return !glfwWindowShouldClose(m_Window); }
+	inline void Swap()       const noexcept { glfwSwapBuffers(m_Window);               }
+	inline void Clear()      const noexcept { glClear(GL_COLOR_BUFFER_BIT);            }
+	inline void PollEvents() const noexcept { glfwPollEvents();                        }
+	inline void WaitEvents() const noexcept { glfwWaitEvents();                        }
+	inline void StartFrame() const noexcept { Clear(); ImGuiStartFrame();              }
+	inline void EndFrame()   const noexcept { ImGuiRender(); PollEvents(); Swap();     }
+
+	ImVec2 GetSize() const noexcept;
 
 	// ImGui
-	void ImGuiInit(const char* iniFileName = nullptr) const;
-	void ImGuiStartFrame() const;
-	void ImGuiRender() const;
+	void ImGuiInit(const char* iniFileName = nullptr) const noexcept;
+	void ImGuiStartFrame() const noexcept;
+	void ImGuiRender() const noexcept;
 };
