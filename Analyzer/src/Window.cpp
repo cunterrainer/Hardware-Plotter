@@ -1,85 +1,64 @@
-#include <Windows.h>
-
 #include "GLFW/glfw3.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
+#include "ImPlot/implot.h"
 
 #include "Window.h"
 #include "Arial.h"
 #include "Log.h"
 
-void WindowSizeCallback(GLFWwindow*, int, int)
-{
-    GetWindow().SetResized();
-}
-
-//public
 Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share)
 {
-    glfwSetErrorCallback([](int error, const char* description){ Err << "Glfw Error " << error << ": " << description << std::endl; });
+    glfwSetErrorCallback([](int error, const char* description){ Err << "Glfw Error " << error << ": " << description << End; });
 
     if (!glfwInit())
     {
-        Err << "glfwInit() failed!" << std::endl;
+        Err << "glfwInit() failed!" << End;
         return;
     }
-    Log << "glfwInit() succeeded!" << std::endl;
+    Log << "glfwInit() succeeded!" << End;
 
     // Create window with graphics context
     m_Window = glfwCreateWindow(width, height, title, monitor, share);
     if (m_Window == NULL)
     {
-        Err << "glfwCreateWindow() failed! w: " << width << " h : " << height << " t : " << title << std::endl;
+        Err << "glfwCreateWindow() failed! w: " << width << " h : " << height << " t : " << title << End;
         return;
     }
-    Log << "Created window w: " << width << " h: " << height << " t: " << title << std::endl;
+    Log << "Created window w: " << width << " h: " << height << " t: " << title << End;
         
     // center the window
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(m_Window, (mode->width - width) / 2, (mode->height - height) / 2);
 
-    glfwSetWindowSizeCallback(m_Window, WindowSizeCallback);
     glfwMakeContextCurrent(m_Window);
     glfwSwapInterval(1);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     ImGuiInit();
+    ImPlot::CreateContext();
+    Log << "Initialised ImPlot" << End;
 }
 
 
 Window::~Window()
 {
     // Cleanup
+    ImPlot::DestroyContext();
+    Log << "Shutdown ImPlot" << End;
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    Log << "Shutdown ImGui" << std::endl;
+    Log << "Shutdown ImGui" << End;
 
     glfwDestroyWindow(m_Window);
     glfwTerminate();
-    Log << "Shutdown glfw" << std::endl;
-}
-
-
-ImVec2 Window::GetSize() const
-{
-    static float s_Width = 0.f;
-    static float s_Height = 0.f;
-    if (m_Resized)
-    {
-        int width, height;
-        glfwGetWindowSize(m_Window, &width, &height);
-        s_Width = (float)width;
-        s_Height = (float)height;
-        m_Resized = false;
-    }
-    return { s_Width, s_Height };
+    Log << "Shutdown glfw" << End;
 }
 
 
 void Window::ImGuiInit(const char* iniFileName) const
 {
     ImGui::CreateContext();
-
     ImGuiIO& io = ImGui::GetIO();
     io.Fonts->AddFontFromMemoryCompressedTTF(sg_ArialCompressedData, sg_ArialCompressedSize, 19);
     io.IniFilename = iniFileName;
@@ -87,7 +66,7 @@ void Window::ImGuiInit(const char* iniFileName) const
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
     ImGui::StyleColorsDark();
-    Log << "Initialised ImGui" << std::endl;
+    Log << "Initialised ImGui" << End;
 }
 
 

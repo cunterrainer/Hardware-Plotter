@@ -1,7 +1,9 @@
 #pragma once
 #include <iostream>
 #include <ostream>
+#define End std::endl
 
+#ifdef DEBUG
 struct Logger
 {
 private:
@@ -29,5 +31,23 @@ public:
         return *this;
     }
 };
-static inline const Logger Log("[INFO] ");
-static inline const Logger Err("[ERROR] ");
+inline const Logger Log("[INFO] ");
+inline const Logger Err("[ERROR] ");
+
+#else
+struct Logger
+{
+    inline const Logger& operator<<(std::ostream& (*)(std::ostream&)) const noexcept
+    {
+        return *this;
+    }
+
+    template <class T>
+    inline const Logger& operator<<(const T&) const noexcept
+    {
+        return *this;
+    }
+};
+inline const Logger Log;
+inline const Logger Err;
+#endif
