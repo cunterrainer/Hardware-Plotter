@@ -27,3 +27,5 @@ public:
 	void ImGuiStartFrame() const noexcept;
 	void ImGuiRender() const noexcept;
 };
+
+int MsgBoxError(const char* message);

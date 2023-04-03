@@ -4,9 +4,8 @@
 #include <string>
 #include <system_error>
 #define Endl std::endl
-#define LogWinError() Logger::Error(GetLastError())
+#define GetWinError() Logger::Error(GetLastError())
 
-#ifdef DEBUG
 struct Logger
 {
 public:
@@ -41,25 +40,3 @@ public:
 };
 inline const Logger Log("[INFO] ");
 inline const Logger Err("[ERROR] ");
-
-#else
-struct Logger
-{
-    static std::string Error(int)
-    {
-        return std::string;
-    }
-    inline const Logger& operator<<(std::ostream& (*)(std::ostream&)) const noexcept
-    {
-        return *this;
-    }
-
-    template <class T>
-    inline const Logger& operator<<(const T&) const noexcept
-    {
-        return *this;
-    }
-};
-inline const Logger Log;
-inline const Logger Err;
-#endif

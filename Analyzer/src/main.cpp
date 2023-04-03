@@ -39,9 +39,12 @@ void LinePlot()
 void Connect(const std::string& port, int selectedBaudRate)
 {
     Serial::Serial serial(port, selectedBaudRate);
-
-    if (serial.IsConnected())
-        Log << "Serial connected" << Endl;
+    if (!serial.IsConnected())
+    {
+        Err << serial.GetLastErrorMsg() << Endl;
+        MsgBoxError(serial.GetLastErrorMsg().data());
+        return;
+    }
     
     char incomingData[256] = "";
     int dataLength = 255;
@@ -77,7 +80,7 @@ int main()
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         static int selectedPort = 0;
         static int selectedRate = 0;
-        if (ImGui::Button("Listen"))
+        if (ImGui::Button("Listen", {150, 0}))
         {
             Connect(ports[selectedPort].com, selectedRate);
         }

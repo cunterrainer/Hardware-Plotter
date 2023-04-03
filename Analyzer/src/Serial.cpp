@@ -1,19 +1,21 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <Windows.h>
 
 #include "Serial.h"
 #include "Log.h"
 
 namespace Serial
 {
-    Serial::Serial(const std::string& portName, int selectedBaudRate)
+    Serial::Serial(std::string portName, int selectedBaudRate)
     {
         //Try to connect to the given port
-        m_SerialHandle = CreateFileA(std::string("\\\\.\\" + portName).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        portName = "\\\\.\\" + portName;
+        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
-            Err << "Handle was not attached. '" << portName << "' " << LogWinError() << Endl;
+            m_LastErrorMsg = "Handle was not attached. '" + portName + "' " + GetWinError();
             return;
         }
 
@@ -21,7 +23,7 @@ namespace Serial
         DCB dcbSerialParams = {0};
         if (!GetCommState(m_SerialHandle, &dcbSerialParams))
         {
-            Err << "Failed to get current serial parameters!" << Endl;
+            m_LastErrorMsg = "Failed to get current serial parameters!";
             return;
         }
         
@@ -36,7 +38,7 @@ namespace Serial
 
         //Set the parameters and check for their proper application
         if (!SetCommState(m_SerialHandle, &dcbSerialParams))
-            Err << "Could not set Serial Port parameters" << Endl;
+            m_LastErrorMsg = "Could not set Serial Port parameters";
         else
         {
             m_Connected = true;
@@ -60,42 +62,34 @@ namespace Serial
 
     int Serial::ReadData(char* buffer, unsigned int nbChar)
     {
-        //Number of bytes we'll have read
         DWORD bytesRead;
-        //Number of bytes we'll really ask to read
         unsigned int toRead;
 
-        //Use the ClearCommError function to get status info on the Serial port
-        ClearCommError(m_SerialHandle, &m_LastError, &m_Status);
+        DWORD lastError = 0;
+        COMSTAT status = {0};
+        ClearCommError(m_SerialHandle, &lastError, &status); // Get info about the serial port
 
         //Check if there is something to read
-        if (m_Status.cbInQue > 0)
+        if (status.cbInQue > 0)
         {
             //If there is we check if there is enough data to read the required number
             //of characters, if not we'll read only the available characters to prevent
             //locking of the application.
-            if (m_Status.cbInQue > nbChar)
-            {
+            if (status.cbInQue > nbChar)
                 toRead = nbChar;
-            }
             else
-            {
-                toRead = m_Status.cbInQue;
-            }
+                toRead = status.cbInQue;
 
             //Try to read the require number of chars, and return the number of read bytes on success
             if (ReadFile(m_SerialHandle, buffer, toRead, &bytesRead, NULL))
-            {
                 return bytesRead;
-            }
             else
             {
-                Err << "Failed to read from serial connection. " << LogWinError() << Endl;
+                m_LastErrorMsg = "Failed to read from serial connection. " + GetWinError();
+                Err << m_LastErrorMsg << Endl;
             }
         }
-        //If nothing has been read, or that an error was detected return 0
         return 0;
-
     }
 
 
@@ -107,7 +101,10 @@ namespace Serial
         if (!WriteFile(m_SerialHandle, (void*)buffer, nbChar, &bytesSend, 0))
         {
             //In case it don't work get comm error and return false
-            ClearCommError(m_SerialHandle, &m_LastError, &m_Status);
+            DWORD lastError = 0;
+            COMSTAT status = { 0 };
+            ClearCommError(m_SerialHandle, &lastError, &status);
+            m_LastErrorMsg = GetWinError();
             return false;
         }
         else

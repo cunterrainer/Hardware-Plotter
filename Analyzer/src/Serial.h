@@ -35,17 +35,12 @@ namespace Serial
             {19, 2000000}
         };
     private:
-        //Serial comm handler
         HANDLE m_SerialHandle;
-        //Connection status
         bool m_Connected = false;
-        //Get various information about the connection
-        COMSTAT m_Status;
-        //Keep track of last error
-        DWORD m_LastError;
+        std::string m_LastErrorMsg;
     public:
         //Initialize Serial communication with the given COM port
-        explicit Serial(const std::string& portName, int selectedBaudRate);
+        explicit Serial(std::string portName, int selectedBaudRate);
         //Close the connection
         ~Serial();
         //Read data in a buffer, if nbChar is greater than the
@@ -57,6 +52,7 @@ namespace Serial
         //return true on success.
         bool WriteData(const char* buffer, unsigned int nbChar);
         constexpr bool IsConnected() const noexcept { return m_Connected; }
+        std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
     };
 
     struct Port
