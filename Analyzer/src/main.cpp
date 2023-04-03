@@ -38,8 +38,7 @@ void LinePlot()
 
 void Connect(const std::string& port, int selectedBaudRate)
 {
-    Serial::Serial serial("\\\\.\\" + port, selectedBaudRate);
-    //Serial* SP = new Serial("\\\\.\\COM3");    // adjust as needed
+    Serial::Serial serial(port, selectedBaudRate);
 
     if (serial.IsConnected())
         Log << "Serial connected" << Endl;

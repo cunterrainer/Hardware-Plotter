@@ -10,7 +10,7 @@ namespace Serial
     Serial::Serial(const std::string& portName, int selectedBaudRate)
     {
         //Try to connect to the given port
-        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        m_SerialHandle = CreateFileA(std::string("\\\\.\\" + portName).c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
             Err << "Handle was not attached. '" << portName << "' " << LogWinError() << Endl;
