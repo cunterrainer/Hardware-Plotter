@@ -1,4 +1,4 @@
-#include <thread>
+#include <string>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -48,9 +48,9 @@ int W()
 }
 
 
-int main()
+void Connect()
 {
-    Serial serial("\\\\.\\COM3");
+    Serial::Serial serial("\\\\.\\COM3");
     //Serial* SP = new Serial("\\\\.\\COM3");    // adjust as needed
 
     if (serial.IsConnected())
@@ -69,5 +69,14 @@ int main()
 
         //Sleep(500);
     }
+}
+
+
+int main()
+{
+    std::vector<Serial::Port> ports = Serial::GetPorts();
+    for (auto c : ports)
+        std::cout << c.com << ": " << c.device << std::endl;
+    std::cin.get();
     return 0;
 }
