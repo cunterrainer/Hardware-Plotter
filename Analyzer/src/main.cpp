@@ -36,12 +36,28 @@ void LinePlot()
 }
 
 
-int W()
+int main()
 {
     const Window window;
     while (window.IsOpen())
     {
         window.StartFrame();
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize({ window.GetSize().x, 43.f });
+        ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
+        static int selectedItem = 0;
+        ImGui::SetNextItemWidth(150);
+
+        static std::vector<Serial::Port> ports = Serial::GetPorts();
+        static std::string comboboxContent = [&]() {
+            std::string content;
+            for (const Serial::Port& port : ports)
+                content += port.com + '\n' + port.device + '\0';
+            return content; 
+        }();
+        ImGui::Combo("Port", &selectedItem, comboboxContent.c_str());
+        ImGui::End();
+        ImGui::ShowMetricsWindow();
         window.EndFrame();
     }
     return 0;
@@ -72,7 +88,7 @@ void Connect()
 }
 
 
-int main()
+int W()
 {
     std::vector<Serial::Port> ports = Serial::GetPorts();
     for (auto c : ports)
