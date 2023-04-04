@@ -103,7 +103,7 @@ namespace Serial
         if (status.cbInQue > 0)
         {
             DWORD bytesRead;
-            std::string msg(status.cbInQue + 1, 0);
+            std::string msg(status.cbInQue, 0);
             if (ReadFile(m_SerialHandle, msg.data(), status.cbInQue, &bytesRead, NULL))
             {
                 if (bytesRead != status.cbInQue)

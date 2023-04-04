@@ -1,6 +1,8 @@
 #include <string>
 #include <optional>
 #include <utility>
+#include <vector>
+#include <sstream>
 #include <algorithm>
 
 #include "ImGui/imgui.h"
@@ -27,7 +29,8 @@ void LinePlot(const Window& w, T val, T ti)
     static double yOffset = 0;
     static double yMax = 0;
     static double yMin = 0;
-    if (val != -1)
+
+    if (val != -1.0)
     {
         greatestValue = (std::max)(greatestValue, val);
         lowestValue = (std::min)(lowestValue, val);
@@ -41,16 +44,8 @@ void LinePlot(const Window& w, T val, T ti)
             yMin = lowestValue - yOffset;
         else
             yMin = lowestValue + yOffset;
-        if (time.empty())
-        {
-            value.push_back(val);
-            time.push_back(ti);
-        }
-        else if(time.back() != ti)
-        {
-            value.push_back(val);
-            time.push_back(ti);
-        }
+        value.push_back(val);
+        time.push_back(ti);
     }
     
     if (ImPlot::BeginPlot("Line Plots", {-1,-1}))
@@ -62,6 +57,38 @@ void LinePlot(const Window& w, T val, T ti)
     }
     ImGui::End();
     ImGui::PopStyleVar();
+}
+
+
+std::string RemoveRedundantChars(const std::string& str)
+{
+    std::string n;
+    for (char c : str)
+    {
+        if (std::isalnum(c))
+            n += c;
+    }
+    return n;
+}
+
+
+std::vector<std::string> SplitStringByChar(const std::string& str)
+{
+    std::stringstream test(str);
+    std::string segment;
+    std::vector<std::string> seglist;
+
+    while (std::getline(test, segment, '\n'))
+    {
+        segment = RemoveRedundantChars(segment);
+        if(segment.size() > 0)
+            seglist.push_back(segment);
+    }
+    if(str.back() != '\n')
+    {
+        seglist.pop_back();
+    }
+    return seglist;
 }
 
 
@@ -116,24 +143,28 @@ int main()
         ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
         ImGui::End();
 
-        int c = -1;
         if (serial.IsConnected())
         {
+            static std::string data;
             std::string e = serial.ReadData();
             if (!e.empty())
             {
-                try
+                data += e;
+                if (data.find('\n') != std::string::npos)
                 {
-                    c = stoi(e);
-                    //Log << stoi(e) << " | " << serial.GetTimeSinceStart() << Endl;
-                    //LinePlot(window, std::stoi(e), (int)serial.GetTimeSinceStart());
-                }
-                catch (...)
-                {
-                    c = -1;
+                    Log << "Original: " << data << " end" << Endl;
+                    std::vector<std::string> vec = SplitStringByChar(data);
+                    for (const auto& str : vec)
+                    {
+                        LinePlot(window, std::stod(str), serial.GetTimeSinceStart());
+                    }
+                    size_t index = data.find_last_of('\n');
+                    data = std::string(std::next(data.begin(), index+1), data.end());
+                    Log << "Data: " << data << " end" << Endl;
                 }
             }
-            LinePlot(window, (double)c, serial.GetTimeSinceStart());
+            LinePlot(window, -1.0, serial.GetTimeSinceStart());
+            Log << serial.GetTimeSinceStart() << Endl;
         }
         window.EndFrame();
     }

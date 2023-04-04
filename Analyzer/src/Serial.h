@@ -56,7 +56,7 @@ namespace Serial
         bool WriteData(const char* buffer, unsigned int nbChar);
         constexpr bool IsConnected() const noexcept { return m_Connected; }
         std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
-        double GetTimeSinceStart() const { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_StartTime).count() / 1000.0; }
+        double GetTimeSinceStart() const { return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_StartTime).count() / 1000000.0; }
     };
 
     struct Port
