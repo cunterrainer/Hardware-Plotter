@@ -39,10 +39,11 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
 
 std::string RemoveRedundantChars(const std::string& str)
 {
+    static constexpr std::string_view validChars = ".-:()[]{}";
     std::string n;
     for (char c : str)
     {
-        if (std::isalnum(static_cast<unsigned char>(c)) || c == '.' || c == '-')
+        if (std::isalnum(static_cast<unsigned char>(c)) || validChars.find(c) != std::string::npos)
             n += c;
     }
     return n;
@@ -58,8 +59,6 @@ std::vector<std::string> SplitStringByChar(const std::string& str)
     while (std::getline(test, segment, '\n'))
     {
         segment = RemoveRedundantChars(segment);
-        if (segment == "ovf" || segment == "nan" || segment == "inf")
-            continue;
         if(segment.size() > 0)
             seglist.push_back(segment);
     }
@@ -74,7 +73,6 @@ int main()
     Serial::Serial serial;
     std::string data;
     Plot<double> plot;
-    plot.AddGraph();
     SettingsWindow settings;
     const Window window;
 
@@ -102,8 +100,14 @@ int main()
                 std::vector<std::string> vec = SplitStringByChar(data);
                 for (const auto& str : vec)
                 {
+                    std::string graphName = str.substr(0, str.find(':'));
+                    std::string value = str.substr(str.find(':') + 1);
+                    if (value == "ovf" || value == "nan" || value == "inf")
+                        continue;
+
+                    size_t graph = plot.AddGraph(graphName);
                     Log << "Str: " << str << Endl;
-                    plot.Add(0, serial.GetTimeSinceStart(), std::stod(str));
+                    plot.Add(graph, serial.GetTimeSinceStart(), std::stod(value));
                 }
                 size_t index = data.find_last_of('\n')+1;
                 data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());

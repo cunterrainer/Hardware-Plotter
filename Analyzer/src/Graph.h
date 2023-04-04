@@ -1,7 +1,8 @@
 #pragma once
+#include <cmath>
 #include <vector>
 #include <limits>
-#include <cmath>
+#include <string>
 #include <cstdlib>
 #include <algorithm>
 #include <type_traits>
@@ -14,6 +15,7 @@ private:
 private:
     std::vector<T> m_Xs;
     std::vector<T> m_Ys;
+    const std::string m_Name;
     T m_GreatestY = std::numeric_limits<T>::lowest();
     T m_LowestY = std::numeric_limits<T>::max();
     double m_YMax = std::numeric_limits<double>::lowest();
@@ -26,7 +28,7 @@ private:
         m_YMin = m_LowestY + yOffset;
     }
 public:
-    inline Graph()
+    inline explicit Graph(const std::string& name) : m_Name(name)
     {
         m_Xs.reserve(1000); // arbitrarily chosen
         m_Ys.reserve(1000);
@@ -46,4 +48,5 @@ public:
     inline double GetYMax() const { return m_YMax; }
     inline double GetYMin() const { return m_YMin; }
     inline int GetCount() const { return static_cast<int>(m_Xs.size()); }
+    inline const char* GetName() const { return m_Name.c_str(); }
 };

@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <type_traits>
+#include <unordered_map>
 
 #include "ImPlot/implot.h"
 
@@ -15,12 +16,21 @@ class Plot
 {
 private:
     std::vector<Graph<T>> m_Graphs;
+    std::unordered_map<std::string, size_t> m_GraphsNameMap; // maps a name to the index
     mutable double m_YMax = std::numeric_limits<double>::lowest();
     mutable double m_YMin = std::numeric_limits<double>::max();
 public:
-    inline void AddGraph()
+    inline size_t AddGraph(const std::string& name)
     {
-        m_Graphs.push_back({});
+        const std::unordered_map<std::string, size_t>::const_iterator it = m_GraphsNameMap.find(name);
+        if (it == m_GraphsNameMap.end())
+        {
+            static size_t idx = 0;
+            m_Graphs.push_back(Graph<T>(name));
+            m_GraphsNameMap[name] = idx;
+            return idx++;
+        }
+        return it->second;
     }
 
     inline void Add(size_t graph, T x, T y)
@@ -33,7 +43,7 @@ public:
     inline void RenderLines() const
     {
         for(const auto& graph : m_Graphs)
-            ImPlot::PlotLine("", graph.GetX(), graph.GetY(), graph.GetCount());
+            ImPlot::PlotLine(graph.GetName(), graph.GetX(), graph.GetY(), graph.GetCount());
     }
 
     inline double GetYMax() const { return m_YMax; }
