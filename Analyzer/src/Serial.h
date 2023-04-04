@@ -42,6 +42,7 @@ namespace Serial
         bool m_Connected = false;
         bool m_FirstRead = true;
         std::string m_LastErrorMsg;
+        std::string m_RedData = std::string(255, 0);
         std::chrono::steady_clock::time_point m_StartTime;
     public:
         Serial() = default;
