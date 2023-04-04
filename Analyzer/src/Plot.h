@@ -6,44 +6,36 @@
 #include <algorithm>
 #include <type_traits>
 
+#include "ImPlot/implot.h"
+
+#include "Graph.h"
+
 template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>, bool> = true>
 class Plot
 {
 private:
-    static constexpr double YPercentageScalar = 0.05;
-private:
-    std::vector<T> m_Values;
-    std::vector<T> m_Times;
-    T m_GreatestValue = std::numeric_limits<T>::lowest();
-    T m_LowestValue = std::numeric_limits<T>::max();
-    T m_YMax = 0;
-    T m_YMin = 0;
-private:
-    inline void CalculateYRange()
-    {
-        const double yOffset = -std::max(std::abs(m_GreatestValue * YPercentageScalar), std::abs(m_LowestValue * YPercentageScalar));
-        m_YMax = m_GreatestValue - yOffset;
-        m_YMin = m_LowestValue + yOffset;
-    }
+    std::vector<Graph<T>> m_Graphs;
+    mutable double m_YMax = std::numeric_limits<double>::lowest();
+    mutable double m_YMin = std::numeric_limits<double>::max();
 public:
-    inline Plot()
+    inline void AddGraph()
     {
-        m_Values.reserve(1000); // arbitrarily chosen
-        m_Times.reserve(1000);
+        m_Graphs.push_back({});
     }
 
-    inline void Add(T value, T time)
+    inline void Add(size_t graph, T x, T y)
     {
-        m_GreatestValue = std::max(m_GreatestValue, value);
-        m_LowestValue = std::min(m_LowestValue, value);
-        CalculateYRange();
-        m_Values.push_back(value);
-        m_Times.push_back(time);
+        m_Graphs[graph].Add(x, y);
+        m_YMax = std::max(m_YMax, m_Graphs[graph].GetYMax());
+        m_YMin = std::min(m_YMin, m_Graphs[graph].GetYMin());
     }
 
-    inline const T* GetTimes()  const { return m_Times.data(); }
-    inline const T* GetValues() const { return m_Values.data(); }
-    inline T GetYMax() const { return m_YMax; }
-    inline T GetYMin() const { return m_YMin; }
-    inline int GetCount() const { return static_cast<int>(m_Times.size()); }
+    inline void RenderLines() const
+    {
+        for(const auto& graph : m_Graphs)
+            ImPlot::PlotLine("", graph.GetX(), graph.GetY(), graph.GetCount());
+    }
+
+    inline double GetYMax() const { return m_YMax; }
+    inline double GetYMin() const { return m_YMin; }
 };

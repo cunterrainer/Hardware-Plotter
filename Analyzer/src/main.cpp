@@ -27,7 +27,9 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
-        ImPlot::PlotLine("", plot.GetTimes(), plot.GetValues(), plot.GetCount());
+        //Log << plot.GetYMin() << " | " << plot.GetYMax() << Endl;
+        plot.RenderLines();
+        //ImPlot::PlotLine("", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -72,6 +74,7 @@ int main()
     Serial::Serial serial;
     std::string data;
     Plot<double> plot;
+    plot.AddGraph();
     SettingsWindow settings;
     const Window window;
 
@@ -88,11 +91,11 @@ int main()
             data.clear();
         }
 
-        const std::string_view e = serial.ReadData();
-        if (!e.empty())
+        const std::string_view redData = serial.ReadData();
+        if (!redData.empty())
         {
-            Log << "E: " << e << " end" << Endl;
-            data += e;
+            Log << "E: " << redData << " end" << Endl;
+            data += redData;
             if (data.find('\n') != std::string::npos)
             {
                 Log << "Original: " << data << " end" << Endl;
@@ -100,7 +103,7 @@ int main()
                 for (const auto& str : vec)
                 {
                     Log << "Str: " << str << Endl;
-                    plot.Add(std::stod(str), serial.GetTimeSinceStart());
+                    plot.Add(0, serial.GetTimeSinceStart(), std::stod(str));
                 }
                 size_t index = data.find_last_of('\n')+1;
                 data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
