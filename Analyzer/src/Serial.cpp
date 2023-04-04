@@ -8,49 +8,6 @@
 
 namespace Serial
 {
-    Serial::Serial(std::string portName, int selectedBaudRate)
-    {
-        //Try to connect to the given port
-        portName = "\\\\.\\" + portName;
-        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (m_SerialHandle == INVALID_HANDLE_VALUE)
-        {
-            m_LastErrorMsg = "Handle was not attached. '" + portName + "' " + GetWinError();
-            return;
-        }
-
-        //If connected we try to set the comm parameters
-        DCB dcbSerialParams;
-        if (!GetCommState(m_SerialHandle, &dcbSerialParams))
-        {
-            m_LastErrorMsg = "Failed to get current serial parameters!";
-            return;
-        }
-        
-        //Define serial connection parameters for the arduino board
-        dcbSerialParams.BaudRate = BaudRateMap.at(selectedBaudRate);
-        dcbSerialParams.ByteSize = 8;
-        dcbSerialParams.StopBits = ONESTOPBIT;
-        dcbSerialParams.Parity = NOPARITY;
-        //Setting the DTR to Control_Enable ensures that the Arduino is properly
-        //reset upon establishing a connection
-        dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
-
-        //Set the parameters and check for their proper application
-        if (!SetCommState(m_SerialHandle, &dcbSerialParams))
-            m_LastErrorMsg = "Could not set Serial Port parameters";
-        else
-        {
-            m_Connected = true;
-            //Flush any remaining characters in the buffers 
-            PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-            //We wait 2s as the arduino board will be reseting since it resets every time you connect
-            Sleep(2000);
-            m_StartTime = std::chrono::steady_clock::now();
-        }
-    }
-
-
     Serial::~Serial()
     {
         Disconnect();
@@ -83,6 +40,52 @@ namespace Serial
     }
 
 
+    bool Serial::Connect(std::string portName, int selectedBaudRate) noexcept
+    {
+        Disconnect();
+        //Try to connect to the given port
+        portName = "\\\\.\\" + portName;
+        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (m_SerialHandle == INVALID_HANDLE_VALUE)
+        {
+            m_LastErrorMsg = "(Serial) Handle was not attached. '" + portName + "' " + GetWinError();
+            return false;
+        }
+
+        //If connected we try to set the comm parameters
+        DCB dcbSerialParams;
+        if (!GetCommState(m_SerialHandle, &dcbSerialParams))
+        {
+            m_LastErrorMsg = "(Serial) Failed to get current serial parameters!";
+            return false;
+        }
+
+        //Define serial connection parameters for the arduino board
+        dcbSerialParams.BaudRate = BaudRateMap.at(selectedBaudRate);
+        dcbSerialParams.ByteSize = 8;
+        dcbSerialParams.StopBits = ONESTOPBIT;
+        dcbSerialParams.Parity = NOPARITY;
+        //Setting the DTR to Control_Enable ensures that the Arduino is properly
+        //reset upon establishing a connection
+        dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+
+        //Set the parameters and check for their proper application
+        if (!SetCommState(m_SerialHandle, &dcbSerialParams))
+        {
+            m_LastErrorMsg = "(Serial) Could not set Serial Port parameters";
+            return false;
+        }
+
+        m_Connected = true;
+        //Flush any remaining characters in the buffers 
+        PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
+        //We wait 2s as the arduino board will be reseting since it resets every time you connect
+        Sleep(2000);
+        m_StartTime = std::chrono::steady_clock::now();
+        return true;
+    }
+
+
     void Serial::Disconnect() noexcept
     {
         if (m_Connected)
@@ -111,7 +114,7 @@ namespace Serial
             if (ReadFile(m_SerialHandle, msg.data(), status.cbInQue, &bytesRead, NULL))
             {
                 if (bytesRead != status.cbInQue)
-                    Log << "Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
+                    Log << "(Serial) Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
 
                 if (m_FirstRead)
                 {
@@ -122,7 +125,7 @@ namespace Serial
             }
             else
             {
-                m_LastErrorMsg = "Failed to read from serial connection. " + GetWinError();
+                m_LastErrorMsg = "(Serial) Failed to read from serial connection. " + GetWinError();
                 Err << m_LastErrorMsg << Endl;
             }
         }
@@ -175,7 +178,7 @@ namespace Serial
             {
                 error = GetLastError();
                 if (error != ERROR_FILE_NOT_FOUND) // Is probably the case for most since we check 255 ports
-                    Err << "Failed to query ports. " << Logger::Error(error) << Endl;
+                    Err << "(PortListener) Failed to query ports. " << Logger::Error(error) << Endl;
             }
             else
                 ports.push_back({ comStr, ExtractDeviceName(targetPath) });

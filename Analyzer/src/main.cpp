@@ -1,10 +1,8 @@
 #include <string>
-#include <optional>
 #include <utility>
 #include <vector>
 #include <sstream>
 #include <algorithm>
-#include <iomanip>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -24,10 +22,9 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("##Plotter", nullptr, IMGUI_WINDOW_FLAGS);
     
-    if (ImPlot::BeginPlot("Line Plots", {-1,-1}))
+    if (ImPlot::BeginPlot("##Line Plots", {-1,-1}))
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
-        //Log << plot.GetYMin() << " | " << plot.GetYMax() << Endl;
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
         ImPlot::PlotLine("value1", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
@@ -69,19 +66,6 @@ std::vector<std::string> SplitStringByChar(const std::string& str)
 }
 
 
-std::optional<Serial::Serial> Connect(const std::string& port, int selectedBaudRate)
-{
-    Serial::Serial serial(port, selectedBaudRate);
-    if (!serial.IsConnected())
-    {
-        Err << serial.GetLastErrorMsg() << Endl;
-        MsgBoxError(serial.GetLastErrorMsg().data());
-        return std::nullopt;
-    }
-    return serial;
-}
-
-
 int main()
 {
     const std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
@@ -105,13 +89,13 @@ int main()
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         static int selectedPort = 0;
         static int selectedRate = 0;
-        if (ImGui::Button("Listen", {150, 0}))
+        if (ImGui::Button("Connect", {150, 0}))
         {
-            serial.Disconnect();
-
-            std::optional<Serial::Serial> optSerial = Connect(ports[(size_t)selectedPort].com, selectedRate);
-            if (optSerial.has_value())
-                serial = std::move(optSerial.value());
+            if (!serial.Connect(ports[(size_t)selectedPort].com, selectedRate))
+            {
+                Err << serial.GetLastErrorMsg() << Endl;
+                MsgBoxError(serial.GetLastErrorMsg().data());
+            }
             data.clear();
         }
         ImGui::SameLine();
@@ -132,15 +116,15 @@ int main()
                 data += e;
                 if (data.find('\n') != std::string::npos)
                 {
-                    Log << "Original: " << data << " end" << Endl;
+                    //Log << "Original: " << data << " end" << Endl;
                     std::vector<std::string> vec = SplitStringByChar(data);
                     for (const auto& str : vec)
                     {
-                        Log << "Str: " << str << Endl;
+                        //Log << "Str: " << str << Endl;
                         plot.Add(std::stod(str), serial.GetTimeSinceStart());
                     }
-                    ptrdiff_t index = (ptrdiff_t)data.find_last_of('\n')+1;
-                    data = std::string(std::next(data.begin(), index), data.end());
+                    size_t index = data.find_last_of('\n')+1;
+                    data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
                     //Log << "Data: " << data << " end" << Endl;
                 }
             }

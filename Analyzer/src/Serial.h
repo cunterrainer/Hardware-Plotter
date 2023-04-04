@@ -45,13 +45,13 @@ namespace Serial
         std::chrono::steady_clock::time_point m_StartTime;
     public:
         Serial() = default;
-        Serial(std::string portName, int selectedBaudRate);
         ~Serial();
         Serial(Serial&& other) noexcept;
         Serial& operator=(Serial&& other) noexcept;
         Serial(const Serial&) = delete;
         Serial& operator=(const Serial&) = delete;
 
+        bool Connect(std::string portName, int selectedBaudRate) noexcept;
         void Disconnect() noexcept;
         std::string ReadData() noexcept;
         bool WriteData(const char* buffer, unsigned int nbChar);
