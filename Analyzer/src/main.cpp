@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <string_view>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -99,12 +100,14 @@ int main()
                 for (const auto& str : vec)
                 {
                     std::string graphName = str.substr(0, str.find(':'));
-                    std::string value = str.substr(str.find(':') + 1);
-                    if (value == "ovf" || value == "nan" || value == "inf")
-                        continue;
+                    std::string valueStr = str.substr(str.find(':') + 1);
 
+                    char* endptr;
+                    const double value = std::strtod(valueStr.c_str(), &endptr);
+                    if (endptr == valueStr.c_str() || *endptr != '\0')
+                        continue;
                     size_t graph = plot.AddGraph(graphName);
-                    plot.Add(graph, serial.GetTimeSinceStart(), std::stod(value));
+                    plot.Add(graph, serial.GetTimeSinceStart(), value);
                 }
                 size_t index = data.find_last_of('\n')+1;
                 data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
