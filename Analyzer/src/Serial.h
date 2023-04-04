@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <chrono>
 #include <string_view>
 #include <unordered_map>
 #include <Windows.h>
@@ -40,6 +41,7 @@ namespace Serial
         HANDLE m_SerialHandle = nullptr;
         bool m_Connected = false;
         std::string m_LastErrorMsg;
+        std::chrono::steady_clock::time_point m_StartTime;
     public:
         Serial() = default;
         Serial(std::string portName, int selectedBaudRate);
@@ -54,6 +56,7 @@ namespace Serial
         bool WriteData(const char* buffer, unsigned int nbChar);
         constexpr bool IsConnected() const noexcept { return m_Connected; }
         std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
+        double GetTimeSinceStart() const { return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - m_StartTime).count() / 1000.0; }
     };
 
     struct Port

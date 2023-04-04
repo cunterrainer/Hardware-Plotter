@@ -1,6 +1,7 @@
 #include <string>
 #include <optional>
 #include <utility>
+#include <algorithm>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -11,26 +12,52 @@
 #include "Log.h"
 
 
-void LinePlot()
+template <class T>
+void LinePlot(const Window& w, T val, T ti)
 {
-    //ImGui::SetNextWindowSize(window.GetSize());
-    ImGui::SetNextWindowPos({ 0, 0 });
+    ImGui::SetNextWindowSize({ w.GetSize().x, w.GetSize().y - 43.f});
+    ImGui::SetNextWindowPos({ 0, 43.f });
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-    ImGui::Begin("Test", nullptr, IMGUI_WINDOW_FLAGS);
+    ImGui::Begin("##Plotter", nullptr, IMGUI_WINDOW_FLAGS);
 
-    // f(x)=x^2
-    static float x[101], y[101];
-    for (int i = -50; i <= 50; ++i)
+    static std::vector<T> value;
+    static std::vector<T> time;
+    static T greatestValue = (std::numeric_limits<T>::min)();
+    static T lowestValue = (std::numeric_limits<T>::max)();
+    static double yOffset = 0;
+    static double yMax = 0;
+    static double yMin = 0;
+    if (val != -1)
     {
-        x[i+50] = (float)i;
-        y[i+50] = (float)(i * i);
-    }
+        greatestValue = (std::max)(greatestValue, val);
+        lowestValue = (std::min)(lowestValue, val);
+        yOffset = (std::max)(std::abs(greatestValue * 0.05), std::abs(lowestValue * 0.05));
+        if (greatestValue >= 0)
+            yMax = greatestValue + yOffset;
+        else
+            yMax = greatestValue - yOffset;
 
+        if (lowestValue >= 0)
+            yMin = lowestValue - yOffset;
+        else
+            yMin = lowestValue + yOffset;
+        if (time.empty())
+        {
+            value.push_back(val);
+            time.push_back(ti);
+        }
+        else if(time.back() != ti)
+        {
+            value.push_back(val);
+            time.push_back(ti);
+        }
+    }
+    
     if (ImPlot::BeginPlot("Line Plots", {-1,-1}))
     {
-        //ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 30);
-        ImPlot::SetupAxes("x", "y");
-        ImPlot::PlotLine("f(x)", x, y, 100);
+        ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
+        ImPlot::SetupAxisLimits(ImAxis_Y1, yMin, yMax, ImPlotCond_Always);
+        ImPlot::PlotLine("value1", time.data(), value.data(), value.size());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -89,11 +116,24 @@ int main()
         ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
         ImGui::End();
 
+        int c = -1;
         if (serial.IsConnected())
         {
             std::string e = serial.ReadData();
-            if(!e.empty())
-                printf("%s ", e.c_str());
+            if (!e.empty())
+            {
+                try
+                {
+                    c = stoi(e);
+                    //Log << stoi(e) << " | " << serial.GetTimeSinceStart() << Endl;
+                    //LinePlot(window, std::stoi(e), (int)serial.GetTimeSinceStart());
+                }
+                catch (...)
+                {
+                    c = -1;
+                }
+            }
+            LinePlot(window, (double)c, serial.GetTimeSinceStart());
         }
         window.EndFrame();
     }

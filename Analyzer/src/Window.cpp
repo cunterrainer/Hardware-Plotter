@@ -38,6 +38,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     ImGuiInit();
     ImPlot::CreateContext();
+    ImPlot::StyleColorsClassic();
     Log << "Initialised ImPlot" << Endl;
 }
 

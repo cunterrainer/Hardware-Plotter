@@ -46,6 +46,7 @@ namespace Serial
             PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
             //We wait 2s as the arduino board will be reseting since it resets every time you connect
             Sleep(2000);
+            m_StartTime = std::chrono::steady_clock::now();
         }
     }
 
@@ -55,11 +56,12 @@ namespace Serial
         Disconnect();
     }
 
-    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_LastErrorMsg(other.m_LastErrorMsg)
+    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
     {
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
         other.m_LastErrorMsg.clear();
+        other.m_StartTime = std::chrono::steady_clock::time_point();
     }
 
 
@@ -68,10 +70,12 @@ namespace Serial
         m_SerialHandle = other.m_SerialHandle;
         m_Connected = other.m_Connected;
         m_LastErrorMsg = other.m_LastErrorMsg;
+        m_StartTime = other.m_StartTime;
 
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
         other.m_LastErrorMsg.clear();
+        other.m_StartTime = std::chrono::steady_clock::time_point();
         return *this;
     }
 
@@ -84,6 +88,7 @@ namespace Serial
             CloseHandle(m_SerialHandle);
             m_LastErrorMsg = std::string();
             m_SerialHandle = nullptr;
+            m_StartTime = std::chrono::steady_clock::time_point();
         }
     }
 
