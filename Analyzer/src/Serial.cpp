@@ -84,8 +84,8 @@ namespace Serial
     {
         if (m_Connected)
         {
-            m_Connected = false;
             CloseHandle(m_SerialHandle);
+            m_Connected = false;
             m_LastErrorMsg = std::string();
             m_SerialHandle = nullptr;
             m_StartTime = std::chrono::steady_clock::time_point();

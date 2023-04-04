@@ -63,7 +63,7 @@ void LinePlot(const Window& w, T val, T ti)
 std::string RemoveRedundantChars(const std::string& str)
 {
     std::string n;
-    for (char c : str)
+    for (unsigned char c : str)
     {
         if (std::isalnum(c))
             n += c;
@@ -118,6 +118,7 @@ int main()
 
     Serial::Serial serial;
     const Window window;
+    static std::string data;
     while (window.IsOpen())
     {
         window.StartFrame();
@@ -128,12 +129,12 @@ int main()
         static int selectedRate = 0;
         if (ImGui::Button("Listen", {150, 0}))
         {
-            if (serial.IsConnected())
-                serial.Disconnect();
+            serial.Disconnect();
 
             std::optional<Serial::Serial> optSerial = Connect(ports[(size_t)selectedPort].com, selectedRate);
             if (optSerial.has_value())
                 serial = std::move(optSerial.value());
+            data.clear();
         }
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
@@ -145,7 +146,6 @@ int main()
 
         if (serial.IsConnected())
         {
-            static std::string data;
             std::string e = serial.ReadData();
             if (!e.empty())
             {
