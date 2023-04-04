@@ -15,12 +15,12 @@ namespace Serial
         Disconnect();
     }
 
-    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_FirstRead(other.m_FirstRead), m_RedData(other.m_RedData), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
+    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_FirstRead(other.m_FirstRead), m_ReadData(other.m_ReadData), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
     {
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
         other.m_FirstRead = true;
-        other.m_RedData.clear();
+        other.m_ReadData.clear();
         other.m_LastErrorMsg.clear();
         other.m_StartTime = std::chrono::steady_clock::time_point();
     }
@@ -31,14 +31,14 @@ namespace Serial
         m_SerialHandle = other.m_SerialHandle;
         m_Connected = other.m_Connected;
         m_FirstRead = other.m_FirstRead;
-        m_RedData = other.m_RedData;
+        m_ReadData = other.m_ReadData;
         m_LastErrorMsg = other.m_LastErrorMsg;
         m_StartTime = other.m_StartTime;
 
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
         other.m_FirstRead = true;
-        other.m_RedData.clear();
+        other.m_ReadData.clear();
         other.m_LastErrorMsg.clear();
         other.m_StartTime = std::chrono::steady_clock::time_point();
         return *this;
@@ -98,7 +98,7 @@ namespace Serial
             CloseHandle(m_SerialHandle);
             m_Connected = false;
             m_FirstRead = true;
-            m_RedData.clear();
+            m_ReadData.clear();
             m_LastErrorMsg.clear();
             m_SerialHandle = nullptr;
             m_StartTime = std::chrono::steady_clock::time_point();
@@ -115,11 +115,11 @@ namespace Serial
         if (status.cbInQue > 0 && m_Connected) //Check if there is something to read
         {
             // being used as an easy to handle dynamic array with an initial size of 255
-            if (status.cbInQue > m_RedData.size())
-                m_RedData.resize(status.cbInQue);
+            if (status.cbInQue > m_ReadData.size())
+                m_ReadData.resize(status.cbInQue);
 
             DWORD bytesRead;
-            if (ReadFile(m_SerialHandle, m_RedData.data(), status.cbInQue, &bytesRead, NULL))
+            if (ReadFile(m_SerialHandle, m_ReadData.data(), status.cbInQue, &bytesRead, NULL))
             {
                 if (bytesRead != status.cbInQue)
                     Log << "(Serial) Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
@@ -127,13 +127,13 @@ namespace Serial
                 if (m_FirstRead)
                 {
                     m_FirstRead = false;
-                    std::string_view msgView(m_RedData.data(), bytesRead);
+                    std::string_view msgView(m_ReadData.data(), bytesRead);
                     size_t idx = msgView.find_last_of('\n');
 
                     if (idx != std::string::npos)
-                        return std::string_view(&m_RedData.data()[idx+1], bytesRead - idx+1);
+                        return std::string_view(&m_ReadData.data()[idx+1], bytesRead - idx+1);
                 }
-                return std::string_view(m_RedData.data(), bytesRead);
+                return std::string_view(m_ReadData.data(), bytesRead);
             }
             else
             {
