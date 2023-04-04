@@ -12,6 +12,7 @@
 #include "Window.h"
 #include "Clang.h"
 #include "Log.h"
+#include "SettingsWindow.h"
 
 
 template <class T>
@@ -26,7 +27,7 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
-        ImPlot::PlotLine("value1", plot.GetTimes(), plot.GetValues(), plot.GetCount());
+        ImPlot::PlotLine("", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -68,68 +69,44 @@ std::vector<std::string> SplitStringByChar(const std::string& str)
 
 int main()
 {
-    const std::vector<Serial::Port> ports = Serial::PortListener::GetPorts();
-    const std::string comboboxContent = [&]()
-    {
-        std::string content;
-        for (const Serial::Port& port : ports)
-            content += port.com + '\n' + port.device + '\0';
-        return content;
-    }();
-
     Serial::Serial serial;
-    const Window window;
-    static std::string data;
+    std::string data;
     Plot<double> plot;
+    SettingsWindow settings;
+    const Window window;
+
     while (window.IsOpen())
     {
         window.StartFrame();
-        ImGui::SetNextWindowPos({0, 0});
-        ImGui::SetNextWindowSize({ window.GetSize().x, 43.f });
-        ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
-        static int selectedPort = 0;
-        static int selectedRate = 0;
-        if (ImGui::Button("Connect", {150, 0}))
+        if (settings.ConnectClicked(window.GetSize().x))
         {
-            if (!serial.Connect(ports[(size_t)selectedPort].com, selectedRate))
+            if (!serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());
             }
             data.clear();
         }
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(150);
-        ImGui::Combo("##PortCombo", &selectedPort, comboboxContent.c_str());
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(150);
-        ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
-        ImGui::SameLine(window.GetSize().x - 250);
-        ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
 
-        if (serial.IsConnected())
+        const std::string e = serial.ReadData();
+        if (!e.empty())
         {
-            std::string e = serial.ReadData();
-            if (!e.empty())
+            data += e;
+            if (data.find('\n') != std::string::npos)
             {
-                data += e;
-                if (data.find('\n') != std::string::npos)
+                //Log << "Original: " << data << " end" << Endl;
+                std::vector<std::string> vec = SplitStringByChar(data);
+                for (const auto& str : vec)
                 {
-                    //Log << "Original: " << data << " end" << Endl;
-                    std::vector<std::string> vec = SplitStringByChar(data);
-                    for (const auto& str : vec)
-                    {
-                        //Log << "Str: " << str << Endl;
-                        plot.Add(std::stod(str), serial.GetTimeSinceStart());
-                    }
-                    size_t index = data.find_last_of('\n')+1;
-                    data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
-                    //Log << "Data: " << data << " end" << Endl;
+                    //Log << "Str: " << str << Endl;
+                    plot.Add(std::stod(str), serial.GetTimeSinceStart());
                 }
+                size_t index = data.find_last_of('\n')+1;
+                data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
+                //Log << "Data: " << data << " end" << Endl;
             }
-            LinePlot(window.GetSize(), plot);
         }
+        LinePlot(window.GetSize(), plot);
         window.EndFrame();
     }
     return 0;

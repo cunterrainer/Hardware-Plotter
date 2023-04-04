@@ -107,7 +107,7 @@ namespace Serial
         ClearCommError(m_SerialHandle, &lastError, &status); // Get info about the serial port
 
         //Check if there is something to read
-        if (status.cbInQue > 0)
+        if (status.cbInQue > 0 && m_Connected)
         {
             DWORD bytesRead;
             std::string msg(status.cbInQue, 0);
