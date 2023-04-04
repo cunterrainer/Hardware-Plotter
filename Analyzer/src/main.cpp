@@ -32,6 +32,7 @@ void LinePlot(const Window& w, T val, T ti)
 
     if (val != -1.0)
     {
+        Log << "Double: " << std::setprecision(17) << val << std::fixed << Endl;
         greatestValue = (std::max)(greatestValue, val);
         lowestValue = (std::min)(lowestValue, val);
         yOffset = (std::max)(std::abs(greatestValue * 0.05), std::abs(lowestValue * 0.05));
@@ -52,7 +53,7 @@ void LinePlot(const Window& w, T val, T ti)
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_Y1, yMin, yMax, ImPlotCond_Always);
-        ImPlot::PlotLine("value1", time.data(), value.data(), value.size());
+        ImPlot::PlotLine("value1", time.data(), value.data(), (int)value.size());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -63,9 +64,9 @@ void LinePlot(const Window& w, T val, T ti)
 std::string RemoveRedundantChars(const std::string& str)
 {
     std::string n;
-    for (unsigned char c : str)
+    for (char c : str)
     {
-        if (std::isalnum(c))
+        if (std::isalnum(static_cast<unsigned char>(c)) || c == '.')
             n += c;
     }
     return n;
@@ -81,13 +82,13 @@ std::vector<std::string> SplitStringByChar(const std::string& str)
     while (std::getline(test, segment, '\n'))
     {
         segment = RemoveRedundantChars(segment);
+        if (segment == "ovf" || segment == "nan" || segment == "inf")
+            continue;
         if(segment.size() > 0)
             seglist.push_back(segment);
     }
     if(str.back() != '\n')
-    {
         seglist.pop_back();
-    }
     return seglist;
 }
 
@@ -101,7 +102,7 @@ std::optional<Serial::Serial> Connect(const std::string& port, int selectedBaudR
         MsgBoxError(serial.GetLastErrorMsg().data());
         return std::nullopt;
     }
-    return std::move(serial);
+    return serial;
 }
 
 
@@ -156,10 +157,11 @@ int main()
                     std::vector<std::string> vec = SplitStringByChar(data);
                     for (const auto& str : vec)
                     {
+                        Log << "Str: " << str << Endl;
                         LinePlot(window, std::stod(str), serial.GetTimeSinceStart());
                     }
-                    size_t index = data.find_last_of('\n');
-                    data = std::string(std::next(data.begin(), index+1), data.end());
+                    ptrdiff_t index = (ptrdiff_t)data.find_last_of('\n')+1;
+                    data = std::string(std::next(data.begin(), index), data.end());
                     Log << "Data: " << data << " end" << Endl;
                 }
             }
