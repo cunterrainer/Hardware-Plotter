@@ -84,6 +84,7 @@ namespace Serial
         m_Connected = true;
         PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR); //Flush any remaining characters in the buffers 
         // in the event that any reading errors occure. There used to be a 2 sec. sleep to let the arduino reset
+        m_StartTime = std::chrono::steady_clock::now();
         return true;
     }
 
@@ -129,7 +130,8 @@ namespace Serial
                     if (idx != std::string::npos)
                     {
                         m_FirstRead = false;
-                        m_StartTime = std::chrono::steady_clock::now();
+                        const std::chrono::milliseconds time = std::chrono::duration_cast<std::chrono::milliseconds>(m_StartTime - std::chrono::steady_clock::now());
+                        m_StartTime = std::chrono::steady_clock::now() - time;
                         if(idx != msgView.size() - 1)
                             return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx + 1);
                     }
