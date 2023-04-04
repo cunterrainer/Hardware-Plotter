@@ -27,6 +27,7 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     if (ImPlot::BeginPlot("Line Plots", {-1,-1}))
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
+        //Log << plot.GetYMin() << " | " << plot.GetYMax() << Endl;
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
         ImPlot::PlotLine("value1", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
@@ -41,7 +42,7 @@ std::string RemoveRedundantChars(const std::string& str)
     std::string n;
     for (char c : str)
     {
-        if (std::isalnum(static_cast<unsigned char>(c)) || c == '.')
+        if (std::isalnum(static_cast<unsigned char>(c)) || c == '.' || c == '-')
             n += c;
     }
     return n;
@@ -140,7 +141,7 @@ int main()
                     }
                     ptrdiff_t index = (ptrdiff_t)data.find_last_of('\n')+1;
                     data = std::string(std::next(data.begin(), index), data.end());
-                    Log << "Data: " << data << " end" << Endl;
+                    //Log << "Data: " << data << " end" << Endl;
                 }
             }
             LinePlot(window.GetSize(), plot);

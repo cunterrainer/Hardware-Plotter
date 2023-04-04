@@ -56,10 +56,11 @@ namespace Serial
         Disconnect();
     }
 
-    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
+    Serial::Serial(Serial&& other) noexcept : m_SerialHandle(other.m_SerialHandle), m_Connected(other.m_Connected), m_FirstRead(other.m_FirstRead), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
     {
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
+        other.m_FirstRead = true;
         other.m_LastErrorMsg.clear();
         other.m_StartTime = std::chrono::steady_clock::time_point();
     }
@@ -69,11 +70,13 @@ namespace Serial
     {
         m_SerialHandle = other.m_SerialHandle;
         m_Connected = other.m_Connected;
+        m_FirstRead = other.m_FirstRead;
         m_LastErrorMsg = other.m_LastErrorMsg;
         m_StartTime = other.m_StartTime;
 
         other.m_SerialHandle = nullptr;
         other.m_Connected = false;
+        other.m_FirstRead = true;
         other.m_LastErrorMsg.clear();
         other.m_StartTime = std::chrono::steady_clock::time_point();
         return *this;
@@ -86,6 +89,7 @@ namespace Serial
         {
             CloseHandle(m_SerialHandle);
             m_Connected = false;
+            m_FirstRead = true;
             m_LastErrorMsg = std::string();
             m_SerialHandle = nullptr;
             m_StartTime = std::chrono::steady_clock::time_point();
@@ -108,6 +112,12 @@ namespace Serial
             {
                 if (bytesRead != status.cbInQue)
                     Log << "Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
+
+                if (m_FirstRead)
+                {
+                    m_FirstRead = false;
+                    return msg.substr(msg.find_last_of('\n'));
+                }
                 return msg;
             }
             else

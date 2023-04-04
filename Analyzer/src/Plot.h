@@ -14,23 +14,16 @@ private:
 private:
     std::vector<T> m_Values;
     std::vector<T> m_Times;
-    T m_GreatestValue = std::numeric_limits<T>::min();
+    T m_GreatestValue = std::numeric_limits<T>::lowest();
     T m_LowestValue = std::numeric_limits<T>::max();
     T m_YMax = 0;
     T m_YMin = 0;
 private:
     inline void CalculateYRange()
     {
-        const double yOffset = std::max(std::abs(m_GreatestValue * YPercentageScalar), std::abs(m_LowestValue * YPercentageScalar));
-        if (m_GreatestValue >= 0)
-            m_YMax = m_GreatestValue + yOffset;
-        else
-            m_YMax = m_GreatestValue - yOffset;
-
-        if (m_LowestValue >= 0)
-            m_YMin = m_LowestValue - yOffset;
-        else
-            m_YMin = m_LowestValue + yOffset;
+        const double yOffset = -std::max(std::abs(m_GreatestValue * YPercentageScalar), std::abs(m_LowestValue * YPercentageScalar));
+        m_YMax = m_GreatestValue - yOffset;
+        m_YMin = m_LowestValue + yOffset;
     }
 public:
     inline Plot()

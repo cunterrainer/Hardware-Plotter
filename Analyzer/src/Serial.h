@@ -40,6 +40,7 @@ namespace Serial
     private:
         HANDLE m_SerialHandle = nullptr;
         bool m_Connected = false;
+        bool m_FirstRead = true;
         std::string m_LastErrorMsg;
         std::chrono::steady_clock::time_point m_StartTime;
     public:
