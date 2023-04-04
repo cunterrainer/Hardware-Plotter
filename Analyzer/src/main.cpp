@@ -88,22 +88,23 @@ int main()
             data.clear();
         }
 
-        const std::string e = serial.ReadData();
+        const std::string_view e = serial.ReadData();
         if (!e.empty())
         {
+            Log << "E: " << e << " end" << Endl;
             data += e;
             if (data.find('\n') != std::string::npos)
             {
-                //Log << "Original: " << data << " end" << Endl;
+                Log << "Original: " << data << " end" << Endl;
                 std::vector<std::string> vec = SplitStringByChar(data);
                 for (const auto& str : vec)
                 {
-                    //Log << "Str: " << str << Endl;
+                    Log << "Str: " << str << Endl;
                     plot.Add(std::stod(str), serial.GetTimeSinceStart());
                 }
                 size_t index = data.find_last_of('\n')+1;
                 data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
-                //Log << "Data: " << data << " end" << Endl;
+                Log << "Data: " << data << " end" << Endl;
             }
         }
         LinePlot(window.GetSize(), plot);

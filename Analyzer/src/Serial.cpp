@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
 #include <limits>
+#include <array>
+#include <string_view>
 #include <Windows.h>
 
 #include "Serial.h"
@@ -100,17 +102,21 @@ namespace Serial
     }
 
 
-    std::string Serial::ReadData() noexcept
+    std::string_view Serial::ReadData() noexcept
     {
         DWORD lastError;
         COMSTAT status;
         ClearCommError(m_SerialHandle, &lastError, &status); // Get info about the serial port
 
-        //Check if there is something to read
-        if (status.cbInQue > 0 && m_Connected)
+        if (status.cbInQue > 0 && m_Connected) //Check if there is something to read
         {
+            // being used as an easy to handle dynamic array with an initial size of 255
+            // this string isn't aware of it's own size since we manually write into data
+            static std::string msg(255, 0);
+            if (status.cbInQue > msg.capacity())
+                msg.reserve(status.cbInQue);
+
             DWORD bytesRead;
-            std::string msg(status.cbInQue, 0);
             if (ReadFile(m_SerialHandle, msg.data(), status.cbInQue, &bytesRead, NULL))
             {
                 if (bytesRead != status.cbInQue)
@@ -118,10 +124,15 @@ namespace Serial
 
                 if (m_FirstRead)
                 {
+                    Log << "FirstRead" << Endl;
                     m_FirstRead = false;
-                    return msg.substr(msg.find_last_of('\n'));
+                    std::string_view msgView(msg.data(), bytesRead);
+                    size_t idx = msgView.find_last_of('\n');
+
+                    if (idx != std::string::npos)
+                        return std::string_view(&msg.data()[idx+1], bytesRead - idx+1);
                 }
-                return msg;
+                return std::string_view(msg.data(), bytesRead);
             }
             else
             {
@@ -129,7 +140,7 @@ namespace Serial
                 Err << m_LastErrorMsg << Endl;
             }
         }
-        return std::string();
+        return std::string_view();
     }
 
 
