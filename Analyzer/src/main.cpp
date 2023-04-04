@@ -28,9 +28,7 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
-        //Log << plot.GetYMin() << " | " << plot.GetYMax() << Endl;
         plot.RenderLines();
-        //ImPlot::PlotLine("", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -38,34 +36,21 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
 }
 
 
-std::string RemoveRedundantChars(const std::string& str)
+const std::vector<std::string_view>& SplitStringByNl(const std::string_view& str)
 {
-    static constexpr std::string_view validChars = ".-:()[]{}";
-    std::string n;
-    for (char c : str)
+    static std::vector<std::string_view> views;
+    views.clear();
+
+    size_t start = 0;
+    for (size_t i = 0; i < str.size(); ++i)
     {
-        if (std::isalnum(static_cast<unsigned char>(c)) || validChars.find(c) != std::string::npos)
-            n += c;
+        if (str[i] == '\n' && i - start > 0)
+        {
+            views.push_back({ &str[start], i - start });
+            start = i+1;
+        }
     }
-    return n;
-}
-
-
-std::vector<std::string> SplitStringByChar(const std::string& str)
-{
-    std::stringstream test(str);
-    std::string segment;
-    std::vector<std::string> seglist;
-
-    while (std::getline(test, segment, '\n'))
-    {
-        segment = RemoveRedundantChars(segment);
-        if(segment.size() > 0)
-            seglist.push_back(segment);
-    }
-    if(str.back() != '\n')
-        seglist.pop_back();
-    return seglist;
+    return views;
 }
 
 
@@ -91,27 +76,26 @@ int main()
         }
 
         const std::string_view readData = serial.ReadData();
-        if (!readData.empty())
+        data += readData;
+        const size_t index = data.find_last_of('\n');
+        if (!readData.empty() && index != std::string::npos)
         {
-            data += readData;
-            if (data.find('\n') != std::string::npos)
+            const std::vector<std::string_view>& vec = SplitStringByNl(data);
+            for (const auto& str : vec)
             {
-                std::vector<std::string> vec = SplitStringByChar(data);
-                for (const auto& str : vec)
-                {
-                    std::string graphName = str.substr(0, str.find(':'));
-                    std::string valueStr = str.substr(str.find(':') + 1);
+                char* endptr;
+                const size_t colonIdx = str.find(':');
+                const std::string_view valueStr = str.substr(colonIdx + 1);
+                const double value = std::strtod(valueStr.data(), &endptr);
+                if (endptr == valueStr.data())
+                    continue;
 
-                    char* endptr;
-                    const double value = std::strtod(valueStr.c_str(), &endptr);
-                    if (endptr == valueStr.c_str() || *endptr != '\0')
-                        continue;
-                    size_t graph = plot.AddGraph(graphName);
-                    plot.Add(graph, serial.GetTimeSinceStart(), value);
-                }
-                size_t index = data.find_last_of('\n')+1;
-                data = std::string(std::next(data.begin(), (ptrdiff_t)index), data.end());
+                static std::string graphName;
+                graphName = str.substr(0, colonIdx);
+                const size_t graph = plot.AddGraph(graphName);
+                plot.Add(graph, serial.GetTimeSinceStart(), value);
             }
+            data.assign(&data[index+1]);
         }
         LinePlot(window.GetSize(), plot);
         window.EndFrame();

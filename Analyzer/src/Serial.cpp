@@ -82,11 +82,8 @@ namespace Serial
         }
 
         m_Connected = true;
-        //Flush any remaining characters in the buffers 
-        PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-        //We wait 2s as the arduino board will be reseting since it resets every time you connect
-        Sleep(2000);
-        m_StartTime = std::chrono::steady_clock::now();
+        PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR); //Flush any remaining characters in the buffers 
+        // in the event that any reading errors occure. There used to be a 2 sec. sleep to let the arduino reset
         return true;
     }
 
@@ -126,12 +123,17 @@ namespace Serial
 
                 if (m_FirstRead)
                 {
-                    m_FirstRead = false;
                     std::string_view msgView(m_ReadData.data(), bytesRead);
                     size_t idx = msgView.find_last_of('\n');
 
                     if (idx != std::string::npos)
-                        return std::string_view(&m_ReadData.data()[idx+1], bytesRead - idx+1);
+                    {
+                        m_FirstRead = false;
+                        m_StartTime = std::chrono::steady_clock::now();
+                        if(idx != msgView.size() - 1)
+                            return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx + 1);
+                    }
+                    return std::string_view();
                 }
                 return std::string_view(m_ReadData.data(), bytesRead);
             }

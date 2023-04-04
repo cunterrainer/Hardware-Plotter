@@ -54,7 +54,8 @@ namespace Serial
 
         bool Connect(std::string portName, int selectedBaudRate) noexcept;
         void Disconnect() noexcept;
-        std::string_view ReadData() noexcept; // ReadData has ownership of the string, if you need a copy do it manually
+        // ReadData has ownership of the string, if you need a copy do it manually
+        std::string_view ReadData() noexcept;
         bool WriteData(const char* buffer, unsigned int nbChar);
         constexpr bool IsConnected() const noexcept { return m_Connected; }
         std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
