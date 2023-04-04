@@ -8,7 +8,7 @@ class Window
 private:
 	GLFWwindow* m_Window = nullptr;
 public:
-	Window(int width = 1600, int height = 920, const char* title = "Window", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
+	Window(int width = 1600, int height = 920, const char* title = "Analyzer", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
 	~Window() noexcept;
 
 	// loop

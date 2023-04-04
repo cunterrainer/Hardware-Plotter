@@ -4,6 +4,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <iomanip>
 
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
@@ -32,7 +33,7 @@ void LinePlot(const Window& w, T val, T ti)
 
     if (val != -1.0)
     {
-        Log << "Double: " << std::setprecision(17) << val << std::fixed << Endl;
+        //Log << "Double: " << std::setprecision(17) << val << std::fixed << Endl;
         greatestValue = (std::max)(greatestValue, val);
         lowestValue = (std::min)(lowestValue, val);
         yOffset = (std::max)(std::abs(greatestValue * 0.05), std::abs(lowestValue * 0.05));
@@ -143,6 +144,8 @@ int main()
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("baud", &selectedRate, Serial::Serial::BaudRates.data());
+        ImGui::SameLine(window.GetSize().x - 250);
+        ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
 
         if (serial.IsConnected())
@@ -153,20 +156,19 @@ int main()
                 data += e;
                 if (data.find('\n') != std::string::npos)
                 {
-                    Log << "Original: " << data << " end" << Endl;
+                    //Log << "Original: " << data << " end" << Endl;
                     std::vector<std::string> vec = SplitStringByChar(data);
                     for (const auto& str : vec)
                     {
-                        Log << "Str: " << str << Endl;
+                        //Log << "Str: " << str << Endl;
                         LinePlot(window, std::stod(str), serial.GetTimeSinceStart());
                     }
                     ptrdiff_t index = (ptrdiff_t)data.find_last_of('\n')+1;
                     data = std::string(std::next(data.begin(), index), data.end());
-                    Log << "Data: " << data << " end" << Endl;
+                    //Log << "Data: " << data << " end" << Endl;
                 }
             }
             LinePlot(window, -1.0, serial.GetTimeSinceStart());
-            Log << serial.GetTimeSinceStart() << Endl;
         }
         window.EndFrame();
     }
