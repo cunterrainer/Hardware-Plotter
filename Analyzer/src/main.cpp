@@ -9,6 +9,7 @@
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
 
+#include "Plot.h"
 #include "Serial.h"
 #include "Window.h"
 #include "Clang.h"
@@ -16,45 +17,18 @@
 
 
 template <class T>
-void LinePlot(const Window& w, T val, T ti)
+void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
 {
-    ImGui::SetNextWindowSize({ w.GetSize().x, w.GetSize().y - 43.f});
+    ImGui::SetNextWindowSize({ windowSize.x, windowSize.y - 43.f});
     ImGui::SetNextWindowPos({ 0, 43.f });
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::Begin("##Plotter", nullptr, IMGUI_WINDOW_FLAGS);
-
-    static std::vector<T> value;
-    static std::vector<T> time;
-    static T greatestValue = (std::numeric_limits<T>::min)();
-    static T lowestValue = (std::numeric_limits<T>::max)();
-    static double yOffset = 0;
-    static double yMax = 0;
-    static double yMin = 0;
-
-    if (val != -1.0)
-    {
-        //Log << "Double: " << std::setprecision(17) << val << std::fixed << Endl;
-        greatestValue = (std::max)(greatestValue, val);
-        lowestValue = (std::min)(lowestValue, val);
-        yOffset = (std::max)(std::abs(greatestValue * 0.05), std::abs(lowestValue * 0.05));
-        if (greatestValue >= 0)
-            yMax = greatestValue + yOffset;
-        else
-            yMax = greatestValue - yOffset;
-
-        if (lowestValue >= 0)
-            yMin = lowestValue - yOffset;
-        else
-            yMin = lowestValue + yOffset;
-        value.push_back(val);
-        time.push_back(ti);
-    }
     
     if (ImPlot::BeginPlot("Line Plots", {-1,-1}))
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_Y1, yMin, yMax, ImPlotCond_Always);
-        ImPlot::PlotLine("value1", time.data(), value.data(), (int)value.size());
+        ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
+        ImPlot::PlotLine("value1", plot.GetTimes(), plot.GetValues(), plot.GetCount());
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -121,6 +95,7 @@ int main()
     Serial::Serial serial;
     const Window window;
     static std::string data;
+    Plot<double> plot;
     while (window.IsOpen())
     {
         window.StartFrame();
@@ -156,19 +131,19 @@ int main()
                 data += e;
                 if (data.find('\n') != std::string::npos)
                 {
-                    //Log << "Original: " << data << " end" << Endl;
+                    Log << "Original: " << data << " end" << Endl;
                     std::vector<std::string> vec = SplitStringByChar(data);
                     for (const auto& str : vec)
                     {
-                        //Log << "Str: " << str << Endl;
-                        LinePlot(window, std::stod(str), serial.GetTimeSinceStart());
+                        Log << "Str: " << str << Endl;
+                        plot.Add(std::stod(str), serial.GetTimeSinceStart());
                     }
                     ptrdiff_t index = (ptrdiff_t)data.find_last_of('\n')+1;
                     data = std::string(std::next(data.begin(), index), data.end());
-                    //Log << "Data: " << data << " end" << Endl;
+                    Log << "Data: " << data << " end" << Endl;
                 }
             }
-            LinePlot(window, -1.0, serial.GetTimeSinceStart());
+            LinePlot(window.GetSize(), plot);
         }
         window.EndFrame();
     }
