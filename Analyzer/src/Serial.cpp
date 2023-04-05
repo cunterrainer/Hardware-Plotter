@@ -130,8 +130,8 @@ namespace Serial
                     if (idx != std::string::npos)
                     {
                         m_FirstRead = false;
-                        const std::chrono::milliseconds time = std::chrono::duration_cast<std::chrono::milliseconds>(m_StartTime - std::chrono::steady_clock::now());
-                        m_StartTime = std::chrono::steady_clock::now() - time;
+                        const std::chrono::microseconds elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(m_StartTime - std::chrono::steady_clock::now());
+                        m_StartTime -= elapsedTime; // it is intentional - although 'elapsedTime' is negative
                         if(idx != msgView.size() - 1)
                             return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx + 1);
                     }
