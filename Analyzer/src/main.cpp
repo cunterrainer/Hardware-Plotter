@@ -75,11 +75,13 @@ int main()
             data.clear();
         }
 
+        static int i = 0;
         const std::string_view readData = serial.ReadData();
         data += readData;
         const size_t index = data.find_last_of('\n');
         if (!readData.empty() && index != std::string::npos)
         {
+            Log << "Data: " << data << Endl;
             const std::vector<std::string_view>& vec = SplitStringByNl(data);
             for (const auto& str : vec)
             {
@@ -96,6 +98,7 @@ int main()
                 plot.Add(graph, serial.GetTimeSinceStart(), value);
             }
             data.assign(&data[index+1]);
+            ++i;
         }
         LinePlot(window.GetSize(), plot);
         window.EndFrame();

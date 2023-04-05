@@ -22,6 +22,8 @@ private:
 public:
     inline size_t AddGraph(const std::string& name)
     {
+        if (name != "log(n)" && name != "-log(n)")
+            Log << "bad\n";
         const std::unordered_map<std::string, size_t>::const_iterator it = m_GraphsNameMap.find(name);
         if (it == m_GraphsNameMap.end())
         {

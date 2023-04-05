@@ -104,6 +104,19 @@ namespace Serial
     }
 
 
+    std::string RemoveChars(const std::string& str)
+    {
+        static constexpr std::string_view validChars = ".-:()[]{}\n";
+        std::string n;
+        for (char c : str)
+        {
+            if (std::isalnum(static_cast<unsigned char>(c)) || validChars.find(c) != std::string::npos)
+                n += c;
+        }
+        return n;
+    }
+
+
     std::string_view Serial::ReadData() noexcept
     {
         DWORD lastError;
@@ -113,8 +126,10 @@ namespace Serial
         if (status.cbInQue > 0 && m_Connected) //Check if there is something to read
         {
             // being used as an easy to handle dynamic array with an initial size of 255
-            if (status.cbInQue > m_ReadData.size())
-                m_ReadData.resize(status.cbInQue);
+            //m_ReadData.clear();
+            if (status.cbInQue > m_ReadData.capacity())
+                m_ReadData.reserve(status.cbInQue);
+            m_ReadData.assign(status.cbInQue, 0);
 
             DWORD bytesRead;
             if (ReadFile(m_SerialHandle, m_ReadData.data(), status.cbInQue, &bytesRead, NULL))
@@ -126,17 +141,30 @@ namespace Serial
                 {
                     std::string_view msgView(m_ReadData.data(), bytesRead);
                     size_t idx = msgView.find_last_of('\n');
-
+                    static bool y = false;
                     if (idx != std::string::npos)
                     {
-                        m_FirstRead = false;
-                        const std::chrono::microseconds elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(m_StartTime - std::chrono::steady_clock::now());
-                        m_StartTime -= elapsedTime; // it is intentional - although 'elapsedTime' is negative
-                        if(idx != msgView.size() - 1)
-                            return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx + 1);
+                        if (y)
+                        {
+                            m_FirstRead = false;
+                            const std::chrono::microseconds elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(m_StartTime - std::chrono::steady_clock::now());
+                            m_StartTime -= elapsedTime; // it is intentionally - although 'elapsedTime' is negative
+                            m_ReadData = RemoveChars(m_ReadData);
+                            Log << "First " << m_ReadData << Endl;
+                            idx = m_ReadData.find_last_of('\n');
+                            //if (idx != m_ReadData.size() - 1)
+                            {
+                                auto v = std::string_view(&m_ReadData[idx + 1], m_ReadData.size() - idx - 1);
+                                Log << "Man size: " << v << " " << bytesRead << " " << v.size() << " " << m_ReadData.size() << " " << idx << " " << m_ReadData << Endl;
+                                return v;
+                                //return std::string_view(&m_ReadData.data()[idx+1], m_ReadData.size() - idx - 1);
+                            }
+                        }
+                        y = true;
                     }
                     return std::string_view();
                 }
+                Log << "Sec: " << std::string_view(m_ReadData.data(), bytesRead) << Endl;
                 return std::string_view(m_ReadData.data(), bytesRead);
             }
             else
