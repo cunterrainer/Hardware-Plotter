@@ -18,17 +18,16 @@
 #include "PlotManager.h"
 
 
-const std::vector<std::string_view>& SplitStringByNl(const std::string_view& str)
+std::vector<std::string_view> SplitStringByChar(const std::string_view& str, char c)
 {
-    static std::vector<std::string_view> views;
-    views.clear();
-
+    std::vector<std::string_view> views;
     size_t start = 0;
     for (size_t i = 0; i < str.size(); ++i)
     {
-        if (str[i] == '\n' && i - start > 0)
+        if (str[i] == c)
         {
-            views.push_back({ &str[start], i - start });
+            if(i - start > 0)
+                views.push_back({ &str[start], i - start });
             start = i+1;
         }
     }
@@ -64,24 +63,48 @@ int main()
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {
-            const std::vector<std::string_view>& vec = SplitStringByNl(data);
-            for (const auto& str : vec)
+            std::vector<std::string_view> vecData = SplitStringByChar(data, '\n');
+            for (const auto& str : vecData)
             {
+                static std::string plotName;
+                static std::string graphName;
+                std::string_view yLabel;
+                std::vector<std::string_view> vec = SplitStringByChar(str, ':');
+
                 char* endptr;
-                const size_t valueIdx = str.find_last_of(':');
-                const std::string_view valueStr = str.substr(valueIdx + 1);
+                std::string_view valueStr = str;
+                if (const size_t valueIdx = str.find_last_of(':'); valueIdx != std::string::npos)
+                    valueStr = str.substr(valueIdx + 1);
                 const double value = std::strtod(valueStr.data(), &endptr);
                 if (endptr == valueStr.data())
                     continue;
 
-                const size_t yLabelIdx = str.find_first_of(':');
-                const size_t graphIdx = str.find_first_of(':', yLabelIdx+1);
-                static std::string plotName;
-                static std::string graphName;
-                std::string_view ylabel = str.substr(yLabelIdx + 1, graphIdx - yLabelIdx - 1);
-                plotName = str.substr(0, yLabelIdx);
-                graphName = str.substr(graphIdx + 1, valueIdx-graphIdx-1);
-                plots.Add(plotName, ylabel, graphName, serial.GetTimeSinceStart(), value);
+                switch (vec.size())
+                {
+                case 0:
+                    plotName = "##default";
+                    yLabel = "y";
+                    graphName = "f(x)";
+                    break;
+                case 1:
+                    plotName = "##default";
+                    yLabel = "y";
+                    graphName = vec[0];
+                    break;
+                case 2:
+                    plotName = "##default";
+                    yLabel = vec[0];
+                    graphName = vec[1];
+                    break;
+                case 3:
+                    plotName = vec[0];
+                    yLabel = vec[1];
+                    graphName = vec[2];
+                    break;
+                default:
+                    continue;
+                }
+                plots.Add(plotName, yLabel, graphName, serial.GetTimeSinceStart(), value);
             }
             data.assign(&data[index+1]);
         }
