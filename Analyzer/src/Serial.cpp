@@ -127,13 +127,13 @@ namespace Serial
                     std::string_view msgView(m_ReadData.data(), bytesRead);
                     size_t idx = msgView.find_last_of('\n');
 
-                    if (idx != std::string::npos)
+                    if (idx != std::string::npos && idx > 1)
                     {
                         m_FirstRead = false;
                         const std::chrono::microseconds elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(m_StartTime - std::chrono::steady_clock::now());
                         m_StartTime -= elapsedTime; // it is intentional - although 'elapsedTime' is negative
-                        if(idx != msgView.size() - 1)
-                            return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx + 1);
+                        if (idx != msgView.size() - 1)
+                            return std::string_view(&m_ReadData.data()[idx + 1], bytesRead - idx - 1);
                     }
                     return std::string_view();
                 }
