@@ -19,12 +19,23 @@ template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::i
 class Plot
 {
 private:
+    static constexpr double YPercentageScalar = 0.05;
+private:
     // using a map because I profiled it with std::vector and the map was faster
     std::unordered_map<std::string, Graph<T>> m_Graphs;
     std::string m_YLabel;
     bool m_LabelAssigned = false;
-    mutable double m_YMax = std::numeric_limits<double>::lowest();
-    mutable double m_YMin = std::numeric_limits<double>::max();
+    T m_YMax = std::numeric_limits<T>::lowest();
+    T m_YMin = std::numeric_limits<T>::max();
+    T m_GreatestY = std::numeric_limits<T>::lowest();
+    T m_LowestY = std::numeric_limits<T>::max();
+private:
+    inline void CalculateYRange()
+    {
+        const double yOffset = -std::max(std::abs(m_GreatestY * YPercentageScalar), std::abs(m_LowestY * YPercentageScalar));
+        m_YMax = m_GreatestY - yOffset;
+        m_YMin = m_LowestY + yOffset;
+    }
 public:
     inline void Add(const std::string& graphName, std::string_view ylabel, T x, T y)
     {
@@ -35,8 +46,9 @@ public:
         }
         Graph<T>& graph = m_Graphs[graphName];
         graph.Add(x, y);
-        m_YMax = std::max(m_YMax, graph.GetYMax());
-        m_YMin = std::min(m_YMin, graph.GetYMin());
+        m_GreatestY = std::max(m_GreatestY, y);
+        m_LowestY = std::min(m_LowestY, y);
+        CalculateYRange();
     }
 
 

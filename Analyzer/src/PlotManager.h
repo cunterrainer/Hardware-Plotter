@@ -21,7 +21,7 @@ public:
         m_Plots[plotName].Add(graphName, ylabel, x, y);
     }
 
-    inline void Render(ImVec2 windowSize)
+    inline void Render(ImVec2 windowSize) const
     {
         size_t count = 0;
         float height = (windowSize.y - m_YOffset) / (float)m_Plots.size();
