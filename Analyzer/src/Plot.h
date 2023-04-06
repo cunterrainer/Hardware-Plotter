@@ -1,8 +1,8 @@
 #pragma once
-#include <vector>
 #include <limits>
 #include <cmath>
 #include <cstdlib>
+#include <iterator>
 #include <algorithm>
 #include <type_traits>
 #include <unordered_map>
@@ -15,35 +15,23 @@ template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::i
 class Plot
 {
 private:
-    std::vector<Graph<T>> m_Graphs;
-    std::unordered_map<std::string, size_t> m_GraphsNameMap; // maps a name to the index
+    // using a map because I profiled it with std::vector and the map was faster
+    std::unordered_map<std::string, Graph<T>> m_Graphs;
     mutable double m_YMax = std::numeric_limits<double>::lowest();
     mutable double m_YMin = std::numeric_limits<double>::max();
 public:
-    inline size_t AddGraph(const std::string& name)
+    inline void Add(const std::string& graphName, T x, T y)
     {
-        const std::unordered_map<std::string, size_t>::const_iterator it = m_GraphsNameMap.find(name);
-        if (it == m_GraphsNameMap.end())
-        {
-            static size_t idx = 0;
-            m_Graphs.push_back(Graph<T>(name));
-            m_GraphsNameMap[name] = idx;
-            return idx++;
-        }
-        return it->second;
-    }
-
-    inline void Add(size_t graph, T x, T y)
-    {
-        m_Graphs[graph].Add(x, y);
-        m_YMax = std::max(m_YMax, m_Graphs[graph].GetYMax());
-        m_YMin = std::min(m_YMin, m_Graphs[graph].GetYMin());
+        Graph<T>& graph = m_Graphs[graphName];
+        graph.Add(x, y);
+        m_YMax = std::max(m_YMax, graph.GetYMax());
+        m_YMin = std::min(m_YMin, graph.GetYMin());
     }
 
     inline void RenderLines() const
     {
-        for(const auto& graph : m_Graphs)
-            ImPlot::PlotLine(graph.GetName(), graph.GetX(), graph.GetY(), graph.GetCount());
+        for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
+            ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
     }
 
     inline double GetYMax() const { return m_YMax; }

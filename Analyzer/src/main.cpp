@@ -94,10 +94,9 @@ int main()
                 graphName = str.substr(0, colonIdx);
 
                 Profiler::Start();
-                const size_t graph = plot.AddGraph(graphName);
-                plot.Add(graph, serial.GetTimeSinceStart(), value);
+                plot.Add(graphName, serial.GetTimeSinceStart(), value);
                 Profiler::End();
-                Profiler::LogIfEq(100);
+                Profiler::LogIfEq(100, Profiler::Conversion::Microseconds);
             }
             data.assign(&data[index+1]);
         }

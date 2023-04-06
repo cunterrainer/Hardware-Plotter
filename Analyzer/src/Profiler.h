@@ -38,21 +38,21 @@ public:
     static inline void End()
     {
         const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-        AccumulatedTime = std::chrono::duration_cast<std::chrono::nanoseconds>(now - StartTime);
+        AccumulatedTime += std::chrono::duration_cast<std::chrono::nanoseconds>(now - StartTime);
         ++Counter;
     }
 
-    static constexpr long double Average(long double nanosecConversion = Conversion::Nanoseconds)
+    static long double Average(long double nanosecConversion = Conversion::Nanoseconds)
     {
-        return long double(AccumulatedTime.count() / Counter)*nanosecConversion;
+        return ((long double)AccumulatedTime.count() / (long double)Counter)*nanosecConversion;
     }
 
-    static constexpr std::uint64_t Count()
+    static inline std::uint64_t Count()
     {
         return Counter;
     }
 
-    static constexpr void Reset()
+    static void Reset()
     {
         Counter = 0;
         AccumulatedTime = std::chrono::nanoseconds::zero();
@@ -64,7 +64,7 @@ public:
     {
         if (Count() == value)
         {
-            std::cout << "[Profiler]" << " Count: " << Count() << " Average: " << Average(nanosecConversion) << ' '  << TimeAbbreviations[nanosecConversion] << std::endl;
+            std::cout << "[Profiler]" << " Count: " << Count() << " Average: " << Average(nanosecConversion) << ' '  << TimeAbbreviations[nanosecConversion] << '\n';
             if(resetOnLog)
                 Profiler::Reset();
             return true;
