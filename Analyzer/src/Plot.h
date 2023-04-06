@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <type_traits>
+#include <string_view>
 #include <unordered_map>
 
 #include "ImGui/imgui.h"
@@ -20,13 +21,18 @@ class Plot
 private:
     // using a map because I profiled it with std::vector and the map was faster
     std::unordered_map<std::string, Graph<T>> m_Graphs;
-    std::string m_YLabel = "y";
+    std::string m_YLabel;
+    bool m_LabelAssigned = false;
     mutable double m_YMax = std::numeric_limits<double>::lowest();
     mutable double m_YMin = std::numeric_limits<double>::max();
 public:
-    inline void Add(const std::string& graphName, const std::string& ylabel, T x, T y)
+    inline void Add(const std::string& graphName, std::string_view ylabel, T x, T y)
     {
-        m_YLabel = ylabel;
+        if (!m_LabelAssigned)
+        {
+            m_YLabel = ylabel;
+            m_LabelAssigned = true;
+        }
         Graph<T>& graph = m_Graphs[graphName];
         graph.Add(x, y);
         m_YMax = std::max(m_YMax, graph.GetYMax());

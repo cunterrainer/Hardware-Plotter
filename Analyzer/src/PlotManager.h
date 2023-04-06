@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 #include "ImGui/imgui.h"
@@ -15,7 +16,7 @@ private:
 public:
     inline explicit PlotManager(float yOffset) : m_YOffset(yOffset) {}
 
-    inline void Add(const std::string& plotName, const std::string& ylabel, const std::string& graphName, double x, double y)
+    inline void Add(const std::string& plotName, std::string_view ylabel, const std::string& graphName, double x, double y)
     {
         m_Plots[plotName].Add(graphName, ylabel, x, y);
     }

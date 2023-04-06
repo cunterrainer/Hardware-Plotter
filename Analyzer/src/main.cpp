@@ -78,9 +78,8 @@ int main()
                 const size_t graphIdx = str.find_first_of(':', yLabelIdx+1);
                 static std::string plotName;
                 static std::string graphName;
-                static std::string ylabel;
+                std::string_view ylabel = str.substr(yLabelIdx + 1, graphIdx - yLabelIdx - 1);
                 plotName = str.substr(0, yLabelIdx);
-                ylabel = str.substr(yLabelIdx + 1, graphIdx - yLabelIdx - 1);
                 graphName = str.substr(graphIdx + 1, valueIdx-graphIdx-1);
                 plots.Add(plotName, ylabel, graphName, serial.GetTimeSinceStart(), value);
             }
