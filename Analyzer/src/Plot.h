@@ -20,11 +20,13 @@ class Plot
 private:
     // using a map because I profiled it with std::vector and the map was faster
     std::unordered_map<std::string, Graph<T>> m_Graphs;
+    std::string m_YLabel = "y";
     mutable double m_YMax = std::numeric_limits<double>::lowest();
     mutable double m_YMin = std::numeric_limits<double>::max();
 public:
-    inline void Add(const std::string& graphName, T x, T y)
+    inline void Add(const std::string& graphName, const std::string& ylabel, T x, T y)
     {
+        m_YLabel = ylabel;
         Graph<T>& graph = m_Graphs[graphName];
         graph.Add(x, y);
         m_YMax = std::max(m_YMax, graph.GetYMax());
@@ -41,7 +43,7 @@ public:
 
         if (ImPlot::BeginPlot(plotName, { -1,-1 }))
         {
-            ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoHighlight, ImPlotAxisFlags_NoHighlight);
+            ImPlot::SetupAxes("t in s", m_YLabel.c_str(), ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoHighlight, ImPlotAxisFlags_NoHighlight);
             ImPlot::SetupAxisLimits(ImAxis_Y1, m_YMin, m_YMax, ImPlotCond_Always);
             for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
                 ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());

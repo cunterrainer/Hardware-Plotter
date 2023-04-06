@@ -15,9 +15,9 @@ private:
 public:
     inline explicit PlotManager(float yOffset) : m_YOffset(yOffset) {}
 
-    inline void Add(const std::string& plotName, const std::string& graphName, double x, double y)
+    inline void Add(const std::string& plotName, const std::string& ylabel, const std::string& graphName, double x, double y)
     {
-        m_Plots[plotName].Add(graphName, x, y);
+        m_Plots[plotName].Add(graphName, ylabel, x, y);
     }
 
     inline void Render(ImVec2 windowSize)

@@ -74,12 +74,15 @@ int main()
                 if (endptr == valueStr.data())
                     continue;
 
-                const size_t graphIdx = str.find_first_of(':');
+                const size_t yLabelIdx = str.find_first_of(':');
+                const size_t graphIdx = str.find_first_of(':', yLabelIdx+1);
                 static std::string plotName;
                 static std::string graphName;
-                plotName = str.substr(0, graphIdx);
+                static std::string ylabel;
+                plotName = str.substr(0, yLabelIdx);
+                ylabel = str.substr(yLabelIdx + 1, graphIdx - yLabelIdx - 1);
                 graphName = str.substr(graphIdx + 1, valueIdx-graphIdx-1);
-                plots.Add(plotName, graphName, serial.GetTimeSinceStart(), value);
+                plots.Add(plotName, ylabel, graphName, serial.GetTimeSinceStart(), value);
             }
             data.assign(&data[index+1]);
         }
