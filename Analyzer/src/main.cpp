@@ -8,33 +8,14 @@
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
 
-#include "Plot.h"
 #include "Serial.h"
+#include "Plot.h"
 #include "Window.h"
 #include "Clang.h"
 #include "Log.h"
 #include "SettingsWindow.h"
 #include "Profiler.h"
-
-
-template <class T>
-void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
-{
-    ImGui::SetNextWindowSize({ windowSize.x, windowSize.y - 43.f});
-    ImGui::SetNextWindowPos({ 0, 43.f });
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-    ImGui::Begin("##Plotter", nullptr, IMGUI_WINDOW_FLAGS);
-    
-    if (ImPlot::BeginPlot("##Line Plots", {-1,-1}))
-    {
-        ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
-        ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
-        plot.RenderLines();
-        ImPlot::EndPlot();
-    }
-    ImGui::End();
-    ImGui::PopStyleVar();
-}
+#include "PlotManager.h"
 
 
 const std::vector<std::string_view>& SplitStringByNl(const std::string_view& str)
@@ -59,8 +40,8 @@ int main()
 {
     Serial::Serial serial;
     std::string data;
-    Plot<double> plot;
     SettingsWindow settings;
+    PlotManager plots(settings.GetHeight());
     const Window window;
 
     while (window.IsOpen())
@@ -87,21 +68,24 @@ int main()
             for (const auto& str : vec)
             {
                 char* endptr;
-                const size_t colonIdx = str.find(':');
-                const std::string_view valueStr = str.substr(colonIdx + 1);
+                const size_t valueIdx = str.find_last_of(':');
+                const std::string_view valueStr = str.substr(valueIdx + 1);
                 const double value = std::strtod(valueStr.data(), &endptr);
                 if (endptr == valueStr.data())
                     continue;
 
+                const size_t graphIdx = str.find_first_of(':');
+                static std::string plotName;
                 static std::string graphName;
-                graphName = str.substr(0, colonIdx);
-                plot.Add(graphName, serial.GetTimeSinceStart(), value);
+                plotName = str.substr(0, graphIdx);
+                graphName = str.substr(graphIdx + 1, valueIdx-graphIdx-1);
+                plots.Add(plotName, graphName, serial.GetTimeSinceStart(), value);
             }
             data.assign(&data[index+1]);
         }
-        LinePlot(window.GetSize(), plot);
         if(settings.CleanupGraphs())
-            plot.CleanupGraphs(settings.CleanupGraphsSame());
+            plots.CleanupGraphs(settings.CleanupGraphsSame());
+        plots.Render(window.GetSize());
         window.EndFrame();
     }
     return 0;

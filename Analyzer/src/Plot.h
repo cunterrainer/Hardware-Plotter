@@ -6,8 +6,12 @@
 #include <type_traits>
 #include <unordered_map>
 
+#include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
 
+#undef max // windows macros
+#undef min // windows macros
+#include "Window.h"
 #include "Graph.h"
 
 template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>, bool> = true>
@@ -27,14 +31,26 @@ public:
         m_YMin = std::min(m_YMin, graph.GetYMin());
     }
 
-    inline void RenderLines() const
+
+    inline void Render(ImVec2 size, float yOffset, const char* plotName) const
     {
-        for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
-            ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
+        ImGui::SetNextWindowSize(size);
+        ImGui::SetNextWindowPos({ 0, yOffset });
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
+
+        if (ImPlot::BeginPlot(plotName, { -1,-1 }))
+        {
+            ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoHighlight, ImPlotAxisFlags_NoHighlight);
+            ImPlot::SetupAxisLimits(ImAxis_Y1, m_YMin, m_YMax, ImPlotCond_Always);
+            for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
+                ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
+            ImPlot::EndPlot();
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
     }
 
-    inline double GetYMax() const { return m_YMax; }
-    inline double GetYMin() const { return m_YMin; }
 
     inline void CleanupGraphs(bool onlySame)
     {

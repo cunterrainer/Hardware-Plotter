@@ -16,6 +16,7 @@ private:
     int m_SelectedPort = 0;
     bool m_CleanupGraphs = false;
     bool m_CleanupOnlySame = false;
+    float m_Height = 43.f;
 public:
     explicit SettingsWindow() 
         : m_PortsString([&]() {
@@ -29,11 +30,12 @@ public:
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
     bool CleanupGraphs() const { return m_CleanupGraphs; }
     bool CleanupGraphsSame() const { return m_CleanupOnlySame; }
+    float GetHeight() const { return m_Height; }
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
         ImGui::SetNextWindowPos({ 0, 0 });
-        ImGui::SetNextWindowSize({ windowWidth, 43.f });
+        ImGui::SetNextWindowSize({ windowWidth, m_Height });
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
         ImGui::SameLine();
