@@ -14,6 +14,7 @@
 #include "Clang.h"
 #include "Log.h"
 #include "SettingsWindow.h"
+#include "Profiler.h"
 
 
 template <class T>
@@ -77,8 +78,7 @@ int main()
 
         const std::string_view readData = serial.ReadData();
         data += readData;
-        const size_t index = data.find_last_of('\n');
-        if (!readData.empty() && index != std::string::npos)
+        if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {
             const std::vector<std::string_view>& vec = SplitStringByNl(data);
             for (const auto& str : vec)
@@ -92,8 +92,16 @@ int main()
 
                 static std::string graphName;
                 graphName = str.substr(0, colonIdx);
+
+                Profiler::Start();
                 const size_t graph = plot.AddGraph(graphName);
                 plot.Add(graph, serial.GetTimeSinceStart(), value);
+                Profiler::End();
+                if (Profiler::Count() == 5)
+                {
+                    Log << "Count: " << Profiler::Count() << " avg: " << Profiler::Average(Profiler::Conversion::Hours) << Endl;
+                    Profiler::Reset();
+                }
             }
             data.assign(&data[index+1]);
         }
