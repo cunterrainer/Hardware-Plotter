@@ -1,6 +1,7 @@
 #pragma once
 #include <limits>
 #include <cmath>
+#include <string>
 #include <cstdlib>
 #include <type_traits>
 #include <unordered_map>

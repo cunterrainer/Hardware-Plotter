@@ -66,9 +66,12 @@ int main()
     while (window.IsOpen())
     {
         window.StartFrame();
-        if (settings.ConnectClicked(window.GetSize().x))
+        if (settings.ConnectClicked(window.GetSize().x, serial.IsConnected()))
         {
-            if (!serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
+            if (serial.IsConnected())
+                serial.Disconnect();
+            // try to connect
+            else if (!serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());

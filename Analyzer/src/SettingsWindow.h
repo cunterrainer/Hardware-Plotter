@@ -26,12 +26,12 @@ public:
     const std::string& GetSelectedPort() const { return m_Ports[(size_t)m_SelectedPort].com; }
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
 
-    bool ConnectClicked(float windowWidth)
+    bool ConnectClicked(float windowWidth, bool connected)
     {
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowSize({ windowWidth, 43.f });
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
-        const bool clicked = ImGui::Button("Connect", { 150, 0 });
+        const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("##PortCombo", &m_SelectedPort, m_PortsString.c_str());

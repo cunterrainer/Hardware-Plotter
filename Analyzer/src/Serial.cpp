@@ -47,7 +47,6 @@ namespace Serial
 
     bool Serial::Connect(std::string portName, int selectedBaudRate) noexcept
     {
-        Disconnect();
         //Try to connect to the given port
         portName = "\\\\.\\" + portName;
         m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
