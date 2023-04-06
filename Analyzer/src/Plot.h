@@ -40,7 +40,7 @@ public:
     {
         for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
         {
-            if (it->second.GetGrowthSinceLastCleanup() > 500)
+            if (it->second.GetGrowthSinceLastCleanup() > 100) // there's no specific reason for it to be 100
                 it->second.Cleanup();
         }
     }

@@ -2,9 +2,9 @@
 #include <cmath>
 #include <vector>
 #include <limits>
+#include <cstdint>
 #include <cstdlib>
 #include <algorithm>
-#include <iostream>
 #include <type_traits>
 
 template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>, bool> = true>
@@ -19,7 +19,6 @@ private:
     T m_LowestY   = std::numeric_limits<T>::max();
     double m_YMax = std::numeric_limits<double>::lowest();
     double m_YMin = std::numeric_limits<double>::max();
-    size_t m_PreviousEnd = 1;
     size_t m_LastCleanupCount = 0;
 private:
     inline void CalculateYRange()
@@ -27,6 +26,14 @@ private:
         const double yOffset = -std::max(std::abs(m_GreatestY * YPercentageScalar), std::abs(m_LowestY * YPercentageScalar));
         m_YMax = m_GreatestY - yOffset;
         m_YMin = m_LowestY + yOffset;
+    }
+
+    inline double GetDeriviation()
+    {
+        double der = 0;
+        for (size_t i = 0; i < m_Ys.size() - 1; ++i)
+            der += std::abs(m_Ys[i] - m_Ys[i + 1]);
+        return der / (double)m_Ys.size();
     }
 public:
     inline Graph()
@@ -37,20 +44,17 @@ public:
 
     inline void Cleanup()
     {
-        // [1,2,4,5]
-        // [1,2,4,5,6]
-        //std::cout << "prev size: " << m_Ys.size();
-        for (size_t i = m_PreviousEnd; i < m_Ys.size()-2; ++i)
+        double deriviation = GetDeriviation();
+        for (size_t i = 1; i < m_Ys.size() - 2; ++i)
         {
-            if (std::abs(m_Ys[i] - m_Ys[i + 1]) < 0.1)
+            if (std::abs(m_Ys[i] - m_Ys[i + 1]) < deriviation)
             {
-                m_Ys.erase(m_Ys.begin() + i + 1);
-                m_Xs.erase(m_Xs.begin() + i + 1);
+                m_Ys.erase(m_Ys.begin() + (ptrdiff_t)i + 1);
+                m_Xs.erase(m_Xs.begin() + (ptrdiff_t)i + 1);
+                --i;
             }
         }
-        m_PreviousEnd = m_Ys.size() - 1;
         m_LastCleanupCount = m_Ys.size();
-        //std::cout << " current size: " << m_Ys.size() << std::endl;
     }
 
     inline void Add(T x, T y)
