@@ -42,17 +42,17 @@ public:
         ++Counter;
     }
 
-    static inline long double Average(long double nanosecConversion = Conversion::Nanoseconds)
+    static constexpr long double Average(long double nanosecConversion = Conversion::Nanoseconds)
     {
         return long double(AccumulatedTime.count() / Counter)*nanosecConversion;
     }
 
-    static inline std::uint64_t Count()
+    static constexpr std::uint64_t Count()
     {
         return Counter;
     }
 
-    static inline void Reset()
+    static constexpr void Reset()
     {
         Counter = 0;
         AccumulatedTime = std::chrono::nanoseconds::zero();

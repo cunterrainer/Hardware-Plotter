@@ -97,7 +97,7 @@ int main()
                 const size_t graph = plot.AddGraph(graphName);
                 plot.Add(graph, serial.GetTimeSinceStart(), value);
                 Profiler::End();
-                Profiler::LogIfEq(5);
+                Profiler::LogIfEq(100);
             }
             data.assign(&data[index+1]);
         }
