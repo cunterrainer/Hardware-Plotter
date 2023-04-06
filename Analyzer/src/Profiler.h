@@ -29,17 +29,26 @@ private:
         {Conversion::Minutes,      "min"},
         {Conversion::Hours,        "h"},
     };
+private:
+    static inline bool Log(long double nanosecConversion, const char* name, bool resetOnLog)
+    {
+        std::cout << "[Profiler] " << name << " Count: " << Count() << " Average: " << Average(nanosecConversion) << ' ' << TimeAbbreviations[nanosecConversion] << '\n';
+        if (resetOnLog)
+            Profiler::Reset();
+        return true;
+    }
 public:
     static inline void Start()
     {
         StartTime = std::chrono::steady_clock::now();
     }
 
-    static inline void End()
+    static inline void End(bool increaseCounter = true)
     {
         const std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         AccumulatedTime += std::chrono::duration_cast<std::chrono::nanoseconds>(now - StartTime);
-        ++Counter;
+        if(increaseCounter)
+            ++Counter;
     }
 
     static long double Average(long double nanosecConversion = Conversion::Nanoseconds)
@@ -60,15 +69,18 @@ public:
     }
 
     // Log if Count() is equal to 'value'
-    static inline bool LogIfEq(std::uint64_t value, long double nanosecConversion = Conversion::Nanoseconds, bool resetOnLog = true)
+    static inline bool LogIfEq(std::uint64_t value, long double nanosecConversion = Conversion::Nanoseconds, const char* name = "", bool resetOnLog = true)
     {
         if (Count() == value)
-        {
-            std::cout << "[Profiler]" << " Count: " << Count() << " Average: " << Average(nanosecConversion) << ' '  << TimeAbbreviations[nanosecConversion] << '\n';
-            if(resetOnLog)
-                Profiler::Reset();
-            return true;
-        }
+            return Log(nanosecConversion, name, resetOnLog);
+        return false;
+    }
+
+    // Log if Count() is equal to or greater than 'value'
+    static inline bool LogIfEqGr(std::uint64_t value, long double nanosecConversion = Conversion::Nanoseconds, const char* name = "", bool resetOnLog = true)
+    {
+        if (Count() >= value)
+            return Log(nanosecConversion, name, resetOnLog);
         return false;
     }
 };

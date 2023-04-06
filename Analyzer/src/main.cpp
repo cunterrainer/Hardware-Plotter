@@ -92,11 +92,7 @@ int main()
 
                 static std::string graphName;
                 graphName = str.substr(0, colonIdx);
-
-                Profiler::Start();
                 plot.Add(graphName, serial.GetTimeSinceStart(), value);
-                Profiler::End();
-                Profiler::LogIfEq(100, Profiler::Conversion::Microseconds);
             }
             data.assign(&data[index+1]);
         }

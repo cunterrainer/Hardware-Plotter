@@ -2,7 +2,6 @@
 #include <cmath>
 #include <vector>
 #include <limits>
-#include <string>
 #include <cstdlib>
 #include <algorithm>
 #include <type_traits>
@@ -41,7 +40,6 @@ public:
         m_Xs.push_back(x);
         m_Ys.push_back(y);
     }
-
 
     inline const T* GetX() const { return m_Xs.data(); }
     inline const T* GetY() const { return m_Ys.data(); }
