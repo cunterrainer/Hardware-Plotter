@@ -1,13 +1,11 @@
-#pragma once
+﻿#pragma once
 #include <chrono>
 #include <cstdint>
+#include <iostream>
+#include <unordered_map>
 
 class Profiler
 {
-private:
-    static inline std::chrono::steady_clock::time_point StartTime;
-    static inline std::chrono::nanoseconds AccumulatedTime;
-    static inline uint64_t Counter = 0;
 public:
     struct Conversion
     {
@@ -17,6 +15,19 @@ public:
         static constexpr long double Seconds      = 0.000000001;
         static constexpr long double Minutes      = 1.6666666666667E-11;
         static constexpr long double Hours        = 2.777777777E-13;
+    };
+private:
+    static inline std::chrono::steady_clock::time_point StartTime;
+    static inline std::chrono::nanoseconds AccumulatedTime;
+    static inline std::uint64_t Counter = 0;
+    static inline std::unordered_map<long double, const char*> TimeAbbreviations
+    {
+        {Conversion::Nanoseconds,  "ns"},
+        {Conversion::Microseconds, "mcs"},
+        {Conversion::Milliseconds, "ms"},
+        {Conversion::Seconds,      "sec"},
+        {Conversion::Minutes,      "min"},
+        {Conversion::Hours,        "h"},
     };
 public:
     static inline void Start()
@@ -36,7 +47,7 @@ public:
         return long double(AccumulatedTime.count() / Counter)*nanosecConversion;
     }
 
-    static inline uint64_t Count()
+    static inline std::uint64_t Count()
     {
         return Counter;
     }
@@ -46,5 +57,18 @@ public:
         Counter = 0;
         AccumulatedTime = std::chrono::nanoseconds::zero();
         StartTime = std::chrono::steady_clock::time_point();
+    }
+
+    // Log if Count() is equal to 'value'
+    static inline bool LogIfEq(std::uint64_t value, long double nanosecConversion = Conversion::Nanoseconds, bool resetOnLog = true)
+    {
+        if (Count() == value)
+        {
+            std::cout << "[Profiler]" << " Count: " << Count() << " Average: " << Average(nanosecConversion) << ' '  << TimeAbbreviations[nanosecConversion] << std::endl;
+            if(resetOnLog)
+                Profiler::Reset();
+            return true;
+        }
+        return false;
     }
 };

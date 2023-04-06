@@ -97,11 +97,7 @@ int main()
                 const size_t graph = plot.AddGraph(graphName);
                 plot.Add(graph, serial.GetTimeSinceStart(), value);
                 Profiler::End();
-                if (Profiler::Count() == 5)
-                {
-                    Log << "Count: " << Profiler::Count() << " avg: " << Profiler::Average(Profiler::Conversion::Hours) << Endl;
-                    Profiler::Reset();
-                }
+                Profiler::LogIfEq(5);
             }
             data.assign(&data[index+1]);
         }
