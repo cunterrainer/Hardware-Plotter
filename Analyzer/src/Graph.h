@@ -42,15 +42,17 @@ public:
         m_Ys.reserve(1000);
     }
 
-    inline void Cleanup()
+    inline void Cleanup(bool onlySame)
     {
-        double deriviation = GetDeriviation();
-        for (size_t i = 1; i < m_Ys.size() - 2; ++i)
+        double deriviation = 0.0;
+        if (!onlySame)
+            deriviation = GetDeriviation();
+        for (size_t i = 1; i < m_Ys.size() - 1; ++i)
         {
-            if (std::abs(m_Ys[i] - m_Ys[i + 1]) < deriviation)
+            if (std::abs(m_Ys[i] - m_Ys[i + 1]) <= deriviation && std::abs(m_Ys[i] - m_Ys[i - 1]) <= deriviation)
             {
-                m_Ys.erase(m_Ys.begin() + (ptrdiff_t)i + 1);
-                m_Xs.erase(m_Xs.begin() + (ptrdiff_t)i + 1);
+                m_Ys.erase(m_Ys.begin() + (ptrdiff_t)i);
+                m_Xs.erase(m_Xs.begin() + (ptrdiff_t)i);
                 --i;
             }
         }

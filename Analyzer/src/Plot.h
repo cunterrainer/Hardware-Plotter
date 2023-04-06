@@ -36,12 +36,12 @@ public:
     inline double GetYMax() const { return m_YMax; }
     inline double GetYMin() const { return m_YMin; }
 
-    inline void CleanupGraphs()
+    inline void CleanupGraphs(bool onlySame)
     {
         for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
         {
             if (it->second.GetGrowthSinceLastCleanup() > 100) // there's no specific reason for it to be 100
-                it->second.Cleanup();
+                it->second.Cleanup(onlySame);
         }
     }
 };
