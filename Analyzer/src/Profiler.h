@@ -18,7 +18,7 @@ public:
     };
 private:
     static inline std::chrono::steady_clock::time_point StartTime;
-    static inline std::chrono::nanoseconds AccumulatedTime;
+    static inline std::chrono::nanoseconds AccumulatedTime = std::chrono::nanoseconds::zero();
     static inline std::uint64_t Counter = 0;
     static inline std::unordered_map<long double, const char*> TimeAbbreviations
     {

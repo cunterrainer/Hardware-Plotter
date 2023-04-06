@@ -14,6 +14,7 @@ private:
     std::string m_PortsString;
     int m_SelectedBaudRate = 0;
     int m_SelectedPort = 0;
+    bool m_CleanupGraphs = false;
 public:
     explicit SettingsWindow() 
         : m_PortsString([&]() {
@@ -25,6 +26,7 @@ public:
 
     const std::string& GetSelectedPort() const { return m_Ports[(size_t)m_SelectedPort].com; }
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
+    bool CleanupGraphs() const { return m_CleanupGraphs; }
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
@@ -38,6 +40,10 @@ public:
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("baud", &m_SelectedBaudRate, Serial::Serial::BaudRates.data());
+        ImGui::SameLine();
+        ImGui::Checkbox("Cleanup Graphs", &m_CleanupGraphs);
+        if(ImGui::IsItemHovered())
+            ImGui::SetTooltip("Cleanup graphs by removing elements that have a similar y value.\n(Improves performance, however you may encounter bugs or the graphs might not look like what you expect)");
         ImGui::SameLine(windowWidth - 250);
         ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();

@@ -29,7 +29,10 @@ void LinePlot(ImVec2 windowSize, const Plot<T>& plot)
     {
         ImPlot::SetupAxes("t in s", "y", ImPlotAxisFlags_AutoFit);
         ImPlot::SetupAxisLimits(ImAxis_Y1, plot.GetYMin(), plot.GetYMax(), ImPlotCond_Always);
+        //Profiler::Start();
         plot.RenderLines();
+        //Profiler::End();
+        //Profiler::LogIfEq(100, Profiler::Conversion::Microseconds);
         ImPlot::EndPlot();
     }
     ImGui::End();
@@ -100,6 +103,8 @@ int main()
             data.assign(&data[index+1]);
         }
         LinePlot(window.GetSize(), plot);
+        if(settings.CleanupGraphs())
+            plot.CleanupGraphs();
         window.EndFrame();
     }
     return 0;

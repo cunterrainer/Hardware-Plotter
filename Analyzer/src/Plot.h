@@ -35,4 +35,13 @@ public:
 
     inline double GetYMax() const { return m_YMax; }
     inline double GetYMin() const { return m_YMin; }
+
+    inline void CleanupGraphs()
+    {
+        for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
+        {
+            if (it->second.GetGrowthSinceLastCleanup() > 500)
+                it->second.Cleanup();
+        }
+    }
 };
