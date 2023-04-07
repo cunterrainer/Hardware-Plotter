@@ -1,9 +1,7 @@
 #pragma once
-#include <string_view> // std::swap
-
 #include "GLFW/glfw3.h"
 
-#include "Log.h"
+#include "Thread.h"
 
 class Image
 {
@@ -29,42 +27,20 @@ private:
         m_Created = false;
     }
 
-    inline void FlipHorizontally()
-    {
-        for (int row = 0; row < m_Height; row++)
-        {
-            for (int col = 0; col < m_Width / 2; col++)
-            {
-                for (int channel = 0; channel < NumOfChannels; channel++)
-                    std::swap(m_Pixel[(row * m_Width + col) * NumOfChannels + channel], m_Pixel[(row * m_Width + m_Width - 1 - col) * NumOfChannels + channel]);
-            }
-            if (m_Width % 2 != 0) // handle center column for odd number of columns
-            {
-                int center_col = m_Width / 2;
-                for (int channel = 0; channel < NumOfChannels; channel++)
-                    std::swap(m_Pixel[(row * m_Width + center_col) * NumOfChannels + channel], m_Pixel[(row * m_Width + center_col) * NumOfChannels + channel]);
-            }
-        }
-    }
-
     inline void FlipVertically()
     {
-        for (int row = 0; row < m_Height / 2; row++)
+        for (int w = 0; w < m_Width; ++w)
         {
-            for (int col = 0; col < m_Width; col++)
+            for (int h = 0; h < m_Height / 2; ++h)
             {
-                for (int channel = 0; channel < NumOfChannels; channel++)
-                    std::swap(m_Pixel[(row * m_Width + col) * NumOfChannels + channel], m_Pixel[((m_Height - 1 - row) * m_Width + col) * NumOfChannels + channel]);
-            }
-        }
-
-        if (m_Height % 2 == 1)
-        {
-            int midRow = m_Height / 2;
-            for (int col = 0; col < m_Width / 2; col++)
-            {
-                for (int channel = 0; channel < NumOfChannels; channel++)
-                    std::swap(m_Pixel[(midRow * m_Width + col) * NumOfChannels + channel], m_Pixel[(midRow * m_Width + m_Width - 1 - col) * NumOfChannels + channel]);
+                const int idx = (m_Width * h + w) * NumOfChannels;
+                const int EndIdx = m_Width*m_Height* NumOfChannels - m_Width * NumOfChannels * (h + 1) + w * NumOfChannels;
+                for (int c = 0; c < NumOfChannels; ++c)
+                {
+                    GLubyte temp = m_Pixel[idx + c];
+                    m_Pixel[idx + c] = m_Pixel[EndIdx + c];
+                    m_Pixel[EndIdx + c] = temp;
+                }
             }
         }
     }
