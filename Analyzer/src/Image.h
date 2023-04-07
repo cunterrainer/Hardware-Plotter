@@ -74,6 +74,11 @@ public:
         Delete();
     }
 
+    inline void Reset()
+    {
+        Delete();
+    }
+
     inline void Create(ImVec2 size, ImVec2 pos)
     {
         if (m_Created) return;

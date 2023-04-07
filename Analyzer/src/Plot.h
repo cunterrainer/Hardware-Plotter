@@ -68,8 +68,11 @@ public:
         if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
         {
             m_SaveClicked = true;
-            if(ImageWriter::SaveImage({size.x, size.y-29}, {0, ImGui::GetIO().DisplaySize.y - size.y - yOffset}))
+            if (ImageWriter::SaveImage({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset }))
+            {
                 m_SaveClicked = false;
+                ImageWriter::Reset();
+            }
         }
         ImGui::SameLine();
         ImGui::Checkbox("Cleanup Graphs", &m_CleanupGraphs);

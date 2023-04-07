@@ -106,9 +106,21 @@ public:
         if (ImGui::Button("Path", PathButtonSize))
             SaveFileDialog();
         ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5});
-        if (ImGui::Button("Save", { pathWidth.x + PathButtonSize.x, 0 }))
+        const float btnWidth = (pathWidth.x + PathButtonSize.x) / 2.f;
+        if (ImGui::Button("Save", { btnWidth, 0 }))
+        {
             SaveImageToFile();
+            ImGui::End();
+            return true;
+        }
+        ImGui::SameLine();
+        const bool close = ImGui::Button("Cancel", { btnWidth, 0});
         ImGui::End();
-        return false;
+        return close;
+    }
+
+    static inline void Reset()
+    {
+        m_Image.Reset();
     }
 };
