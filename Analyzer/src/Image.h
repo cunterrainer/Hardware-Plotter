@@ -57,7 +57,7 @@ public:
 
     inline void ScaleUp(int newWidth, int newHeight)
     {
-        GLubyte* pixelScaled = new GLubyte[NumOfChannels * newWidth * newHeight];
+        GLubyte* pixelScaled = new GLubyte[(unsigned int)(NumOfChannels * newWidth * newHeight)];
         if (!stbir_resize_uint8(m_Pixel, m_Width, m_Height, m_Width * NumOfChannels, pixelScaled, newWidth, newHeight, newWidth * NumOfChannels, NumOfChannels))
         {
             Err << "Failed to resize image w_old: " << m_Width << " h_old: " << m_Height << " w_new: " << newWidth << " h_new: " << newHeight << " channel: " << NumOfChannels << Endl;
