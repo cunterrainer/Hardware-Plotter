@@ -16,6 +16,7 @@ private:
     static constexpr float PathButtonPadding = 20.f;
     static inline Image m_Image;
     static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
+    static inline std::string m_DisplayPath = m_Path;
 private:
     static inline void SaveFileDialog()
     {
@@ -24,6 +25,7 @@ private:
         if (result == NFD_OKAY)
         {
             m_Path = savePath;
+            m_DisplayPath = m_Path;
             free(savePath);
         }
         else if (result == NFD_CANCEL)
@@ -72,9 +74,23 @@ public:
     {
         m_Image.Create(size, pos);
         const float aspecRatio = size.x / size.y;
-        const ImVec2 imageSize{ 500 * aspecRatio, 500 };
-        const ImVec2 pathWidth = ImGui::CalcTextSize(m_Path.c_str());
-        const ImVec2 windowSize{ imageSize.x + pathWidth.x + PathButtonSize.x + PathButtonPadding, imageSize.y + 25 /*Title height*/};
+        const ImVec2 imageSize{ size.y / 1.7f * aspecRatio, size.y / 1.7f };
+        ImVec2 pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
+        ImVec2 windowSize{ imageSize.x + pathWidth.x + PathButtonSize.x + PathButtonPadding, imageSize.y + 25 /*Title height*/};
+        if (windowSize.x >= size.x)
+        {
+            while (m_DisplayPath.size() > 4 && windowSize.x >= size.x)
+            {
+                m_DisplayPath.pop_back();
+                pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
+                const float s = windowSize.x - pathWidth.x;
+                windowSize.x -= s;
+            }
+            m_DisplayPath.pop_back();
+            m_DisplayPath.pop_back();
+            m_DisplayPath.pop_back();
+            m_DisplayPath += "...";
+        }
         const ImGuiIO& io = ImGui::GetIO();
 
         ImGui::SetNextWindowFocus();
@@ -85,7 +101,7 @@ public:
         ImGui::Image((void*)(intptr_t)m_Image.GetGpuImage(), imageSize);
         ImGui::SameLine();
         ImVec2 currsorPos = ImGui::GetCursorPos();
-        ImGui::Text("%s", m_Path.c_str());
+        ImGui::Text("%s", m_DisplayPath.c_str());
         ImGui::SameLine();
         if (ImGui::Button("Path", PathButtonSize))
             SaveFileDialog();
