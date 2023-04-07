@@ -15,10 +15,21 @@ class ImageWriter
 private:
     static constexpr ImVec2 PathButtonSize{ 100, 0 };
     static constexpr float PathButtonPadding = 20.f;
+private:
     static inline Image m_Image;
     static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
     static inline std::string m_DisplayPath = m_Path;
+
+    static inline ImVec2 m_ImageSize;
+    static inline ImVec2 m_PathWidth;
+    static inline ImVec2 m_WindowSize;
+    static inline float  m_BtnWidth;
+    static inline float  m_AspectRatio;
+
     static inline bool m_UpscaleOnWrite = false;
+    static inline bool m_KeepAspectRatio = true;
+    static inline int  m_NewWidth = 0;
+    static inline int  m_NewHeight = 0;
 private:
     static inline void SaveFileDialog()
     {
@@ -58,7 +69,7 @@ private:
         std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
 
         if (m_UpscaleOnWrite)
-            m_Image.ScaleUp();
+            m_Image.ScaleUp(m_NewWidth, m_NewHeight);
         if (extension == ".jpg" || extension == ".jpeg")
             WriteImage(stbi_write_jpg);
         else if (extension == ".bmp")
@@ -74,36 +85,93 @@ private:
         }
         Reset();
     }
-public:
-    static inline bool SaveImage(ImVec2 size, ImVec2 pos)
+
+    static inline void Reset()
     {
-        m_Image.Create(size, pos);
-        const float aspecRatio = size.x / size.y;
-        const ImVec2 imageSize{ size.y / 1.7f * aspecRatio, size.y / 1.7f };
-        ImVec2 pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
-        ImVec2 windowSize{ imageSize.x + pathWidth.x + PathButtonSize.x + PathButtonPadding, imageSize.y + 25 /*Title height*/ };
-        if (windowSize.x >= size.x)
+        m_Image.Reset();
+        m_NewWidth = 0;
+        m_NewHeight = 0;
+        m_KeepAspectRatio = true;
+        m_UpscaleOnWrite = false;
+    }
+
+    static inline void CalcWindowProps(ImVec2 size)
+    {
+        if (m_NewHeight == 0 && m_NewWidth == 0)
         {
-            while (m_DisplayPath.size() > 4 && windowSize.x >= size.x)
+            m_NewHeight = m_Image.Height();
+            m_NewWidth = m_Image.Width();
+        }
+        m_AspectRatio = size.x / size.y;
+        m_ImageSize = { size.y / 1.7f * m_AspectRatio, size.y / 1.7f };
+        m_PathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
+        m_WindowSize = { m_ImageSize.x + m_PathWidth.x + PathButtonSize.x + PathButtonPadding, m_ImageSize.y + 25 /*Title height*/ };
+        if (m_WindowSize.x >= size.x)
+        {
+            while (m_DisplayPath.size() > 4 && m_WindowSize.x >= size.x)
             {
                 m_DisplayPath.pop_back();
-                pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
-                const float s = windowSize.x - pathWidth.x;
-                windowSize.x -= s;
+                m_PathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
+                const float s = m_WindowSize.x - m_PathWidth.x;
+                m_WindowSize.x -= s;
             }
             m_DisplayPath.pop_back();
             m_DisplayPath.pop_back();
             m_DisplayPath.pop_back();
             m_DisplayPath += "...";
         }
-        const ImGuiIO& io = ImGui::GetIO();
+    }
 
+    static inline void SetWindowProps()
+    {
+        const ImGuiIO& io = ImGui::GetIO();
         ImGui::SetNextWindowFocus();
         ImGui::SetNextWindowBgAlpha(1);
-        ImGui::SetNextWindowSize(windowSize);
-        ImGui::SetNextWindowPos({ (io.DisplaySize.x - windowSize.x) / 2.f, (io.DisplaySize.y - windowSize.y) / 2.f });
+        ImGui::SetNextWindowSize(m_WindowSize);
+        ImGui::SetNextWindowPos({ (io.DisplaySize.x - m_WindowSize.x) / 2.f, (io.DisplaySize.y - m_WindowSize.y) / 2.f });
+    }
+
+    static inline void NextLine()
+    {
+        ImGui::NewLine();
+        ImGui::SameLine(m_ImageSize.x + 7);
+    }
+
+    static inline void Upscalar()
+    {
+        ImGui::SetNextItemWidth(m_BtnWidth);
+        ImGui::Checkbox("Upscale image", &m_UpscaleOnWrite);
+        if (m_UpscaleOnWrite)
+        {
+            ImGui::SameLine();
+            if (ImGui::Checkbox("Keep aspect ratio", &m_KeepAspectRatio) && m_KeepAspectRatio)
+            {
+                m_NewHeight = m_Image.Height();
+                m_NewWidth = m_Image.Width();
+            }
+            NextLine();
+            ImGui::SetNextItemWidth(m_BtnWidth);
+            if (ImGui::InputInt("##WidthInput", &m_NewWidth) && m_KeepAspectRatio)
+            {
+                m_NewHeight = static_cast<int>(m_NewWidth / m_AspectRatio);
+            }
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(m_BtnWidth);
+            if (ImGui::InputInt("##HeightInput", &m_NewHeight))
+            {
+                m_NewWidth = static_cast<int>(m_NewHeight * m_AspectRatio);
+            }
+        }
+    }
+public:
+    static inline bool SaveImage(ImVec2 size, ImVec2 pos)
+    {
+        m_Image.Create(size, pos);
+        CalcWindowProps(size);
+        SetWindowProps();
+
         ImGui::Begin("Image writer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-        ImGui::Image((void*)(intptr_t)m_Image.GetGpuImage(), imageSize);
+        ImGui::Image((void*)(intptr_t)m_Image.GetGpuImage(), m_ImageSize);
         ImGui::SameLine();
         ImVec2 currsorPos = ImGui::GetCursorPos();
         ImGui::Text("%s", m_DisplayPath.c_str());
@@ -111,24 +179,20 @@ public:
         if (ImGui::Button("Path", PathButtonSize))
             Thread::Dispatch(SaveFileDialog);
         ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5 });
-        const float btnWidth = (pathWidth.x + PathButtonSize.x) / 2.f;
-        if (ImGui::Button("Save", { btnWidth, 0 }))
+        m_BtnWidth = (m_PathWidth.x + PathButtonSize.x) / 2.f;
+        if (ImGui::Button("Save", { m_BtnWidth, 0 }))
         {
             Thread::Dispatch(SaveImageToFile);
             ImGui::End();
             return true;
         }
         ImGui::SameLine();
-        const bool close = ImGui::Button("Cancel", { btnWidth, 0 });
+        const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 });
         if (close)
             Reset();
-        ImGui::Checkbox("Upscale image", &m_UpscaleOnWrite);
+        NextLine();
+        Upscalar();
         ImGui::End();
         return close;
-    }
-
-    static inline void Reset()
-    {
-        m_Image.Reset();
     }
 };

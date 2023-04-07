@@ -7,8 +7,6 @@ class Image
 {
 public:
     static constexpr int NumOfChannels = 4;
-    static constexpr int UpscaleWidth = 1920;
-    static constexpr int UpscaleHeight = 1080;
 private:
     GLubyte* m_Pixel = nullptr;
     GLsizei m_Width = 0;
@@ -57,16 +55,16 @@ public:
         Delete();
     }
 
-    inline void ScaleUp()
+    inline void ScaleUp(int newWidth, int newHeight)
     {
-        GLubyte* pixelScaled = new GLubyte[NumOfChannels * UpscaleWidth * UpscaleHeight];
-        if (!stbir_resize_uint8(m_Pixel, m_Width, m_Height, m_Width * NumOfChannels, pixelScaled, UpscaleWidth, UpscaleHeight, UpscaleWidth * NumOfChannels, NumOfChannels))
+        GLubyte* pixelScaled = new GLubyte[NumOfChannels * newWidth * newHeight];
+        if (!stbir_resize_uint8(m_Pixel, m_Width, m_Height, m_Width * NumOfChannels, pixelScaled, newWidth, newHeight, newWidth * NumOfChannels, NumOfChannels))
         {
-            Err << "Failed to resize image w_old: " << m_Width << " h_old: " << m_Height << " w_new: " << UpscaleWidth << " h_new: " << UpscaleHeight << " channel: " << NumOfChannels << Endl;
+            Err << "Failed to resize image w_old: " << m_Width << " h_old: " << m_Height << " w_new: " << newWidth << " h_new: " << newHeight << " channel: " << NumOfChannels << Endl;
             return;
         }
-        m_Width = UpscaleWidth;
-        m_Height = UpscaleHeight;
+        m_Width = newWidth;
+        m_Height = newHeight;
         delete[] m_Pixel;
         m_Pixel = pixelScaled;
     }
