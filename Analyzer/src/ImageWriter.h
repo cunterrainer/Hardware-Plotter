@@ -83,16 +83,6 @@ private:
             m_Path += ".png";
             WriteImage(stbi_write_png);
         }
-        Reset();
-    }
-
-    static inline void Reset()
-    {
-        m_Image.Reset();
-        m_NewWidth = 0;
-        m_NewHeight = 0;
-        m_KeepAspectRatio = true;
-        m_UpscaleOnWrite = false;
     }
 
     static inline void CalcWindowProps(ImVec2 size)
@@ -143,7 +133,7 @@ private:
         ImGui::Checkbox("Upscale image", &m_UpscaleOnWrite);
         if (m_UpscaleOnWrite)
         {
-            ImGui::SameLine();
+            ImGui::SameLine(m_WindowSize.x - m_BtnWidth - 4);
             if (ImGui::Checkbox("Keep aspect ratio", &m_KeepAspectRatio) && m_KeepAspectRatio)
             {
                 m_NewHeight = m_Image.Height();
@@ -153,17 +143,26 @@ private:
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##WidthInput", &m_NewWidth) && m_KeepAspectRatio)
             {
-                m_NewHeight = static_cast<int>(m_NewWidth / m_AspectRatio);
+                m_NewHeight = static_cast<int>((float)m_NewWidth / m_AspectRatio);
             }
             ImGui::SameLine();
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##HeightInput", &m_NewHeight))
             {
-                m_NewWidth = static_cast<int>(m_NewHeight * m_AspectRatio);
+                m_NewWidth = static_cast<int>((float)m_NewHeight * m_AspectRatio);
             }
         }
     }
 public:
+    static inline void Reset()
+    {
+        m_Image.Reset();
+        m_NewWidth = 0;
+        m_NewHeight = 0;
+        m_KeepAspectRatio = true;
+        m_UpscaleOnWrite = false;
+    }
+
     static inline bool SaveImage(ImVec2 size, ImVec2 pos)
     {
         m_Image.Create(size, pos);
@@ -181,15 +180,9 @@ public:
         ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5 });
         m_BtnWidth = (m_PathWidth.x + PathButtonSize.x) / 2.f;
         if (ImGui::Button("Save", { m_BtnWidth, 0 }))
-        {
             Thread::Dispatch(SaveImageToFile);
-            ImGui::End();
-            return true;
-        }
         ImGui::SameLine();
         const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 });
-        if (close)
-            Reset();
         NextLine();
         Upscalar();
         ImGui::End();
