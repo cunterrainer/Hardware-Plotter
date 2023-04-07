@@ -21,13 +21,13 @@ public:
         m_Plots[plotName].Add(graphName, ylabel, x, y);
     }
 
-    inline void Render(ImVec2 windowSize)
+    inline void Render(ImVec2 windowSize, bool debugInfo)
     {
         size_t count = 0;
         float height = (windowSize.y - m_YOffset) / (float)m_Plots.size();
         for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)
         {
-            it->second.Render({ windowSize.x, height }, m_YOffset + height*(float)count, it->first.c_str());
+            it->second.Render({ windowSize.x, height }, m_YOffset + height*(float)count, it->first.c_str(), debugInfo);
             ++count;
         }
     }

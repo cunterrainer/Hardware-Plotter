@@ -79,7 +79,7 @@ int main()
                 if (const size_t valueIdx = str.find_last_of(':'); valueIdx != std::string::npos)
                     valueStr = str.substr(valueIdx + 1);
                 const double value = std::strtod(valueStr.data(), &endptr);
-                if (endptr == valueStr.data())
+                if (endptr == valueStr.data() || std::isinf(value) || std::isnan(value))
                     continue;
                 
                 switch (vec.size())
@@ -112,7 +112,7 @@ int main()
             data.assign(&data[index+1]);
         }
         plots.CleanupGraphs();
-        plots.Render(window.GetSize());
+        plots.Render(window.GetSize(), settings.DebugInfoSelected());
         window.EndFrame();
     }
     Thread::Join();

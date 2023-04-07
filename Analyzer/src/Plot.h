@@ -57,7 +57,7 @@ public:
     }
 
 
-    inline void Render(ImVec2 size, float yOffset, const char* plotName)
+    inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
         ImGui::SetNextWindowSize(size);
         ImGui::SetNextWindowPos({ 0, yOffset });
@@ -94,8 +94,12 @@ public:
         {
             ImPlot::SetupAxes("t in s", m_YLabel.c_str(), ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoHighlight, ImPlotAxisFlags_NoHighlight);
             ImPlot::SetupAxisLimits(ImAxis_Y1, m_YMin, m_YMax, ImPlotCond_Always);
-            for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
-                ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
+            if (debugInfo)
+                for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
+                    ImPlot::PlotLine(std::string(std::string(it->first.c_str()) + ":" + std::to_string(it->second.GetCount())).c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
+            else
+                for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
+                    ImPlot::PlotLine(it->first.c_str(), it->second.GetX(), it->second.GetY(), it->second.GetCount());
             ImPlot::EndPlot();
         }
         ImGui::End();
