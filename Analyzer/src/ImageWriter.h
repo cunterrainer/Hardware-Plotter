@@ -18,6 +18,7 @@ private:
     static inline Image m_Image;
     static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
     static inline std::string m_DisplayPath = m_Path;
+    static inline bool m_UpscaleOnWrite = false;
 private:
     static inline void SaveFileDialog()
     {
@@ -55,7 +56,9 @@ private:
         std::filesystem::path path(m_Path);
         std::string extension = path.extension().string();
         std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
-    
+
+        if (m_UpscaleOnWrite)
+            m_Image.ScaleUp();
         if (extension == ".jpg" || extension == ".jpeg")
             WriteImage(stbi_write_jpg);
         else if (extension == ".bmp")
@@ -78,7 +81,7 @@ public:
         const float aspecRatio = size.x / size.y;
         const ImVec2 imageSize{ size.y / 1.7f * aspecRatio, size.y / 1.7f };
         ImVec2 pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
-        ImVec2 windowSize{ imageSize.x + pathWidth.x + PathButtonSize.x + PathButtonPadding, imageSize.y + 25 /*Title height*/};
+        ImVec2 windowSize{ imageSize.x + pathWidth.x + PathButtonSize.x + PathButtonPadding, imageSize.y + 25 /*Title height*/ };
         if (windowSize.x >= size.x)
         {
             while (m_DisplayPath.size() > 4 && windowSize.x >= size.x)
@@ -98,7 +101,7 @@ public:
         ImGui::SetNextWindowFocus();
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize(windowSize);
-        ImGui::SetNextWindowPos({ (io.DisplaySize.x - windowSize.x)/2.f, (io.DisplaySize.y-windowSize.y)/2.f });
+        ImGui::SetNextWindowPos({ (io.DisplaySize.x - windowSize.x) / 2.f, (io.DisplaySize.y - windowSize.y) / 2.f });
         ImGui::Begin("Image writer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
         ImGui::Image((void*)(intptr_t)m_Image.GetGpuImage(), imageSize);
         ImGui::SameLine();
@@ -107,7 +110,7 @@ public:
         ImGui::SameLine();
         if (ImGui::Button("Path", PathButtonSize))
             Thread::Dispatch(SaveFileDialog);
-        ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5});
+        ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5 });
         const float btnWidth = (pathWidth.x + PathButtonSize.x) / 2.f;
         if (ImGui::Button("Save", { btnWidth, 0 }))
         {
@@ -116,9 +119,10 @@ public:
             return true;
         }
         ImGui::SameLine();
-        const bool close = ImGui::Button("Cancel", { btnWidth, 0});
+        const bool close = ImGui::Button("Cancel", { btnWidth, 0 });
         if (close)
             Reset();
+        ImGui::Checkbox("Upscale image", &m_UpscaleOnWrite);
         ImGui::End();
         return close;
     }

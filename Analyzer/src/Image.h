@@ -1,12 +1,14 @@
 #pragma once
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "stb/stb_image_resize.h"
 #include "GLFW/glfw3.h"
-
-#include "Thread.h"
 
 class Image
 {
 public:
     static constexpr int NumOfChannels = 4;
+    static constexpr int UpscaleWidth = 1920;
+    static constexpr int UpscaleHeight = 1080;
 private:
     GLubyte* m_Pixel = nullptr;
     GLsizei m_Width = 0;
@@ -53,6 +55,20 @@ public:
     inline void Reset()
     {
         Delete();
+    }
+
+    inline void ScaleUp()
+    {
+        GLubyte* pixelScaled = new GLubyte[NumOfChannels * UpscaleWidth * UpscaleHeight];
+        if (!stbir_resize_uint8(m_Pixel, m_Width, m_Height, m_Width * NumOfChannels, pixelScaled, UpscaleWidth, UpscaleHeight, UpscaleWidth * NumOfChannels, NumOfChannels))
+        {
+            Err << "Failed to resize image w_old: " << m_Width << " h_old: " << m_Height << " w_new: " << UpscaleWidth << " h_new: " << UpscaleHeight << " channel: " << NumOfChannels << Endl;
+            return;
+        }
+        m_Width = UpscaleWidth;
+        m_Height = UpscaleHeight;
+        delete[] m_Pixel;
+        m_Pixel = pixelScaled;
     }
 
     inline void Create(ImVec2 size, ImVec2 pos)
