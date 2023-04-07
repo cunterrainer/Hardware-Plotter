@@ -33,6 +33,7 @@ public:
     bool ConnectClicked(float windowWidth, bool connected)
     {
         ImGui::SetNextWindowPos({ 0, 0 });
+        ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize({ windowWidth, m_Height });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);

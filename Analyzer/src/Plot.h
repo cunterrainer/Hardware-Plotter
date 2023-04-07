@@ -63,6 +63,7 @@ public:
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
         ImGui::SetNextWindowSize(size);
+        ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowPos({ 0, yOffset });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
