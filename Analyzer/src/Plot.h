@@ -30,6 +30,7 @@ private:
     bool m_CleanupGraphs = false;
     bool m_CleanupOnlySame = false;
     bool m_SaveClicked = false;
+    bool m_Pause = false;
     T m_YMax = std::numeric_limits<T>::lowest();
     T m_YMin = std::numeric_limits<T>::max();
     T m_GreatestY = std::numeric_limits<T>::lowest();
@@ -44,6 +45,8 @@ private:
 public:
     inline void Add(const std::string& graphName, std::string_view ylabel, T x, T y)
     {
+        if (m_Pause)
+            return;
         if (!m_LabelAssigned)
         {
             m_YLabel = ylabel;
@@ -65,7 +68,10 @@ public:
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
         ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
         ImGui::SameLine(8);
+        if (ImGui::Button(m_Pause ? "Continue" : "Pause", {150, 0}))
+            m_Pause = !m_Pause;
 
+        ImGui::SameLine();
         if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
         {
             if (!PlotInImageWriter || m_SaveClicked)
