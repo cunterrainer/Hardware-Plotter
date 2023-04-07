@@ -14,6 +14,7 @@
 #undef min // windows macros
 #include "Window.h"
 #include "Graph.h"
+#include "ImageWriter.h"
 
 template <class T, std::enable_if_t<std::numeric_limits<T>::is_integer || std::is_floating_point_v<T>, bool> = true>
 class Plot
@@ -25,6 +26,9 @@ private:
     std::unordered_map<std::string, Graph<T>> m_Graphs;
     std::string m_YLabel;
     bool m_LabelAssigned = false;
+    bool m_CleanupGraphs = false;
+    bool m_CleanupOnlySame = false;
+    bool m_SaveClicked = false;
     T m_YMax = std::numeric_limits<T>::lowest();
     T m_YMin = std::numeric_limits<T>::max();
     T m_GreatestY = std::numeric_limits<T>::lowest();
@@ -52,14 +56,32 @@ public:
     }
 
 
-    inline void Render(ImVec2 size, float yOffset, const char* plotName) const
+    inline void Render(ImVec2 size, float yOffset, const char* plotName)
     {
         ImGui::SetNextWindowSize(size);
         ImGui::SetNextWindowPos({ 0, yOffset });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
         ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
+        ImGui::SameLine(8);
 
-        if (ImPlot::BeginPlot(plotName, { -1,-1 }))
+        if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
+        {
+            m_SaveClicked = true;
+            if(ImageWriter::SaveImage({size.x, size.y-29}, {0, ImGui::GetIO().DisplaySize.y - size.y - yOffset}))
+                m_SaveClicked = false;
+        }
+        ImGui::SameLine();
+        ImGui::Checkbox("Cleanup Graphs", &m_CleanupGraphs);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Cleanup graphs by removing elements that have a similar y value.\n(Improves performance, however you may encounter bugs or the graphs might not look like what you expect)");
+        ImGui::SameLine();
+        if (ImGui::Checkbox("Cleanup only same", &m_CleanupOnlySame) && m_CleanupOnlySame)
+            m_CleanupGraphs = true;
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("Cleanup the graph but only if the y values are the same");
+
+        if (ImPlot::BeginPlot(plotName, {-1, -1}))
         {
             ImPlot::SetupAxes("t in s", m_YLabel.c_str(), ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoHighlight, ImPlotAxisFlags_NoHighlight);
             ImPlot::SetupAxisLimits(ImAxis_Y1, m_YMin, m_YMax, ImPlotCond_Always);
@@ -68,16 +90,17 @@ public:
             ImPlot::EndPlot();
         }
         ImGui::End();
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
     }
 
 
-    inline void CleanupGraphs(bool onlySame)
+    inline void CleanupGraphs()
     {
+        if (!m_CleanupGraphs) return;
         for (auto it = m_Graphs.begin(); it != m_Graphs.end(); ++it)
         {
             if (it->second.GetGrowthSinceLastCleanup() > 100) // there's no specific reason for it to be 100
-                it->second.Cleanup(onlySame);
+                it->second.Cleanup(m_CleanupOnlySame);
         }
     }
 };

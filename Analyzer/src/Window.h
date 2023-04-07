@@ -17,8 +17,8 @@ public:
 	inline void Clear()      const noexcept { glClear(GL_COLOR_BUFFER_BIT);            }
 	inline void PollEvents() const noexcept { glfwPollEvents();                        }
 	inline void WaitEvents() const noexcept { glfwWaitEvents();                        }
-	inline void StartFrame() const noexcept { Clear(); ImGuiStartFrame();              }
-	inline void EndFrame()   const noexcept { ImGuiRender(); PollEvents(); Swap();     }
+	inline void StartFrame() const noexcept { ImGuiStartFrame();                       }
+	inline void EndFrame()   const noexcept { Clear(); ImGuiRender(); PollEvents(); Swap(); }
 
 	ImVec2 GetSize() const noexcept;
 

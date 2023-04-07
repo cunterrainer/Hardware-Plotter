@@ -21,7 +21,7 @@ public:
         m_Plots[plotName].Add(graphName, ylabel, x, y);
     }
 
-    inline void Render(ImVec2 windowSize) const
+    inline void Render(ImVec2 windowSize)
     {
         size_t count = 0;
         float height = (windowSize.y - m_YOffset) / (float)m_Plots.size();
@@ -32,11 +32,11 @@ public:
         }
     }
 
-    inline void CleanupGraphs(bool onlySame)
+    inline void CleanupGraphs()
     {
         for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)
         {
-            it->second.CleanupGraphs(onlySame);
+            it->second.CleanupGraphs();
         }
     }
 };

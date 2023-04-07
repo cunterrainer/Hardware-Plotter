@@ -78,7 +78,7 @@ int main()
                 const double value = std::strtod(valueStr.data(), &endptr);
                 if (endptr == valueStr.data())
                     continue;
-
+                
                 switch (vec.size())
                 {
                 case 0:
@@ -108,8 +108,7 @@ int main()
             }
             data.assign(&data[index+1]);
         }
-        if(settings.CleanupGraphs())
-            plots.CleanupGraphs(settings.CleanupGraphsSame());
+        plots.CleanupGraphs();
         plots.Render(window.GetSize());
         window.EndFrame();
     }

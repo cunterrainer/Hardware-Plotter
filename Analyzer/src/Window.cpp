@@ -28,7 +28,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
         return;
     }
     Log << "Created window w: " << width << " h: " << height << " t: " << title << Endl;
-        
+
     // center the window
     const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(m_Window, (mode->width - width) / 2, (mode->height - height) / 2);
@@ -39,7 +39,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
     ImGuiInit();
     ImPlot::CreateContext();
     ImPlot::StyleColorsClassic();
-    Log << "Initialised ImPlot" << Endl;
+    Log << "Initialized ImPlot" << Endl;
 }
 
 
@@ -76,7 +76,7 @@ void Window::ImGuiInit(const char* iniFileName) const noexcept
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
     ImGui::StyleColorsDark();
-    Log << "Initialised ImGui" << Endl;
+    Log << "Initialized ImGui" << Endl;
 }
 
 
