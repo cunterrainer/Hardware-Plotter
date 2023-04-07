@@ -8,6 +8,7 @@
 
 #include "Window.h"
 #include "Image.h"
+#include "Thread.h"
 
 class ImageWriter
 {
@@ -68,6 +69,7 @@ private:
             m_Path += ".png";
             WriteImage(stbi_write_png);
         }
+        Reset();
     }
 public:
     static inline bool SaveImage(ImVec2 size, ImVec2 pos)
@@ -104,17 +106,19 @@ public:
         ImGui::Text("%s", m_DisplayPath.c_str());
         ImGui::SameLine();
         if (ImGui::Button("Path", PathButtonSize))
-            SaveFileDialog();
+            Thread::Dispatch(SaveFileDialog);
         ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5});
         const float btnWidth = (pathWidth.x + PathButtonSize.x) / 2.f;
         if (ImGui::Button("Save", { btnWidth, 0 }))
         {
-            SaveImageToFile();
+            Thread::Dispatch(SaveImageToFile);
             ImGui::End();
             return true;
         }
         ImGui::SameLine();
         const bool close = ImGui::Button("Cancel", { btnWidth, 0});
+        if (close)
+            Reset();
         ImGui::End();
         return close;
     }

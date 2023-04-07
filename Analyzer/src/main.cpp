@@ -112,5 +112,6 @@ int main()
         plots.Render(window.GetSize());
         window.EndFrame();
     }
+    Thread::Join();
     return 0;
 }
