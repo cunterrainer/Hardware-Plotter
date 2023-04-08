@@ -34,6 +34,7 @@ private:
     T m_YMin = std::numeric_limits<T>::max();
     T m_GreatestY = std::numeric_limits<T>::lowest();
     T m_LowestY = std::numeric_limits<T>::max();
+    Image m_Image;
 private:
     inline void CalculateYRange()
     {
@@ -59,6 +60,19 @@ public:
     }
 
 
+    inline const Image& Capture(ImVec2 size, float yOffset)
+    {
+        m_Image.CaptureScreen({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
+        return m_Image;
+    }
+
+
+    inline void ResetImage()
+    {
+        m_Image.Reset();
+    }
+
+
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
         Window::PushRedButtonColors(m_Pause);
@@ -77,9 +91,11 @@ public:
             if (!ImageWriter::IsOpen() || m_SaveClicked)
             {
                 m_SaveClicked = true;
-                if (ImageWriter::SaveImage({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset }))
+                m_Image.Create({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
+                if (ImageWriter::SaveImage({ size.x, size.y - 29 }, &m_Image))
                 {
                     m_SaveClicked = false;
+                    ResetImage();
                     ImageWriter::Reset();
                 }
             }

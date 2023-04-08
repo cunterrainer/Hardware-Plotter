@@ -18,14 +18,13 @@ private:
 private:
     inline void Delete()
     {
-        if (m_GpuImage == 0 || m_Pixel == nullptr)
-            return;
-
+        if(m_GpuImage != 0)
+            glDeleteTextures(1, &m_GpuImage);
         delete[] m_Pixel;
-        glDeleteTextures(1, &m_GpuImage);
         m_Width = 0;
         m_Height = 0;
         m_GpuImage = 0;
+        m_Pixel = nullptr;
         m_Created = false;
     }
 
@@ -57,6 +56,14 @@ public:
         Delete();
     }
 
+    inline void Assign(GLubyte* data, GLsizei width, GLsizei height)
+    {
+        m_Pixel = data;
+        m_Width = width;
+        m_Height = height;
+        m_Created = true;
+    }
+
     inline std::string ScaleUp(int newWidth, int newHeight)
     {
         GLubyte* pixelScaled = new GLubyte[(unsigned int)(NumOfChannels * newWidth * newHeight)];
@@ -69,14 +76,19 @@ public:
         return std::string();
     }
 
-    inline void Create(ImVec2 size, ImVec2 pos)
+    inline void CaptureScreen(ImVec2 size, ImVec2 pos)
     {
-        if (m_Created) return;
         m_Created = true;
         m_Width = (GLsizei)size.x;
         m_Height = (GLsizei)size.y;
         m_Pixel = new GLubyte[(unsigned int)(NumOfChannels * m_Width * m_Height)];
 
+        glReadPixels((GLint)pos.x, (GLint)pos.y, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, m_Pixel);
+        FlipVertically();
+    }
+
+    inline void CreateGpuImage()
+    {
         // Create a OpenGL texture identifier
         glGenTextures(1, &m_GpuImage);
         glBindTexture(GL_TEXTURE_2D, m_GpuImage);
@@ -84,9 +96,14 @@ public:
         // Setup filtering parameters for display
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glReadPixels((GLint)pos.x, (GLint)pos.y, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, m_Pixel);
-        FlipVertically();
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_Pixel);
+    }
+
+    inline void Create(ImVec2 size, ImVec2 pos)
+    {
+        if (m_Created) return;
+        CaptureScreen(size, pos);
+        CreateGpuImage();
     }
 
     inline GLuint GetGpuImage() const
@@ -97,4 +114,5 @@ public:
     inline int Height() const { return m_Height; }
     inline int Width() const { return m_Width; }
     inline unsigned char* Data() const { return m_Pixel; }
+    inline bool Created() const { return m_Created; }
 };

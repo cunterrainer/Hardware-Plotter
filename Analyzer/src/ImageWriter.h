@@ -18,7 +18,7 @@ private:
     static constexpr ImVec2 PathButtonSize{ 100, 0 };
     static constexpr float PathButtonPadding = 20.f;
 private:
-    static inline Image m_Image;
+    static inline Image* m_Image;
     static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
     static inline std::string m_DisplayPath = m_Path;
     static inline bool m_Open = false;
@@ -55,20 +55,20 @@ private:
 
     static inline void WriteImageDisplayError()
     {
-        const std::string errorMsg = "Failed to write to file: " + m_Path + " w: " + std::to_string(m_Image.Width()) + " h: " + std::to_string(m_Image.Height()) + " c: " + std::to_string(Image::NumOfChannels);
+        const std::string errorMsg = "Failed to write to file: " + m_Path + " w: " + std::to_string(m_Image->Width()) + " h: " + std::to_string(m_Image->Height()) + " c: " + std::to_string(Image::NumOfChannels);
         Err << errorMsg << Endl;
         MsgBoxError(errorMsg.c_str());
     }
 
     static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*, int))
     {
-        if (!write_func(m_Path.c_str(), m_Image.Width(), m_Image.Height(), Image::NumOfChannels, m_Image.Data(), m_Image.Width() * Image::NumOfChannels))
+        if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data(), m_Image->Width() * Image::NumOfChannels))
             WriteImageDisplayError();
     }
 
     static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*))
     {
-        if (!write_func(m_Path.c_str(), m_Image.Width(), m_Image.Height(), Image::NumOfChannels, m_Image.Data()))
+        if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data()))
             WriteImageDisplayError();
     }
 
@@ -80,7 +80,7 @@ private:
 
         if (m_UpscaleOnWrite)
         {
-            const std::string errorMsg = m_Image.ScaleUp(m_NewWidth, m_NewHeight);
+            const std::string errorMsg = m_Image->ScaleUp(m_NewWidth, m_NewHeight);
             if (!errorMsg.empty())
             {
                 Err << errorMsg << Endl;
@@ -102,22 +102,22 @@ private:
         }
     }
 
-    static inline void CalcWindowProps(ImVec2 size)
+    static inline void CalcWindowProps(ImVec2 wSize)
     {
-        if (size.x <= 0 || size.y <= 0)
+        if (wSize.x <= 0 || wSize.y <= 0)
             return;
         if (m_NewHeight == 0 && m_NewWidth == 0)
         {
-            m_NewHeight = m_Image.Height();
-            m_NewWidth = m_Image.Width();
+            m_NewHeight = m_Image->Height();
+            m_NewWidth = m_Image->Width();
         }
-        m_AspectRatio = size.x / size.y;
-        m_ImageSize = { size.y / 1.7f * m_AspectRatio, size.y / 1.7f };
+        m_AspectRatio = wSize.x / wSize.y;
+        m_ImageSize = { wSize.y / 1.7f * m_AspectRatio, wSize.y / 1.7f };
         m_PathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
         m_WindowSize = { m_ImageSize.x + m_PathWidth.x + PathButtonSize.x + PathButtonPadding, m_ImageSize.y + 25 /*Title height*/ };
-        if (m_WindowSize.x >= size.x)
+        if (m_WindowSize.x >= wSize.x)
         {
-            while (m_DisplayPath.size() > 4 && m_WindowSize.x >= size.x)
+            while (m_DisplayPath.size() > 4 && m_WindowSize.x >= wSize.x)
             {
                 m_DisplayPath.pop_back();
                 m_PathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
@@ -138,6 +138,7 @@ private:
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize(m_WindowSize);
         ImGui::SetNextWindowPos({ (io.DisplaySize.x - m_WindowSize.x) / 2.f, (io.DisplaySize.y - m_WindowSize.y) / 2.f });
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     }
 
     static inline void NextLine()
@@ -155,8 +156,8 @@ private:
             ImGui::SameLine(m_WindowSize.x - m_BtnWidth - 4);
             if (ImGui::Checkbox("Keep aspect ratio", &m_KeepAspectRatio) && m_KeepAspectRatio)
             {
-                m_NewHeight = m_Image.Height();
-                m_NewWidth = m_Image.Width();
+                m_NewHeight = m_Image->Height();
+                m_NewWidth = m_Image->Width();
             }
             NextLine();
             ImGui::SetNextItemWidth(m_BtnWidth);
@@ -177,7 +178,6 @@ private:
 public:
     static inline void Reset()
     {
-        m_Image.Reset();
         m_NewWidth = 0;
         m_NewHeight = 0;
         m_KeepAspectRatio = true;
@@ -190,17 +190,18 @@ public:
         return m_Open;
     }
 
-    static inline bool SaveImage(ImVec2 size, ImVec2 pos)
+    static inline bool SaveImage(ImVec2 windowSize, Image* img)
     {
-        m_Image.Create(size, pos);
+        m_Image = img;
         m_Open = true;
-        CalcWindowProps(size);
+        CalcWindowProps(windowSize);
         SetWindowProps();
 
         ImGui::Begin("Image writer", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-        ImGui::Image((void*)(intptr_t)m_Image.GetGpuImage(), m_ImageSize);
+        ImGui::Image((void*)(intptr_t)m_Image->GetGpuImage(), m_ImageSize);
         ImGui::SameLine();
         ImVec2 currsorPos = ImGui::GetCursorPos();
+        ImGui::SetNextItemWidth(m_PathWidth.x);
         ImGui::Text("%s", m_DisplayPath.c_str());
         ImGui::SameLine();
         if (ImGui::Button("Path", PathButtonSize))
@@ -214,6 +215,7 @@ public:
         NextLine();
         Upscalar();
         ImGui::End();
+        ImGui::PopStyleVar();
         return close;
     }
 };

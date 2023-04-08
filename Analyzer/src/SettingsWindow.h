@@ -15,6 +15,7 @@ private:
     int m_SelectedBaudRate = 0;
     int m_SelectedPort = 0;
     bool m_DebugInfo = false;
+    bool m_SaveAllClicked = false;
     float m_Height = 43.f;
 public:
     explicit SettingsWindow() 
@@ -29,6 +30,7 @@ public:
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
     float GetHeight() const { return m_Height; }
     bool DebugInfoSelected() const { return m_DebugInfo; }
+    bool& SaveAllClicked() { return m_SaveAllClicked; }
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
@@ -45,6 +47,9 @@ public:
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("baud", &m_SelectedBaudRate, Serial::Serial::BaudRates.data());
+        ImGui::SameLine();
+        if (connected && ImGui::Button("Save all", { 150, 0 }))
+            m_SaveAllClicked = true;
         ImGui::SameLine();
         ImGui::Checkbox("Debug info", &m_DebugInfo);
         if (ImGui::IsItemHovered())

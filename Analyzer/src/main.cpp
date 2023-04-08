@@ -63,9 +63,6 @@ int main()
         }
 
         const std::string_view readData = serial.ReadData();
-        //static int i = 0;
-        //auto readData = std::to_string(i) + "\np:l:a:7\n";
-        //++i;
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {
@@ -117,6 +114,8 @@ int main()
         }
         plots.CleanupGraphs();
         plots.Render(window.GetSize(), settings.DebugInfoSelected());
+        if(settings.SaveAllClicked())
+            settings.SaveAllClicked() = !plots.SaveAllPlots(window.GetSize());
         window.EndFrame();
     }
     Thread::Join();
