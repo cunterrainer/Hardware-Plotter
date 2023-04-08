@@ -51,16 +51,23 @@ private:
         }
     }
 
+    static inline void WriteImageDisplayError()
+    {
+        const std::string errorMsg = "Failed to write to file: " + m_Path + " w: " + std::to_string(m_Image.Width()) + " h: " + std::to_string(m_Image.Height()) + " c: " + std::to_string(Image::NumOfChannels);
+        Err << errorMsg << Endl;
+        MsgBoxError(errorMsg.c_str());
+    }
+
     static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*, int))
     {
         if (!write_func(m_Path.c_str(), m_Image.Width(), m_Image.Height(), Image::NumOfChannels, m_Image.Data(), m_Image.Width() * Image::NumOfChannels))
-            Err << "Failed to write to file: " << m_Path << " w: " << m_Image.Width() << " h: " << m_Image.Height() << Endl;
+            WriteImageDisplayError();
     }
 
     static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*))
     {
         if (!write_func(m_Path.c_str(), m_Image.Width(), m_Image.Height(), Image::NumOfChannels, m_Image.Data()))
-            Err << "Failed to write to file: " << m_Path << " w: " << m_Image.Width() << " h: " << m_Image.Height() << Endl;
+            WriteImageDisplayError();
     }
 
     static inline void SaveImageToFile()
@@ -70,7 +77,14 @@ private:
         std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
 
         if (m_UpscaleOnWrite)
-            m_Image.ScaleUp(m_NewWidth, m_NewHeight);
+        {
+            const std::string errorMsg = m_Image.ScaleUp(m_NewWidth, m_NewHeight);
+            if (!errorMsg.empty())
+            {
+                Err << errorMsg << Endl;
+                MsgBoxError(errorMsg.c_str());
+            }
+        }
         if (extension == ".jpg" || extension == ".jpeg")
             WriteImage(stbi_write_jpg);
         else if (extension == ".bmp")

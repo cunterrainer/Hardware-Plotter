@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb/stb_image_resize.h"
 #include "GLFW/glfw3.h"
@@ -55,18 +57,16 @@ public:
         Delete();
     }
 
-    inline void ScaleUp(int newWidth, int newHeight)
+    inline std::string ScaleUp(int newWidth, int newHeight)
     {
         GLubyte* pixelScaled = new GLubyte[(unsigned int)(NumOfChannels * newWidth * newHeight)];
         if (!stbir_resize_uint8(m_Pixel, m_Width, m_Height, m_Width * NumOfChannels, pixelScaled, newWidth, newHeight, newWidth * NumOfChannels, NumOfChannels))
-        {
-            Err << "Failed to resize image w_old: " << m_Width << " h_old: " << m_Height << " w_new: " << newWidth << " h_new: " << newHeight << " channel: " << NumOfChannels << Endl;
-            return;
-        }
+            return "Failed to resize image w_old: " + std::to_string(m_Width) + " h_old: " + std::to_string(m_Height) + " w_new: " + std::to_string(newWidth) + " h_new: " + std::to_string(newHeight) + " channel: " + std::to_string(NumOfChannels);
         m_Width = newWidth;
         m_Height = newHeight;
         delete[] m_Pixel;
         m_Pixel = pixelScaled;
+        return std::string();
     }
 
     inline void Create(ImVec2 size, ImVec2 pos)
