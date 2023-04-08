@@ -218,7 +218,7 @@ public:
         if (ImGui::Button("Save", { m_BtnWidth, 0 }))
             Thread::Dispatch(SaveImageToFile);
         ImGui::SameLine();
-        const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 });
+        const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 }) || img->Width() <= 0 || img->Height() <= 0;
         NextLine();
         Upscalar();
         ImGui::End();

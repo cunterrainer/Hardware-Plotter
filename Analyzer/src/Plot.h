@@ -62,7 +62,7 @@ public:
 
     inline const Image& Capture(ImVec2 size, float yOffset)
     {
-        m_Image.CaptureScreen({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
+        m_Image.CaptureScreen({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
         return m_Image;
     }
 
@@ -91,7 +91,7 @@ public:
             if (!ImageWriter::IsOpen() || m_SaveClicked)
             {
                 m_SaveClicked = true;
-                m_Image.Create({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
+                m_Image.Create({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
                 if (ImageWriter::SaveImage({ size.x, size.y - 29 }, &m_Image))
                 {
                     m_SaveClicked = false;
