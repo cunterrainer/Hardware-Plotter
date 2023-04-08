@@ -52,7 +52,7 @@ namespace Serial
         m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
-            m_LastErrorMsg = "(Serial) Handle was not attached. '" + portName + "' " + GetWinError();
+            m_LastErrorMsg = "[Serial] Handle was not attached. '" + portName + "' " + GetWinError();
             return false;
         }
 
@@ -60,7 +60,7 @@ namespace Serial
         DCB dcbSerialParams;
         if (!GetCommState(m_SerialHandle, &dcbSerialParams))
         {
-            m_LastErrorMsg = "(Serial) Failed to get current serial parameters!";
+            m_LastErrorMsg = "[Serial] Failed to get current serial parameters!";
             return false;
         }
 
@@ -76,7 +76,7 @@ namespace Serial
         //Set the parameters and check for their proper application
         if (!SetCommState(m_SerialHandle, &dcbSerialParams))
         {
-            m_LastErrorMsg = "(Serial) Could not set Serial Port parameters";
+            m_LastErrorMsg = "[Serial] Could not set Serial Port parameters";
             return false;
         }
 
@@ -119,7 +119,7 @@ namespace Serial
             if (ReadFile(m_SerialHandle, m_ReadData.data(), status.cbInQue, &bytesRead, NULL))
             {
                 if (bytesRead != status.cbInQue)
-                    Log << "(Serial) Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
+                    Log << "[Serial] Serial::ReadData() bytesRead doesn't match status.cbInQue. bytesRead: " << bytesRead << " status.cbInQue: " << status.cbInQue << Endl;
 
                 if (m_FirstRead)
                 {
@@ -140,7 +140,7 @@ namespace Serial
             }
             else
             {
-                m_LastErrorMsg = "(Serial) Failed to read from serial connection. " + GetWinError();
+                m_LastErrorMsg = "[Serial] Failed to read from serial connection. " + GetWinError();
                 Err << m_LastErrorMsg << Endl;
             }
         }
@@ -193,7 +193,7 @@ namespace Serial
             {
                 error = GetLastError();
                 if (error != ERROR_FILE_NOT_FOUND) // Is probably the case for most since we check 255 ports
-                    Err << "(PortListener) Failed to query ports. " << Logger::Error(error) << Endl;
+                    Err << "[PortListener] Failed to query ports. " << Logger::Error(error) << Endl;
             }
             else
                 ports.push_back({ comStr, ExtractDeviceName(targetPath) });

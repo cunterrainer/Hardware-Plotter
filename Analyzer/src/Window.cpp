@@ -11,20 +11,20 @@
 
 Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
 {
-    glfwSetErrorCallback([](int error, const char* description){ Err << "Glfw Error " << error << ": " << description << Endl; });
+    glfwSetErrorCallback([](int error, const char* description){ Err << "[GLFW] " << error << ": " << description << Endl; });
 
     if (!glfwInit())
     {
-        Err << "glfwInit() failed!" << Endl;
+        Err << "Failed to initialize GLFW" << Endl;
         return;
     }
-    Log << "glfwInit() succeeded!" << Endl;
+    Log << "Initialized GLFW" << Endl;
 
     // Create window with graphics context
     m_Window = glfwCreateWindow(width, height, title, monitor, share);
     if (m_Window == NULL)
     {
-        Err << "glfwCreateWindow() failed! w: " << width << " h : " << height << " t : " << title << Endl;
+        Err << "Failed to create window w: " << width << " h : " << height << " t : " << title << Endl;
         return;
     }
     Log << "Created window w: " << width << " h: " << height << " t: " << title << Endl;
@@ -47,18 +47,19 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
 Window::~Window() noexcept
 {
     // Cleanup
-    ImGui::PopStyleVar(1);
-    ImGui::PopStyleColor(StyleColors.size());
     ImPlot::DestroyContext();
-    Log << "Shutdown ImPlot" << Endl;
+    Log << "Shut down ImPlot" << Endl;
+
+    ImGui::PopStyleVar(); // ImGuiPushGlobalStyle()
+    ImGui::PopStyleColor(StyleColors.size());
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    Log << "Shutdown ImGui" << Endl;
+    Log << "Shut down ImGui" << Endl;
 
     glfwDestroyWindow(m_Window);
     glfwTerminate();
-    Log << "Shutdown glfw" << Endl;
+    Log << "Shut down GLFW" << Endl;
 }
 
 
