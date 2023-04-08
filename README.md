@@ -6,11 +6,13 @@ The string should be in the format of `plot_name:y_label:graph_name:value\n`. Ho
 # Application
 ![image info](./docs/image1.PNG)
 You can customize the plots or legends by right clicking on them.
-## Cleanup Graphs
+
+## Settings
+### Cleanup Graphs
 If this is enabled the app will try to clean the internally used arrays to only leave necessary entries to save memory and get a better performance. However eventhough the graphs should not be altered in this process it might happen, so consider disabling this feature if the graphs look odd.
-## Cleanup only same
+### Cleanup only same
 Only removed entries if their `y` values are the same (e.g. `f(x)=7`) can be reduced to two entries marking the first and last coordinate. This settings only works if `Cleanup Graphs` is also enabled.
-## Debug info
+### Debug info
 Shows the number of coordinates every graphs has internally right next to it's name in the legend. It's called `Debug info` because activating it will cause the graphs to rapidly change their color however I wanted to leave it in because it might be a useful information for some people. 
 
 # Example Usage
@@ -42,7 +44,9 @@ void loop()
 # String Format
 The following format is expected for the input string:
 
-`plot_name:y_label:graph_name:value\n`
+```
+plot_name:y_label:graph_name:value\n
+```
 
 - `plot_name`: Will be centered above the plot. You can use "##" in front of the name to not show it as a title (e.g., `##log`). Defaults to `##default`.
 - `y_label`: What's shown on the y-axis. Defaults to `y`.
@@ -55,17 +59,18 @@ You can save the plots as images by clicking the "Save Plot" button in the appli
 ![image info](./docs/image2.PNG)
 
 # Supported devices
-I've only been able to test it with an esp32 and an arduino uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus aslong as the string is properly formatted it shouldn't be an issue to use something else.
+I've only been able to test it with an esp32 and an arduino uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
 
 # Platforms
 Supported platform:
 - [x] Windows
 - [ ] Linux
-Currently, only available for Windows 10. However, I am considering adding Linux support in the future.
+
+Currently, only available for Windows. However, I am considering adding Linux support in the future.
 
 # Build
 
-Windows only! This project uses premake as it's build system. The premake5 binaries are already provided. I've tested building the app with visual studio, clang and gcc, however other compilers might work aswell just give it a try.  
+Windows only! This project uses premake as it's build system. The premake5 binaries are already provided. I've tested building the app with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.  
 For additional information use:
 ```
 vendor\premake5 --help
