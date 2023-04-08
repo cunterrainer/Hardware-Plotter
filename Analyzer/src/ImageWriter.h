@@ -8,8 +8,9 @@
 #include "nfd/nfd.h"
 
 #include "Window.h"
-#include "Image.h"
 #include "Thread.h"
+#include "Image.h"
+#include "Log.h"
 
 class ImageWriter
 {
@@ -103,6 +104,8 @@ private:
 
     static inline void CalcWindowProps(ImVec2 size)
     {
+        if (size.x <= 0 || size.y <= 0)
+            return;
         if (m_NewHeight == 0 && m_NewWidth == 0)
         {
             m_NewHeight = m_Image.Height();
