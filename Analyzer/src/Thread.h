@@ -1,7 +1,8 @@
 #pragma once
 #include <mutex>
 #include <thread>
-#include <iostream>
+
+#include "Log.h"
 
 namespace Thread
 {
@@ -15,6 +16,7 @@ namespace Thread
     // for internal use
     inline void ThreadWait()
     {
+        Log << "Thread started, thread id: " << std::this_thread::get_id() << Endl;
         while (true)
         {
             {
@@ -36,8 +38,13 @@ namespace Thread
     inline void Dispatch(void(*func)())
     {
         std::lock_guard lock(Mutex);
-        if(ThreadFunc == nullptr)
+        if (ThreadFunc == nullptr)
+        {
+            Log << "Dispatched function to thread" << Endl;
             ThreadFunc = func;
+            return;
+        }
+        Log << "Failed to dispatch a function to the thread due to the thread being busy" << Endl;
     }
 
     inline void Join()
@@ -47,5 +54,6 @@ namespace Thread
             Stop = true;
         }
         Thread.join();
+        Log << "Thread joined successfully" << Endl;
     }
 }
