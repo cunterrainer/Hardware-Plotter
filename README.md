@@ -1,26 +1,27 @@
 # Analyzer
 
-A tool to easily visualize data from your esp. (it was tested with an esp32 and an arduino uno but other devices should work aswell)
+A tool to easily visualize data from your esp. (it was tested with an esp32 and an arduino uno but other devices should work aswell)  
 ![image info](./docs/image1.PNG)
 
-You can also save an image of every single plot
+You can also save every plot solely or all plots together in an image. You also have the choice to upscale the image on saving
 ![image info](./docs/image2.PNG)
 
 # How to use
 
-You have to provide a formatted string via the `print()` function from your esp.  
+You have to provide a formatted string via the `print()` function from your device.  
 The string should be in the format of `"plot_name:y_label:graph_name:value\n"`. However all of these values except for `value` can be defaulted thus there's no need to provide them if you don't want to.
 
-Plot name - will be centered above your plot. You can use `##` in front of the name to not show as a title e.g. `##log` - defaults to `##default`  
+Plot name - will be centered above your plot. You can use `##` in front of the name to not show it as a title e.g. `##log` - defaults to `##default`  
 Y label - what's shown on the y axis - defaults to `y`  
 Graph name - the name of the graph, used to properly assign the values and is shown in the legend - defaults to `f(x)`  
 Value - the y axis value, the x axis will always show the elapsed time in seconds - can't be defaulted  
 `\n` - The newline is important because it marks the end of an entry thus every entry has to have one
 
-The program sorts the values according to their plot and graph hence make sure to name them properly. You can take a look at the examples provided in the examples/ directory if you want to see it in action.
+The program sorts the values according to their plot and graph hence make sure to name them properly. If you want more interaction you can customize the plots and the legends by right clicking them. Also take a look at the examples provided in the examples/ directory if you want to see how it's supposed to be used.
 
 ## Example
 
+Here is some example code on how to use it
 ```c++
 void setup() 
 {
@@ -53,7 +54,7 @@ vendor\premake5 --help
 git clone https://github.com/pyvyx/Analyzer.git
 ```
 ```
-cd MouseTracker
+cd Analyzer
 ```
 
 ## Visual Studio
