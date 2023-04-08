@@ -11,7 +11,7 @@ You can also save an image of every single plot
 You have to provide a formatted string via the `print()` function from your esp.  
 The string should be in the format of `"plot_name:y_label:graph_name:value\n"`. However all of these values except for `value` can be defaulted thus there's no need to provide them if you don't want to.
 
-Plot name - will be centered above your plot. You can use `##` in front of the name to not show as a title e.g. `##log` - defaults to `"##default`  
+Plot name - will be centered above your plot. You can use `##` in front of the name to not show as a title e.g. `##log` - defaults to `##default`  
 Y label - what's shown on the y axis - defaults to `y`  
 Graph name - the name of the graph, used to properly assign the values and is shown in the legend - defaults to `f(x)`  
 Value - the y axis value, the x axis will always show the elapsed time in seconds - can't be defaulted  
@@ -19,7 +19,7 @@ Value - the y axis value, the x axis will always show the elapsed time in second
 
 The program sorts the values according to their plot and graph hence make sure to name them properly. You can take a look at the examples provided in the examples/ directory if you want to see it in action.
 
-## Example arduino code
+## Example
 
 ```c++
 void setup() 
