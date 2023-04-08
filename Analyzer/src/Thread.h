@@ -16,7 +16,7 @@ namespace Thread
     // for internal use
     inline void ThreadWait()
     {
-        Log << "Thread started, thread id: " << std::this_thread::get_id() << Endl;
+        Log << "[Thread] Started worker thread, thread id: " << std::this_thread::get_id() << Endl;
         while (true)
         {
             {
@@ -40,11 +40,11 @@ namespace Thread
         std::lock_guard lock(Mutex);
         if (ThreadFunc == nullptr)
         {
-            Log << "Dispatched function to thread" << Endl;
+            Log << "[Thread] Main thread(" << std::this_thread::get_id() << ") successfully dispatched a task to worker thread" << Endl;
             ThreadFunc = func;
             return;
         }
-        Log << "Failed to dispatch a function to the thread due to the thread being busy" << Endl;
+        Err << "[Thread] Main thread(" << std::this_thread::get_id() << ") failed to dispatch a task to the worker thread due to the worker thread being busy" << Endl;
     }
 
     inline void Join()
@@ -54,6 +54,6 @@ namespace Thread
             Stop = true;
         }
         Thread.join();
-        Log << "Thread joined successfully" << Endl;
+        Log << "[Thread] Worker thread joined successfully" << Endl;
     }
 }
