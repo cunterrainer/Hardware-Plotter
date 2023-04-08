@@ -69,6 +69,7 @@ int main()
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {
+            const double elapsedTime = serial.GetTimeSinceStart();
             std::vector<std::string_view> vecData = SplitStringByChar(data, '\n');
             for (const auto& str : vecData)
             {
@@ -110,7 +111,7 @@ int main()
                 default:
                     continue;
                 }
-                plots.Add(plotName, yLabel, graphName, serial.GetTimeSinceStart(), value);
+                plots.Add(plotName, yLabel, graphName, elapsedTime, value);
             }
             data.assign(&data[index+1]);
         }
