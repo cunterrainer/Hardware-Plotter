@@ -69,8 +69,9 @@ Supported platform:
 Currently, only available for Windows. However, I am considering adding Linux support in the future.
 
 # Build
+## Using premake
+This is the prefered and only way if you want to have a visual studio project. The project uses premake as it's build system with the premake5 binaries already provided. I've tested building it with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.
 
-Windows only! This project uses premake as it's build system. The premake5 binaries are already provided. I've tested building the app with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.  
 For additional information use:
 ```
 vendor\premake5 --help
@@ -119,3 +120,10 @@ Configurations:
 make help
 ```
 for additional information
+
+## Using build script
+If your just interested in building the project (without project files) you can use the provided script in `scripts\`. This script has to be executed from the main directory.
+```
+scripts\build.py [cc]
+```
+Replace `[cc]` with either `gcc` or `clang`
