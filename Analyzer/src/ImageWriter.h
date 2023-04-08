@@ -114,6 +114,7 @@ private:
         m_AspectRatio = wSize.x / wSize.y;
         m_ImageSize = { wSize.y / 1.7f * m_AspectRatio, wSize.y / 1.7f };
         m_PathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
+        m_PathWidth.x = std::max(m_PathWidth.x, 300.f);
         m_WindowSize = { m_ImageSize.x + m_PathWidth.x + PathButtonSize.x + PathButtonPadding, m_ImageSize.y + 25 /*Title height*/ };
         if (m_WindowSize.x >= wSize.x)
         {
@@ -201,9 +202,8 @@ public:
         ImGui::Image((void*)(intptr_t)m_Image->GetGpuImage(), m_ImageSize);
         ImGui::SameLine();
         ImVec2 currsorPos = ImGui::GetCursorPos();
-        ImGui::SetNextItemWidth(m_PathWidth.x);
         ImGui::Text("%s", m_DisplayPath.c_str());
-        ImGui::SameLine();
+        ImGui::SameLine(m_WindowSize.x - PathButtonSize.x - 3);
         if (ImGui::Button("Path", PathButtonSize))
             Thread::Dispatch(SaveFileDialog);
         ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + 5 });
