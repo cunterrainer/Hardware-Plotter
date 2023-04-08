@@ -32,12 +32,13 @@ public:
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
+        Window::PushRedButtonColors(connected);
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize({ windowWidth, m_Height });
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
+        Window::PopRedButtonColors();
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("##PortCombo", &m_SelectedPort, m_PortsString.c_str());
@@ -51,7 +52,6 @@ public:
         ImGui::SameLine(windowWidth - 250);
         ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
-        ImGui::PopStyleVar();
         return clicked;
     }
 };

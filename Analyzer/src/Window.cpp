@@ -37,6 +37,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
     glfwSwapInterval(1);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     ImGuiInit();
+    ImGuiPushGlobalStyle();
     ImPlot::CreateContext();
     ImPlot::StyleColorsClassic();
     Log << "Initialized ImPlot" << Endl;
@@ -46,6 +47,8 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
 Window::~Window() noexcept
 {
     // Cleanup
+    ImGui::PopStyleVar(1);
+    ImGui::PopStyleColor(StyleColors.size());
     ImPlot::DestroyContext();
     Log << "Shutdown ImPlot" << Endl;
     ImGui_ImplOpenGL3_Shutdown();
@@ -93,6 +96,34 @@ void Window::ImGuiRender() const noexcept
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Window::ImGuiPushGlobalStyle() const noexcept
+{
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+    for (auto& [colorFlag, color] : StyleColors)
+        ImGui::PushStyleColor(colorFlag, color.get());
+}
+
+void Window::PushRedButtonColors(bool condition) noexcept
+{
+    if (condition)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, Window::ColorRed);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Window::ColorLightRed);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, Window::ColorLightRed);
+    }
+    else
+    {
+        ImGui::PushStyleColor(ImGuiCol_Button, Window::ColorDark);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Window::ColorGrey);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, Window::ColorGrey);
+    }
+}
+
+void Window::PopRedButtonColors() noexcept
+{
+    ImGui::PopStyleColor(3);
 }
 
 int MsgBoxError(const char* message) { return MessageBoxA(NULL, message, "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL); }
