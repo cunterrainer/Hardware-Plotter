@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstring>
 #include <functional>
 #include <string_view>
 #include <unordered_map>
@@ -22,9 +23,9 @@ private:
     {
         std::vector<std::reference_wrapper<const Image>> images;
         size_t count = 0;
-        size_t pixels = 0;
-        size_t height = 0;
-        size_t width = 0;
+        int pixels = 0;
+        int height = 0;
+        int width = 0;
         float windowHeight = (windowSize.y - m_YOffset) / (float)m_Plots.size();
         for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)
         {
@@ -37,10 +38,10 @@ private:
         }
 
         size_t offset = 0;
-        unsigned char* pixel = new unsigned char[pixels];
+        unsigned char* pixel = new unsigned char[(size_t)pixels];
         for (const Image& img : images)
         {
-            const size_t size = img.Height() * img.Width() * Image::NumOfChannels;
+            const size_t size = (size_t)(img.Height() * img.Width() * Image::NumOfChannels);
             std::memcpy(&pixel[offset], img.Data(), size);
             offset += size;
         }
