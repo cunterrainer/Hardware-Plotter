@@ -32,6 +32,11 @@ public:
         }
     }
 
+    inline void Delete()
+    {
+        m_Plots.clear();
+    }
+
     inline void CleanupGraphs()
     {
         for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)

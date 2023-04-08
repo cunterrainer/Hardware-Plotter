@@ -19,6 +19,7 @@ private:
     static inline Image m_Image;
     static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
     static inline std::string m_DisplayPath = m_Path;
+    static inline bool m_Open = false;
 
     static inline ImVec2 m_ImageSize;
     static inline ImVec2 m_PathWidth;
@@ -161,11 +162,18 @@ public:
         m_NewHeight = 0;
         m_KeepAspectRatio = true;
         m_UpscaleOnWrite = false;
+        m_Open = false;
+    }
+
+    static inline bool IsOpen()
+    {
+        return m_Open;
     }
 
     static inline bool SaveImage(ImVec2 size, ImVec2 pos)
     {
         m_Image.Create(size, pos);
+        m_Open = true;
         CalcWindowProps(size);
         SetWindowProps();
 

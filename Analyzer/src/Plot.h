@@ -21,7 +21,6 @@ class Plot
 {
 private:
     static constexpr double YPercentageScalar = 0.05;
-    static inline bool PlotInImageWriter = false;
 private:
     // using a map because I profiled it with std::vector and the map was faster
     std::unordered_map<std::string, Graph<T>> m_Graphs;
@@ -75,14 +74,12 @@ public:
         ImGui::SameLine();
         if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
         {
-            if (!PlotInImageWriter || m_SaveClicked)
+            if (!ImageWriter::IsOpen() || m_SaveClicked)
             {
                 m_SaveClicked = true;
-                PlotInImageWriter = true;
                 if (ImageWriter::SaveImage({ size.x, size.y - 29 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset }))
                 {
                     m_SaveClicked = false;
-                    PlotInImageWriter = false;
                     ImageWriter::Reset();
                 }
             }

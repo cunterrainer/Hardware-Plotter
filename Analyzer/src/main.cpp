@@ -49,7 +49,10 @@ int main()
         if (settings.ConnectClicked(window.GetSize().x, serial.IsConnected()))
         {
             if (serial.IsConnected())
+            {
                 serial.Disconnect();
+                plots.Delete();
+            }
             // try to connect
             else if (!serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
             {
@@ -59,10 +62,10 @@ int main()
             data.clear();
         }
 
-        //const std::string_view readData = serial.ReadData();
-        static int i = 0;
-        auto readData = std::to_string(i) + "\np:l:a:7\n";
-        ++i;
+        const std::string_view readData = serial.ReadData();
+        //static int i = 0;
+        //auto readData = std::to_string(i) + "\np:l:a:7\n";
+        //++i;
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {
