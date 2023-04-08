@@ -16,7 +16,7 @@ private:
 	static constexpr ImVec4 ColorDark = { 0.27f, 0.27f, 0.27f, 1.f };
 	static constexpr ImVec4 ColorGrey = { 0.57f, 0.57f, 0.57f, 1.f };
 	static constexpr ImVec4 ColorWhite = { 1.f,   1.f,   1.f, 1.f };
-	static inline const std::array<std::pair<int, std::reference_wrapper<const ImVec4>>, 9> StyleColors{
+	static inline const std::array<std::pair<int, std::reference_wrapper<const ImVec4>>, 10> StyleColors{
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBg,        std::cref(ColorDark)),
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBgHovered, std::cref(ColorGrey)),
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_CheckMark,      std::cref(ColorWhite)),
@@ -26,6 +26,7 @@ private:
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_Button,         std::cref(ColorDark)),
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonHovered,  std::cref(ColorGrey)),
 			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonActive,   std::cref(ColorGrey)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_TitleBgActive,  std::cref(ColorDark))
 	};
 private:
 	GLFWwindow* m_Window = nullptr;
