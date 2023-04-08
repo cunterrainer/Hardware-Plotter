@@ -48,7 +48,7 @@ The following format is expected for the input string:
 plot_name:y_label:graph_name:value\n
 ```
 
-- `plot_name`: Will be centered above the plot. You can use "##" in front of the name to not show it as a title (e.g., `##log`). Defaults to `##default`.
+- `plot_name`: Will be centered above the plot. You can use "##" in front of the name to not show it as a title (e.g. `##log`). Defaults to `##default`.
 - `y_label`: What's shown on the y-axis. Defaults to `y`.
 - `graph_name`: The name of the graph, used to properly assign the values and is shown in the legend. Defaults to `f(x)`.
 - `value`: The y-axis value. The x-axis will always show the elapsed time in seconds. This value cannot be defaulted.
