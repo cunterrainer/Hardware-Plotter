@@ -173,6 +173,7 @@ private:
             {
                 m_NewWidth = std::max(m_NewWidth, 1);
                 m_NewHeight = static_cast<int>((float)m_NewWidth / m_AspectRatio);
+                m_NewHeight = std::max(m_NewHeight, 1);
             }
             ImGui::SameLine();
             ImGui::SetNextItemWidth(m_BtnWidth);
@@ -180,6 +181,7 @@ private:
             {
                 m_NewHeight = std::max(m_NewHeight, 1);
                 m_NewWidth = static_cast<int>((float)m_NewHeight * m_AspectRatio);
+                m_NewWidth = std::max(m_NewWidth, 1);
             }
         }
     }
