@@ -36,7 +36,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
     glfwMakeContextCurrent(m_Window);
     glfwSwapInterval(1);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
-    ImGuiInit();
+    if (!ImGuiInit()) return;
     ImGuiPushGlobalStyle();
     ImPlot::CreateContext();
     ImPlot::StyleColorsClassic();
@@ -70,7 +70,7 @@ ImVec2 Window::GetSize() const noexcept
 }
 
 
-void Window::ImGuiInit(const char* iniFileName) const noexcept
+bool Window::ImGuiInit(const char* iniFileName) const noexcept
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -78,9 +78,14 @@ void Window::ImGuiInit(const char* iniFileName) const noexcept
     io.IniFilename = iniFileName;
 
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
+    if (!ImGui_ImplOpenGL3_Init("#version 130"))
+    {
+        Err << "Failed to initialize ImGui OpenGL3 implementation" << Endl;
+        return false;
+    }
     ImGui::StyleColorsDark();
     Log << "Initialized ImGui" << Endl;
+    return true;
 }
 
 

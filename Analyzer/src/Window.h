@@ -46,7 +46,7 @@ public:
 	ImVec2 GetSize() const noexcept;
 
 	// ImGui
-	void ImGuiInit(const char* iniFileName = nullptr) const noexcept;
+	bool ImGuiInit(const char* iniFileName = nullptr) const noexcept;
 	void ImGuiStartFrame() const noexcept;
 	void ImGuiRender() const noexcept;
 	void ImGuiPushGlobalStyle() const noexcept;
