@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <filesystem>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -158,12 +159,14 @@ private:
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##WidthInput", &m_NewWidth) && m_KeepAspectRatio)
             {
+                m_NewWidth = std::max(m_NewWidth, 1);
                 m_NewHeight = static_cast<int>((float)m_NewWidth / m_AspectRatio);
             }
             ImGui::SameLine();
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##HeightInput", &m_NewHeight))
             {
+                m_NewHeight = std::max(m_NewHeight, 1);
                 m_NewWidth = static_cast<int>((float)m_NewHeight * m_AspectRatio);
             }
         }
