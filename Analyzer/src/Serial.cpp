@@ -55,6 +55,7 @@ namespace Serial
             m_LastErrorMsg = "[Serial] Handle was not attached. '" + portName + "' " + GetWinError();
             return false;
         }
+        Log << "[Serial] Successfully connected to port '" << portName << "'" << Endl;
 
         //If connected we try to set the comm parameters
         DCB dcbSerialParams;
@@ -63,6 +64,7 @@ namespace Serial
             m_LastErrorMsg = "[Serial] Failed to get current serial parameters!";
             return false;
         }
+        Log << "[Serial] Successfully got current serial parameters" << Endl;
 
         //Define serial connection parameters for the arduino board
         dcbSerialParams.BaudRate = BaudRateMap.at(selectedBaudRate);
@@ -76,9 +78,10 @@ namespace Serial
         //Set the parameters and check for their proper application
         if (!SetCommState(m_SerialHandle, &dcbSerialParams))
         {
-            m_LastErrorMsg = "[Serial] Could not set Serial Port parameters";
+            m_LastErrorMsg = "[Serial] Could not set serial port parameters";
             return false;
         }
+        Log << "[Serial] Successfully set serial port parameters" << Endl;
 
         m_Connected = true;
         PurgeComm(m_SerialHandle, PURGE_RXCLEAR | PURGE_TXCLEAR); //Flush any remaining characters in the buffers 
@@ -99,6 +102,7 @@ namespace Serial
             m_LastErrorMsg.clear();
             m_SerialHandle = nullptr;
             m_StartTime = std::chrono::steady_clock::time_point();
+            Log << "[Serial] Successfully disconnected from last port" << Endl;
         }
     }
 
@@ -192,12 +196,13 @@ namespace Serial
             if (error == 0)
             {
                 error = GetLastError();
-                if (error != ERROR_FILE_NOT_FOUND) // Is probably the case for most since we check 255 ports
+                if (error != ERROR_FILE_NOT_FOUND) // ERROR_FILE_NOT_FOUND is probably the case for most since we check 255 ports
                     Err << "[PortListener] Failed to query ports. " << Logger::Error(error) << Endl;
             }
             else
                 ports.push_back({ comStr, ExtractDeviceName(targetPath) });
         }
+        Log << "[PortListener] Successfully queried " << ports.size() << " port(s)" << Endl;
         return ports;
     }
 }
