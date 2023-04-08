@@ -43,6 +43,7 @@ private:
             m_Path = savePath;
             m_DisplayPath = m_Path;
             free(savePath);
+            Log << "[NFD] Selected file: " << m_Path << Endl;
         }
         else if (result == NFD_CANCEL)
             Log << "[NFD] User pressed cancel" << Endl;
@@ -64,12 +65,16 @@ private:
     {
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data(), m_Image->Width() * Image::NumOfChannels))
             WriteImageDisplayError();
+        else
+            Log << "Successfully wrote image to file '" << m_Path.c_str() << "' w: " << m_Image->Width() << " h: " << m_Image->Height() << " c: " << Image::NumOfChannels << Endl;
     }
 
     static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*))
     {
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data()))
             WriteImageDisplayError();
+        else
+            Log << "Successfully wrote image to file '" << m_Path.c_str() << "' w: " << m_Image->Width() << " h: " << m_Image->Height() << " c: " << Image::NumOfChannels << Endl;
     }
 
     static inline void SaveImageToFile()
@@ -86,6 +91,8 @@ private:
                 Err << errorMsg << Endl;
                 MsgBoxError(errorMsg.c_str());
             }
+            else
+                Log << "Successfully resized the image w: " << m_NewWidth << " h: " << m_NewHeight << " c: " << Image::NumOfChannels << Endl;
         }
         if (extension == ".jpg" || extension == ".jpeg")
             WriteImage(stbi_write_jpg);
