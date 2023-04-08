@@ -1,7 +1,8 @@
 #pragma once
-#include <iostream>
-#include <ostream>
+#include <mutex>
 #include <string>
+#include <ostream>
+#include <iostream>
 #include <system_error>
 #include <Windows.h>
 #define Endl std::endl
@@ -17,6 +18,7 @@ public:
 private:
     static constexpr WORD OutputColorWhite = 0b0111;
     static constexpr WORD OutputColorLightRed = 0b1100;
+    static inline std::mutex Mutex;
 private:
     const char* const m_LogInfo;
     mutable bool m_NewLine = true;
@@ -27,6 +29,7 @@ public:
 
     inline const Logger& operator<<(std::ostream& (*osmanip)(std::ostream&)) const noexcept
     {
+        std::lock_guard lock(Mutex);
         std::cout << *osmanip;
         m_NewLine = true;
         SetConsoleTextAttribute(m_Console, OutputColorWhite);
@@ -36,6 +39,7 @@ public:
     template <class T>
     inline const Logger& operator<<(const T& mess) const noexcept
     {
+        std::lock_guard lock(Mutex);
         if (m_NewLine)
         {
             if (m_IsErr)
