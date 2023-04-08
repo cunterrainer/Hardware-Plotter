@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <utility>
+#include <functional>
 
 #include "GLFW/glfw3.h"
 #include "ImGui/imgui.h"
@@ -16,15 +17,15 @@ private:
 	static constexpr ImVec4 ColorGrey = { 0.57f, 0.57f, 0.57f, 1.f };
 	static constexpr ImVec4 ColorWhite = { 1.f,   1.f,   1.f, 1.f };
 	static inline const std::array<std::pair<int, std::reference_wrapper<const ImVec4>>, 9> StyleColors{
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBg,        std::ref(ColorDark)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBgHovered, std::ref(ColorGrey)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_CheckMark,      std::ref(ColorWhite)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_Header,         std::ref(ColorDark)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_HeaderActive,   std::ref(ColorDark)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_HeaderHovered,  std::ref(ColorGrey)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_Button,         std::ref(ColorDark)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonHovered,  std::ref(ColorGrey)),
-			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonActive,   std::ref(ColorGrey)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBg,        std::cref(ColorDark)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_FrameBgHovered, std::cref(ColorGrey)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_CheckMark,      std::cref(ColorWhite)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_Header,         std::cref(ColorDark)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_HeaderActive,   std::cref(ColorDark)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_HeaderHovered,  std::cref(ColorGrey)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_Button,         std::cref(ColorDark)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonHovered,  std::cref(ColorGrey)),
+			std::pair<int, std::reference_wrapper<const ImVec4>>(ImGuiCol_ButtonActive,   std::cref(ColorGrey)),
 	};
 private:
 	GLFWwindow* m_Window = nullptr;
@@ -50,7 +51,7 @@ public:
 	void ImGuiPushGlobalStyle() const noexcept;
 
 	static void PushRedButtonColors(bool condition) noexcept;
-	static void Window::PopRedButtonColors() noexcept;
+	static void PopRedButtonColors() noexcept;
 };
 
 int MsgBoxError(const char* message);
