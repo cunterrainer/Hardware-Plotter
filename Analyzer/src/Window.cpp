@@ -51,7 +51,7 @@ Window::~Window() noexcept
     Log << "Shut down ImPlot" << Endl;
 
     ImGui::PopStyleVar(); // ImGuiPushGlobalStyle()
-    ImGui::PopStyleColor(StyleColors.size());
+    ImGui::PopStyleColor((int)StyleColors.size());
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
