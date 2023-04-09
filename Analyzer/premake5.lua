@@ -122,6 +122,5 @@ project "Analyzer"
     filter { "configurations:Debug" }
         kind "ConsoleApp"
     filter { "configurations:Release" }
-        kind "ConsoleApp"
-        --kind "WindowedApp"
-        --entrypoint "mainCRTStartup"
+        kind "WindowedApp"
+        entrypoint "mainCRTStartup"
