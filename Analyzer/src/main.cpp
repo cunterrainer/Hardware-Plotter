@@ -53,7 +53,7 @@ int main()
                 plots.Delete();
             }
             // try to connect
-            else if (settings.GetNumOfPorts() > 0 && !serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
+            else if (settings.GetNumOfPorts() > 0 && !serial.Connect(settings.GetSelectedPort()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());
@@ -61,8 +61,7 @@ int main()
             data.clear();
         }
 
-        //const std::string_view readData = serial.ReadData();
-        std::string readData = "1\n";
+        const std::string_view readData = serial.ReadData();
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {

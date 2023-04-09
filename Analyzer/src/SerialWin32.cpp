@@ -8,6 +8,7 @@
 
 #include "Log.h"
 #include "SerialWin32.h"
+#include "PortSetupWindow.h"
 
 namespace Serial
 {
@@ -46,7 +47,7 @@ namespace Serial
     }
 
 
-    bool Serial::Connect(std::string portName, int selectedBaudRate) noexcept
+    bool Serial::Connect(std::string portName) noexcept
     {
         //Try to connect to the given port
         portName = "\\\\.\\" + portName;
@@ -68,10 +69,10 @@ namespace Serial
         Log << "[Serial] Successfully got current serial parameters" << Endl;
 
         //Define serial connection parameters for the arduino board
-        dcbSerialParams.BaudRate = BaudRateMap.at(selectedBaudRate);
-        dcbSerialParams.ByteSize = 8;
-        dcbSerialParams.StopBits = ONESTOPBIT;
-        dcbSerialParams.Parity = NOPARITY;
+        dcbSerialParams.BaudRate = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
+        dcbSerialParams.ByteSize = (BYTE)(PortSetupWindow::SelectedDataBits+5);
+        dcbSerialParams.StopBits = (BYTE)(PortSetupWindow::SelectedStopBits == 0 ? ONESTOPBIT : TWOSTOPBITS); // ONESTOPBIT -- default
+        dcbSerialParams.Parity = (BYTE)PortSetupWindow::SelectedParity; // NOPARITY -- default
         //Setting the DTR to Control_Enable ensures that the Arduino is properly
         //reset upon establishing a connection
         dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;

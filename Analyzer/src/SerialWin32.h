@@ -53,7 +53,7 @@ namespace Serial
         Serial(const Serial&) = delete;
         Serial& operator=(const Serial&) = delete;
 
-        bool Connect(std::string portName, int selectedBaudRate) noexcept;
+        bool Connect(std::string portName) noexcept;
         void Disconnect() noexcept;
         // ReadData has ownership of the string, if you need a copy do it manually
         std::string_view ReadData() noexcept;
