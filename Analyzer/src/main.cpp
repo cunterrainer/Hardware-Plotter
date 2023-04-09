@@ -61,7 +61,8 @@ int main()
             data.clear();
         }
 
-        const std::string_view readData = serial.ReadData();
+        //const std::string_view readData = serial.ReadData();
+        std::string readData = "1\n";
         data += readData;
         if (const size_t index = data.find_last_of('\n'); index != std::string::npos && !readData.empty())
         {

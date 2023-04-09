@@ -127,7 +127,7 @@ void RenderWindow::PushRedButtonColors(bool condition) noexcept
     }
     else
     {
-        ImGui::PushStyleColor(ImGuiCol_Button, ColorDark);
+        ImGui::PushStyleColor(ImGuiCol_Button, ColorDarkGrey);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ColorGrey);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ColorGrey);
     }

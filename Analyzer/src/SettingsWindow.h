@@ -6,6 +6,7 @@
 
 #include "Serial.h"
 #include "RenderWindow.h"
+#include "PortSetupWindow.h"
 
 class SettingsWindow
 {
@@ -14,8 +15,6 @@ public:
 private:
     std::vector<Serial::Port> m_Ports = Serial::PortListener::GetPorts();
     std::string m_PortsString;
-    int m_SelectedBaudRate = 0;
-    int m_SelectedPort = 0;
     bool m_DebugInfo = false;
     bool m_SaveAllClicked = false;
 private:
@@ -29,9 +28,9 @@ private:
 public:
     explicit SettingsWindow() : m_PortsString(BuildPortsString()) {}
 
-    const std::string& GetSelectedPort() const { return m_Ports[(size_t)m_SelectedPort].com; }
+    const std::string& GetSelectedPort() const { return m_Ports[(size_t)PortSetupWindow::SelectedPort].com; }
     size_t GetNumOfPorts() const { return m_Ports.size(); }
-    int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
+    int GetSelectedBaudRate() const { return PortSetupWindow::SelectedBaudRate; }
     bool DebugInfoSelected() const { return m_DebugInfo; }
     bool& SaveAllClicked() { return m_SaveAllClicked; }
 
@@ -46,20 +45,23 @@ public:
         RenderWindow::PopRedButtonColors();
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
-        ImGui::Combo("##PortCombo", &m_SelectedPort, m_PortsString.c_str());
+        ImGui::Combo("##PortCombo", &PortSetupWindow::SelectedPort, m_PortsString.c_str());
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
-        ImGui::Combo("baud", &m_SelectedBaudRate, Serial::Serial::BaudRates.data());
+        ImGui::Combo("baud", &PortSetupWindow::SelectedBaudRate, Serial::Serial::BaudRates.data());
         ImGui::SameLine();
-        if (connected && ImGui::Button("Save all", { 150, 0 }))
-            m_SaveAllClicked = true;
+        if (ImGui::Button("Port Setup", {150, 0}) || PortSetupWindow::IsOpen())
+            PortSetupWindow::Show(m_PortsString);
         ImGui::SameLine();
         if (ImGui::Button("Update ports", { 150, 0 }))
         {
             m_Ports = Serial::PortListener::GetPorts();
             m_PortsString = BuildPortsString();
-            m_SelectedPort = 0;
+            PortSetupWindow::SelectedPort = 0;
         }
+        ImGui::SameLine();
+        if (connected && ImGui::Button("Save all", { 150, 0 }))
+            m_SaveAllClicked = true;
         ImGui::SameLine();
         ImGui::Checkbox("Debug info", &m_DebugInfo);
         if (ImGui::IsItemHovered())
