@@ -4,9 +4,9 @@
 #include <limits>
 #include <array>
 #include <string_view>
-//#include <Windows.h>
+#include <Windows.h>
 
-#include "Serial.h"
+#include "SerialWin32.h"
 #include "Log.h"
 
 namespace Serial
