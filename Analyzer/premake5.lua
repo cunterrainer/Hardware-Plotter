@@ -6,6 +6,7 @@ project "Analyzer"
     files {
         "src/**.cpp",
         "src/**.h",
+        "vendor/**.cpp",
         "vendor/**.h"
     }
 
@@ -46,7 +47,8 @@ project "Analyzer"
             "GL",
             "gtk-3",
             "glib-2.0",
-            "gobject-2.0"
+            "gobject-2.0",
+            "X11"
         }
 
     --gcc* clang* msc*
@@ -69,7 +71,6 @@ project "Analyzer"
             "overloaded-virtual",
             "redundant-decls",
             "shadow",
-            "sign-conversion",
             "sign-promo",
             "switch-default",
             "undef",

@@ -6,8 +6,8 @@
 #include <string_view>
 #include <Windows.h>
 
-#include "SerialWin32.h"
 #include "Log.h"
+#include "SerialWin32.h"
 
 namespace Serial
 {

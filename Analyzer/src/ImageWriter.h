@@ -7,10 +7,10 @@
 #include "ImGui/imgui.h"
 #include "nfd/nfd.h"
 
-#include "Window.h"
-#include "Thread.h"
-#include "Image.h"
 #include "Log.h"
+#include "Image.h"
+#include "Thread.h"
+#include "RenderWindow.h"
 
 class ImageWriter
 {

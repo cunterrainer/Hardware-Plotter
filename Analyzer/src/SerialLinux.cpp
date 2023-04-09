@@ -4,17 +4,20 @@
 #include <filesystem>
 #include <string_view>
 
-#include "SerialLinux.h"
 #include "Log.h"
+#include "SerialLinux.h"
+#include "RenderWindow.h"
 
 namespace Serial
 {
     std::vector<Port> PortListener::GetPorts() noexcept 
     {
-        const std::filesystem::path p("/dev");
+        const std::filesystem::path p("/dev/");
         if(!std::filesystem::exists(p))
         {
-            Err << "[PortListener] Folder: '" << p.string() << "' doesn't exist, failed to query ports" << Endl;
+            const std::string errorMsg = "[PortListener] Failed to query ports, folder: '" + p.string() + "' doesn't exist";
+            Err << errorMsg << Endl;
+            MsgBoxError(errorMsg.c_str());
             return std::vector<Port>();
         }
 
