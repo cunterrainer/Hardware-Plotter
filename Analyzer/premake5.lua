@@ -114,7 +114,7 @@ project "Analyzer"
             "long-long",
             "implicit-fallthrough", 
         }
-        disablewarnings "cast-align"
+        disablewarnings {"cast-align", "sign-conversion"}
         defines "CLANG"
     filter {}
 

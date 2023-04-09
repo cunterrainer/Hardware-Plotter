@@ -18,7 +18,7 @@
 struct Logger
 {
 public:
-    static std::string Error(unsigned long error)
+    static std::string Error(int error)
     {
         return "Error: " + std::to_string(error) + " (" + std::system_category().message(static_cast<int>(error)) + ")";
     }
