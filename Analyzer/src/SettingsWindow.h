@@ -4,8 +4,8 @@
 
 #include "ImGui/imgui.h"
 
-#include "Window.h"
 #include "Serial.h"
+#include "RenderWindow.h"
 
 class SettingsWindow
 {
@@ -37,13 +37,13 @@ public:
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
-        Window::PushRedButtonColors(connected);
+        RenderWindow::PushRedButtonColors(connected);
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize({ windowWidth, Height });
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
-        Window::PopRedButtonColors();
+        RenderWindow::PopRedButtonColors();
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("##PortCombo", &m_SelectedPort, m_PortsString.c_str());

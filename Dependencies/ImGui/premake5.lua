@@ -9,5 +9,5 @@ project "ImGui"
 
     includedirs {
         "include/ImGui",
-        "../glfw/include"
+        "../GLFW/include"
     }

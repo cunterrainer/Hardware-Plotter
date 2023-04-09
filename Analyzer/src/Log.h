@@ -4,26 +4,62 @@
 #include <ostream>
 #include <iostream>
 #include <system_error>
-#include <Windows.h>
 #define Endl std::endl
-#define GetWinError() Logger::Error(GetLastError())
+
+#ifdef WINDOWS
+    #include <Windows.h>
+    #define GetWinError() Logger::Error(GetLastError())
+#elif defined(LINUX)
+    #include <errno.h>
+    #include <unistd.h>
+    #define GetError() Logger::Error(errno)
+#endif
 
 struct Logger
 {
 public:
-    static std::string Error(DWORD error)
+    static std::string Error(int error)
     {
         return "Error: " + std::to_string(error) + " (" + std::system_category().message(static_cast<int>(error)) + ")";
     }
 private:
-    static constexpr WORD OutputColorWhite = 0b0111;
-    static constexpr WORD OutputColorLightRed = 0b1100;
+    #ifdef WINDOWS
+        static constexpr unsigned char OutputColorWhite = 0b0111;
+        static constexpr unsigned char OutputColorLightRed = 0b1100;
+    #endif
     static inline std::mutex Mutex;
 private:
     const char* const m_LogInfo;
     mutable bool m_NewLine = true;
     mutable bool m_IsErr = false;
-    mutable HANDLE m_Console = GetStdHandle(STD_OUTPUT_HANDLE);
+private:
+    inline void SetOutputColor() const noexcept
+    {
+        #ifdef WINDOWS
+            if(m_IsErr)
+            {
+                HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                SetConsoleTextAttribute(hConsole, OutputColorLightRed);
+            }
+        #elif defined(LINUX)
+            if(m_IsErr && isatty(STDOUT_FILENO))
+                std::cout << "\033[1;31m";
+        #endif
+    }
+
+    inline void ResetOutputColor() const noexcept
+    {
+        #ifdef WINDOWS
+            if(m_IsErr)
+            {
+                HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                SetConsoleTextAttribute(hConsole, OutputColorWhite);
+            }
+        #elif defined(LINUX)
+            if(m_IsErr && isatty(STDOUT_FILENO))
+                std::cout << "\033[0m";
+        #endif
+    }
 public:
     inline explicit Logger(const char* info, bool isErr) noexcept : m_LogInfo(info), m_IsErr(isErr) {}
 
@@ -31,8 +67,8 @@ public:
     {
         std::lock_guard lock(Mutex);
         std::cout << *osmanip;
+        ResetOutputColor();
         m_NewLine = true;
-        SetConsoleTextAttribute(m_Console, OutputColorWhite);
         return *this;
     }
 
@@ -42,8 +78,7 @@ public:
         std::lock_guard lock(Mutex);
         if (m_NewLine)
         {
-            if (m_IsErr)
-                SetConsoleTextAttribute(m_Console, OutputColorLightRed);
+            SetOutputColor();
             std::cout << m_LogInfo;
             m_NewLine = false;
         }

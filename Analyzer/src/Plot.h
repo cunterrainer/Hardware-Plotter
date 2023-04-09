@@ -12,7 +12,7 @@
 
 #undef max // windows macros
 #undef min // windows macros
-#include "Window.h"
+#include "RenderWindow.h"
 #include "Graph.h"
 #include "ImageWriter.h"
 
@@ -75,7 +75,7 @@ public:
 
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
-        Window::PushRedButtonColors(m_Pause);
+        RenderWindow::PushRedButtonColors(m_Pause);
         ImGui::SetNextWindowSize(size);
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowPos({ 0, yOffset });
@@ -84,7 +84,7 @@ public:
         ImGui::SameLine(8);
         if (ImGui::Button(m_Pause ? "Continue" : "Pause", {150, 0}))
             m_Pause = !m_Pause;
-        Window::PopRedButtonColors();
+        RenderWindow::PopRedButtonColors();
         ImGui::SameLine();
         if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
         {

@@ -1,15 +1,21 @@
-#include <Windows.h>
+#ifdef WINDOWS
+    #include <Windows.h>
+#elif defined(LINUX)
+    #include <locale>
+    #include <sstream>
+    #include "MsgBoxX11/MsgBoxX11.h"
+#endif
 
 #include "GLFW/glfw3.h"
 #include "ImGui/imgui_impl_glfw.h"
 #include "ImGui/imgui_impl_opengl3.h"
 #include "ImPlot/implot.h"
 
-#include "Window.h"
-#include "Arial.h"
 #include "Log.h"
+#include "Arial.h"
+#include "RenderWindow.h"
 
-Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
+RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
 {
     glfwSetErrorCallback([](int error, const char* description){ Err << "[GLFW] " << error << ": " << description << Endl; });
 
@@ -44,7 +50,7 @@ Window::Window(int width, int height, const char* title, GLFWmonitor* monitor, G
 }
 
 
-Window::~Window() noexcept
+RenderWindow::~RenderWindow() noexcept
 {
     // Cleanup
     ImPlot::DestroyContext();
@@ -63,14 +69,14 @@ Window::~Window() noexcept
 }
 
 
-ImVec2 Window::GetSize() const noexcept
+ImVec2 RenderWindow::GetSize() const noexcept
 {
     const ImGuiIO& io = ImGui::GetIO();
     return { io.DisplaySize.x, io.DisplaySize.y };
 }
 
 
-bool Window::ImGuiInit(const char* iniFileName) const noexcept
+bool RenderWindow::ImGuiInit(const char* iniFileName) const noexcept
 {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -89,7 +95,7 @@ bool Window::ImGuiInit(const char* iniFileName) const noexcept
 }
 
 
-void Window::ImGuiStartFrame() const noexcept
+void RenderWindow::ImGuiStartFrame() const noexcept
 {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -98,38 +104,62 @@ void Window::ImGuiStartFrame() const noexcept
 }
 
 
-void Window::ImGuiRender() const noexcept
+void RenderWindow::ImGuiRender() const noexcept
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Window::ImGuiPushGlobalStyle() const noexcept
+void RenderWindow::ImGuiPushGlobalStyle() const noexcept
 {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
     for (auto& [colorFlag, color] : StyleColors)
         ImGui::PushStyleColor(colorFlag, color.get());
 }
 
-void Window::PushRedButtonColors(bool condition) noexcept
+void RenderWindow::PushRedButtonColors(bool condition) noexcept
 {
     if (condition)
     {
-        ImGui::PushStyleColor(ImGuiCol_Button, Window::ColorRed);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Window::ColorLightRed);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, Window::ColorLightRed);
+        ImGui::PushStyleColor(ImGuiCol_Button, ColorRed);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ColorLightRed);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ColorLightRed);
     }
     else
     {
-        ImGui::PushStyleColor(ImGuiCol_Button, Window::ColorDark);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Window::ColorGrey);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, Window::ColorGrey);
+        ImGui::PushStyleColor(ImGuiCol_Button, ColorDark);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ColorGrey);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ColorGrey);
     }
 }
 
-void Window::PopRedButtonColors() noexcept
+void RenderWindow::PopRedButtonColors() noexcept
 {
     ImGui::PopStyleColor(3);
 }
 
-int MsgBoxError(const char* message) { return MessageBoxA(NULL, message, "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL); }
+#ifdef WINDOWS
+    int MsgBoxError(const char* message) { return MessageBoxA(NULL, message, "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL); }
+#elif defined(LINUX)
+    inline std::wstring WidenString(const char* str)
+    {
+        const size_t length = strlen(str);
+        std::wstring result;
+        result.resize(length);
+
+        const auto& facet = std::use_facet<std::ctype<wchar_t>>(std::wostringstream().getloc());
+        std::transform(str, str + length, result.begin(), [&facet](const char ch)
+        {
+            return facet.widen(ch);
+        });
+        return result;
+    }
+
+    int MsgBoxError(const char* message)
+    {
+        Button btn;
+        btn.label = L"Ok";
+        btn.result = 1;
+        return Messagebox("Error", WidenString(message).c_str(), &btn, 1);
+    }
+#endif

@@ -8,7 +8,7 @@
 
 #define IMGUI_WINDOW_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar
 
-class Window
+class RenderWindow
 {
 private:
 	static constexpr ImVec4 ColorRed = { 0.9f, 0.072f, 0.072f, 1.f };
@@ -31,8 +31,8 @@ private:
 private:
 	GLFWwindow* m_Window = nullptr;
 public:
-	Window(int width = 1600, int height = 920, const char* title = "Analyzer", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
-	~Window() noexcept;
+	RenderWindow(int width = 1600, int height = 920, const char* title = "Analyzer", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
+	~RenderWindow() noexcept;
 
 	// loop
 	inline bool IsOpen()     const noexcept { return !glfwWindowShouldClose(m_Window); }

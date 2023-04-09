@@ -1,7 +1,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <sstream>
 #include <algorithm>
 #include <string_view>
 
@@ -10,9 +9,9 @@
 
 #include "Serial.h"
 #include "Plot.h"
-#include "Window.h"
 #include "Clang.h"
 #include "Log.h"
+#include "RenderWindow.h"
 #include "SettingsWindow.h"
 #include "Profiler.h"
 #include "PlotManager.h"
@@ -41,7 +40,7 @@ int main()
     std::string data;
     SettingsWindow settings;
     PlotManager plots(SettingsWindow::Height);
-    const Window window;
+    const RenderWindow window;
 
     while (window.IsOpen())
     {
