@@ -9,6 +9,8 @@
 
 class SettingsWindow
 {
+public:
+    static constexpr float Height = 43.f;
 private:
     std::vector<Serial::Port> m_Ports = Serial::PortListener::GetPorts();
     std::string m_PortsString;
@@ -16,19 +18,20 @@ private:
     int m_SelectedPort = 0;
     bool m_DebugInfo = false;
     bool m_SaveAllClicked = false;
-    float m_Height = 43.f;
+private:
+    inline std::string BuildPortsString() const
+    {
+        std::string content;
+        for (const Serial::Port& port : m_Ports)
+            content += port.com + '\n' + port.device + '\0';
+        return content;
+    }
 public:
-    explicit SettingsWindow() 
-        : m_PortsString([&]() {
-                std::string content;
-                for (const Serial::Port& port : m_Ports)
-                    content += port.com + '\n' + port.device + '\0';
-                return content; 
-            }()) {}
+    explicit SettingsWindow() : m_PortsString(BuildPortsString()) {}
 
     const std::string& GetSelectedPort() const { return m_Ports[(size_t)m_SelectedPort].com; }
+    size_t GetNumOfPorts() const { return m_Ports.size(); }
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
-    float GetHeight() const { return m_Height; }
     bool DebugInfoSelected() const { return m_DebugInfo; }
     bool& SaveAllClicked() { return m_SaveAllClicked; }
 
@@ -37,7 +40,7 @@ public:
         Window::PushRedButtonColors(connected);
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowBgAlpha(1);
-        ImGui::SetNextWindowSize({ windowWidth, m_Height });
+        ImGui::SetNextWindowSize({ windowWidth, Height });
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
         const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
         Window::PopRedButtonColors();
@@ -50,6 +53,13 @@ public:
         ImGui::SameLine();
         if (connected && ImGui::Button("Save all", { 150, 0 }))
             m_SaveAllClicked = true;
+        ImGui::SameLine();
+        if (ImGui::Button("Update ports", { 150, 0 }))
+        {
+            m_Ports = Serial::PortListener::GetPorts();
+            m_PortsString = BuildPortsString();
+            m_SelectedPort = 0;
+        }
         ImGui::SameLine();
         ImGui::Checkbox("Debug info", &m_DebugInfo);
         if (ImGui::IsItemHovered())
