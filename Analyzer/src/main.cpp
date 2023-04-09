@@ -39,9 +39,9 @@ int main()
     Serial::Serial serial;
     std::string data;
     SettingsWindow settings;
-    PlotManager plots(settings.GetHeight());
+    PlotManager plots(SettingsWindow::Height);
     const RenderWindow window;
-    
+
     while (window.IsOpen())
     {
         window.StartFrame();
@@ -53,7 +53,7 @@ int main()
                 plots.Delete();
             }
             // try to connect
-            else if (!serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
+            else if (settings.GetNumOfPorts() > 0 && !serial.Connect(settings.GetSelectedPort(), settings.GetSelectedBaudRate()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());

@@ -60,6 +60,8 @@ You can save the plots as images by clicking the "Save Plot" button in the appli
 
 # Supported devices
 I've only been able to test it with an esp32 and an arduino uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
+### Troubleshooting
+If your device doesn`t show up in the port selection list make sure you have the proper drivers installed.
 
 # Platforms
 Supported platform:
