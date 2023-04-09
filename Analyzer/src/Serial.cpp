@@ -1,9 +1,10 @@
+#ifdef WINDOWS
 #include <vector>
 #include <string>
 #include <limits>
 #include <array>
 #include <string_view>
-#include <Windows.h>
+//#include <Windows.h>
 
 #include "Serial.h"
 #include "Log.h"
@@ -206,3 +207,4 @@ namespace Serial
         return ports;
     }
 }
+#endif

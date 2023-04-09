@@ -22,6 +22,8 @@ filter { "platforms:x86" }
 
 filter "system:windows"
     defines "WINDOWS"
+filter "system:linux"
+    defines "LINUX"
 
 filter { "configurations:Debug" }
     runtime "Debug"

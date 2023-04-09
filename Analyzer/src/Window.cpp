@@ -1,4 +1,6 @@
+#ifdef WINDOWS
 #include <Windows.h>
+#endif
 
 #include "GLFW/glfw3.h"
 #include "ImGui/imgui_impl_glfw.h"
@@ -132,4 +134,6 @@ void Window::PopRedButtonColors() noexcept
     ImGui::PopStyleColor(3);
 }
 
+#ifdef WINDOWS
 int MsgBoxError(const char* message) { return MessageBoxA(NULL, message, "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL); }
+#endif

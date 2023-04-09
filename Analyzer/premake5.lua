@@ -12,15 +12,15 @@ project "Analyzer"
     includedirs {
         "src",
         "vendor",
-        "../Dependencies/glfw/include",
-        "../Dependencies/imgui/include",
+        "../Dependencies/GLFW/include",
+        "../Dependencies/ImGui/include",
         "../Dependencies/implot/include",
         "../Dependencies/nativefiledialog/include"
     }
 
     externalincludedirs {
         "vendor",
-        "../Dependencies/imgui/include"
+        "../Dependencies/ImGui/include"
     }
 
     flags "FatalWarnings"
@@ -29,18 +29,30 @@ project "Analyzer"
         "glfw",
         "nativefiledialog",
         "ImGui",
-        "ImPlot",
-        "gdi32",
-        "opengl32",
-        "shell32",
-        "ole32",
-        "uuid"
+        "ImPlot"
     }
 
-    -- gcc* clang* msc*
+    filter "system:windows"
+        links {
+            "gdi32",
+            "opengl32",
+            "shell32",
+            "ole32",
+            "uuid"
+        }
+
+    filter "system:linux"
+        links {
+            "GL",
+            "gtk-3",
+            "glib-2.0",
+            "gobject-2.0"
+        }
+
+    --gcc* clang* msc*
     filter "toolset:msc*"
         warnings "High"
-        externalwarnings "Default" -- Default
+        externalwarnings "Default"
         disablewarnings {}
         buildoptions { "/sdl" }
         defines "MSC"
@@ -109,5 +121,6 @@ project "Analyzer"
     filter { "configurations:Debug" }
         kind "ConsoleApp"
     filter { "configurations:Release" }
-        kind "WindowedApp"
-        entrypoint "mainCRTStartup"
+        kind "ConsoleApp"
+        --kind "WindowedApp"
+        --entrypoint "mainCRTStartup"

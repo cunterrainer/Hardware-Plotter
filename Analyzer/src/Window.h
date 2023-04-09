@@ -55,4 +55,4 @@ public:
 	static void PopRedButtonColors() noexcept;
 };
 
-int MsgBoxError(const char* message);
+inline int MsgBoxError([[maybe_unused]]const char* message) { return 0; }

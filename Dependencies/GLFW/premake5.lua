@@ -45,7 +45,27 @@ project "glfw"
             "src/wgl_context.c"
         }
 
-   filter "system:linux"
+    filter "system:linux"
+        defines "_GLFW_X11"
+        files {
+            "src/posix_time.h",
+            "src/posix_thread.h",
+            "src/posix_module.c",
+            "src/posix_time.c",
+            "src/posix_thread.c",
+
+            "src/x11_platform.h",
+            "src/xkb_unicode.h",
+            "src/x11_init.c",
+            "src/x11_monitor.c",
+            "src/x11_window.c",
+            "src/xkb_unicode.c",
+            "src/glx_context.c",
+            "src/linux_joystick.c",
+            "src/linux_joystick.h",
+            "src/posix_poll.h",
+            "src/posix_poll.c"
+        }
 
    filter "system:macosx"
    filter {}
