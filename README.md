@@ -60,17 +60,43 @@ You can save the plots as images by clicking the "Save Plot" button in the appli
 
 # Supported devices
 I've only been able to test it with an esp32 and an arduino uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
-### Troubleshooting
-If your device doesn`t show up in the port selection list make sure you have the proper drivers installed.
 
 # Platforms
-Supported platform:
+Supported platforms:
 - [x] Windows
-- [ ] Linux
+- [X] Linux
 
-Currently, only available for Windows. However, I am considering adding Linux support in the future.
+# Troubleshooting
+## Device isn't listed
+First check if the operating system can find it, if not make sure you have the proper drivers installed. To see where you can find your device port see below.
+### Windows
+Start->Device Manager->Ports (e.g., COM1, COM3)
+### Linux
+```
+ls /dev/tty*
+```
+The board should either be `/dev/ttyACM0` or `/dev/ttyUSB0` if you have multiple entries you have to try it out manually.  
+If you have the drivers installed and the board connected to you pc but it still doesn't show up try to restart the pc or:
+```
+udevadm trigger
+```
+and the check again
+## Plots don't show up
+This can have various reasons, one might be that the program doesn't receive properly formatted inputs, unfortunately that's something you have to check yourself because the application doesn't have a way to inform the user about wrongly formatted strings. If you still have problems even though your strings are properly formatted check that your not using a `\n` in `Serial.print()`. It is **not** advices to use this function for a newline, because for some reason, sometimes when using this the output gets corrupted. You can check if that's the case yourself by using the Arduino IDE's Serial Monitor. Simply open and close it a couple of times and you might see weird output (Make sure the proper baud rate is set). It is advised to use either `Serial.printf()` or `Serial.println()` for sending the `\n`. You can still use `Serial.print()` just don't use it for the newline.
 
 # Build
+## Prerequisites
+### Windows
+Nothing, everything is provided.
+### Linux
+Following libraries have to be installed and accessible for the current user:
+- gtk-3
+- glib-2.0
+- gobject-2.0
+- X11
+
+On most distros you can simply install them via your package manager
+
 ## Using premake
 This is the prefered and only way if you want to have a visual studio project. The project uses premake as it's build system with the premake5 binaries already provided. I've tested building it with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.
 
