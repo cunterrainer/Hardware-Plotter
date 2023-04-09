@@ -41,7 +41,7 @@ int main()
     SettingsWindow settings;
     PlotManager plots(settings.GetHeight());
     const Window window;
-
+    
     while (window.IsOpen())
     {
         window.StartFrame();

@@ -26,7 +26,7 @@ public:
                 return content; 
             }()) {}
 
-    const std::string& GetSelectedPort() const { return m_Ports[(size_t)m_SelectedPort].com; }
+    std::string GetSelectedPort() const { return m_Ports.empty() ? std::string() : m_Ports[(size_t)m_SelectedPort].com; }
     int GetSelectedBaudRate() const { return m_SelectedBaudRate; }
     float GetHeight() const { return m_Height; }
     bool DebugInfoSelected() const { return m_DebugInfo; }
