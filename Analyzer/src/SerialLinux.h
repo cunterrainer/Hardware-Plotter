@@ -42,16 +42,16 @@ namespace Serial
         int m_SerialPort = 0;
         bool m_Connected = false;
         bool m_FirstRead = true;
-        std::string m_LastErrorMsg;
         char m_ReadBuf[256] = {0};
+        std::string m_LastErrorMsg;
         std::chrono::steady_clock::time_point m_StartTime;
     public:
         Serial() = default;
         ~Serial() { Disconnect(); }
-        //Serial(Serial&& other) noexcept;
-        //Serial& operator=(Serial&& other) noexcept;
-        //Serial(const Serial&) = delete;
-        //Serial& operator=(const Serial&) = delete;
+        Serial(Serial&& other) noexcept;
+        Serial& operator=(Serial&& other) noexcept;
+        Serial(const Serial&) = delete;
+        Serial& operator=(const Serial&) = delete;
 
         bool Connect(std::string portName, int selectedBaudrate) noexcept;
         bool Disconnect() noexcept;
@@ -59,7 +59,7 @@ namespace Serial
         std::string_view ReadData() noexcept;
         std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
         constexpr bool IsConnected() const noexcept { return m_Connected; }
-        double GetTimeSinceStart() const { return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_StartTime).count()) / 1000000.0; }
+        double GetTimeSinceStart() const noexcept { return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_StartTime).count()) / 1000000.0; }
     };
 
     struct Port

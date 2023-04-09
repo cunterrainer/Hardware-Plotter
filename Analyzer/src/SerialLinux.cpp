@@ -14,6 +14,37 @@
 
 namespace Serial
 {
+    Serial::Serial(Serial&& other) noexcept : m_SerialPort(other.m_SerialPort), m_Connected(other.m_Connected), m_FirstRead(other.m_FirstRead), m_LastErrorMsg(other.m_LastErrorMsg), m_StartTime(other.m_StartTime)
+    {
+        other.m_SerialPort = 0;
+        other.m_Connected = false;
+        other.m_FirstRead = true;
+        other.m_LastErrorMsg.clear();
+        std::memcpy(m_ReadBuf, other.m_ReadBuf, sizeof(m_ReadBuf));
+        std::memset(other.m_ReadBuf, 0, sizeof(other.m_ReadBuf));
+        other.m_StartTime = std::chrono::steady_clock::time_point();
+    }
+
+
+    Serial& Serial::operator=(Serial&& other) noexcept
+    {
+        m_SerialPort = other.m_SerialPort;
+        m_Connected = other.m_Connected;
+        m_FirstRead = other.m_FirstRead;
+        m_LastErrorMsg = other.m_LastErrorMsg;
+        m_StartTime = other.m_StartTime;
+        std::memcpy(m_ReadBuf, other.m_ReadBuf, sizeof(m_ReadBuf));
+
+        other.m_SerialPort = 0;
+        other.m_Connected = false;
+        other.m_FirstRead = true;
+        other.m_LastErrorMsg.clear();
+        std::memset(other.m_ReadBuf, 0, sizeof(other.m_ReadBuf));
+        other.m_StartTime = std::chrono::steady_clock::time_point();
+        return *this;
+    }
+    
+
     bool Serial::Connect(std::string portName, int selectedBaudrate) noexcept
     {
         m_SerialPort = open(portName.c_str(), O_RDONLY);
@@ -97,13 +128,13 @@ namespace Serial
     {
         if(!m_Connected)
             return std::string_view();
-        ssize_t bytesRead = read(m_SerialPort, &m_ReadBuf[0], sizeof(m_ReadBuf));
+        ssize_t bytesRead = read(m_SerialPort, m_ReadBuf, sizeof(m_ReadBuf));
         if (bytesRead < 0)
         {
             Err << "[Serial] Failed to read bytes " << GetError() << Endl;
             return std::string_view();
         }
-        
+
         if (m_FirstRead)
         {
             std::string_view msgView(m_ReadBuf, bytesRead);
