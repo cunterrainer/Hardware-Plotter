@@ -1,9 +1,11 @@
+#ifdef LINUX
 #pragma once
 #include <vector>
 #include <string>
 #include <chrono>
 #include <string_view>
 #include <unordered_map>
+#include <asm/termbits.h>
 
 #include "Log.h"
 
@@ -13,7 +15,7 @@ namespace Serial
     {
     public:
         static constexpr std::string_view BaudRates = "300""\0""600""\0""750""\0""1200""\0""2400""\0""4800""\0""9600""\0""19200""\0""31250""\0""38400""\0""57600""\0""74880""\0""115200""\0""230400""\0""250000""\0""460800""\0""500000""\0""921600""\0""1000000""\0""2000000\0";
-        static inline const std::unordered_map<int, int> BaudRateMap
+        static inline const std::unordered_map<int, speed_t> BaudRateMap
         {
             {0, 300},
             {1, 600},
@@ -37,27 +39,26 @@ namespace Serial
             {19, 2000000}
         };
     private:
-        int* m_SerialHandle = nullptr;
+        int m_SerialPort = 0;
         bool m_Connected = false;
         bool m_FirstRead = true;
-        std::string m_ReadData = std::string(255, 0);
         std::string m_LastErrorMsg;
+        char m_ReadBuf[256] = {0};
         std::chrono::steady_clock::time_point m_StartTime;
     public:
-        //Serial() = default;
-        //~Serial();
+        Serial() = default;
+        ~Serial() { Disconnect(); }
         //Serial(Serial&& other) noexcept;
         //Serial& operator=(Serial&& other) noexcept;
         //Serial(const Serial&) = delete;
         //Serial& operator=(const Serial&) = delete;
 
-        bool Connect([[maybe_unused]]std::string portName, [[maybe_unused]]int selectedBaudRate) noexcept { return false; }
-        void Disconnect() noexcept {}
+        bool Connect(std::string portName, int selectedBaudrate) noexcept;
+        bool Disconnect() noexcept;
         // ReadData has ownership of the string, if you need a copy do it manually
-        std::string_view ReadData() noexcept { return "";}
-        bool WriteData([[maybe_unused]]const char* buffer, [[maybe_unused]]unsigned int nbChar) { return false; }
-        constexpr bool IsConnected() const noexcept { return m_Connected; }
+        std::string_view ReadData() noexcept;
         std::string_view GetLastErrorMsg() const noexcept { return m_LastErrorMsg; }
+        constexpr bool IsConnected() const noexcept { return m_Connected; }
         double GetTimeSinceStart() const { return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - m_StartTime).count()) / 1000000.0; }
     };
 
@@ -72,3 +73,4 @@ namespace Serial
         static std::vector<Port> GetPorts() noexcept;
     };
 }
+#endif

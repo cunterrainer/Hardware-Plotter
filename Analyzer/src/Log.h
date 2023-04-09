@@ -10,7 +10,9 @@
     #include <Windows.h>
     #define GetWinError() Logger::Error(GetLastError())
 #elif defined(LINUX)
+    #include <errno.h>
     #include <unistd.h>
+    #define GetError() Logger::Error(errno)
 #endif
 
 struct Logger
