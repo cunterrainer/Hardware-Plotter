@@ -45,7 +45,7 @@ int main()
     while (window.IsOpen())
     {
         window.StartFrame();
-        if (settings.ConnectClicked(window.GetSize().x, serial.IsConnected()))
+        if (settings.ConnectClicked(window.Size().x, serial.IsConnected()))
         {
             if (serial.IsConnected())
             {
@@ -112,9 +112,9 @@ int main()
             data.assign(&data[index+1]);
         }
         plots.CleanupGraphs();
-        plots.Render(window.GetSize(), settings.DebugInfoSelected());
+        plots.Render(window.Size(), settings.DebugInfoSelected());
         if(settings.SaveAllClicked())
-            settings.SaveAllClicked() = !plots.SaveAllPlots(window.GetSize());
+            settings.SaveAllClicked() = !plots.SaveAllPlots(window.Size());
         window.EndFrame();
     }
     Thread::Join();

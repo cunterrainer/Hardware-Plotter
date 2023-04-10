@@ -32,15 +32,15 @@ private:
 public:
     static inline void Show(std::string_view ports)
     {
+        RenderWindow::SetThemePopup();
         Open = true;
         const ImGuiIO& io = ImGui::GetIO();
         const ImVec2 pos{ (io.DisplaySize.x - WindowSize.x) / 2.f, (io.DisplaySize.y - WindowSize.y) / 2.f };
         const ImVec2 mousePos = ImGui::GetMousePos();
         if (mousePos.x < pos.x || mousePos.x > pos.x + WindowSize.x || mousePos.y < pos.y || mousePos.y > pos.y + WindowSize.y)
             ImGui::SetNextWindowFocus();
-        ImGui::SetNextWindowBgAlpha(1);
-        ImGui::SetNextWindowSize(WindowSize);
         ImGui::SetNextWindowPos(pos);
+        ImGui::SetNextWindowSize(WindowSize);
         ImGui::Begin("Port Setup", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
         PlaceText(DeviceStr);
@@ -64,6 +64,7 @@ public:
         ImGui::SetCursorPosX(155);
         if (ImGui::Button("Ok", { 138, 35 })) Open = false;
         ImGui::End();
+        RenderWindow::SetThemeWindow();
     }
 
     static inline bool IsOpen() { return Open; }

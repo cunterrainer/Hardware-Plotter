@@ -202,6 +202,7 @@ public:
 
     static inline bool SaveImage(ImVec2 windowSize, Image* img)
     {
+        RenderWindow::SetThemePopup();
         m_Image = img;
         m_Open = true;
         CalcWindowProps(windowSize);
@@ -225,6 +226,7 @@ public:
         Upscalar();
         ImGui::End();
         ImGui::PopStyleVar();
+        RenderWindow::SetThemeWindow();
         return close;
     }
 };

@@ -75,16 +75,16 @@ public:
 
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
-        RenderWindow::PushRedButtonColors(m_Pause);
         ImGui::SetNextWindowSize(size);
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowPos({ 0, yOffset });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
         ImGui::SameLine(8);
+        RenderWindow::SetButtonRed(m_Pause);
         if (ImGui::Button(m_Pause ? "Continue" : "Pause", {150, 0}))
             m_Pause = !m_Pause;
-        RenderWindow::PopRedButtonColors();
+        RenderWindow::ResetButtonColor();
         ImGui::SameLine();
         if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
         {

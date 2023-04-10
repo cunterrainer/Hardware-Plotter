@@ -36,13 +36,13 @@ public:
 
     bool ConnectClicked(float windowWidth, bool connected)
     {
-        RenderWindow::PushRedButtonColors(connected);
         ImGui::SetNextWindowPos({ 0, 0 });
         ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowSize({ windowWidth, Height });
         ImGui::Begin("##Port selection", nullptr, IMGUI_WINDOW_FLAGS);
+        RenderWindow::SetButtonRed(connected);
         const bool clicked = ImGui::Button(connected ? "Disconnect" : "Connect", {150, 0});
-        RenderWindow::PopRedButtonColors();
+        RenderWindow::ResetButtonColor();
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150);
         ImGui::Combo("##PortCombo", &PortSetupWindow::SelectedPort, m_PortsString.c_str());
