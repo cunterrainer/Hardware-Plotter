@@ -139,7 +139,7 @@ private:
 
         const ImVec2 size = ImGui::GetWindowSize();
         m_AspectRatio = (float)m_Image->Width() / (float)m_Image->Height();
-        m_ImageSize = { size.y * m_AspectRatio, size.y - 25 /*Title height*/ };
+        m_ImageSize = { (size.y-25) * m_AspectRatio, size.y - 25 /*Title height*/ };
         m_WindowSize = { m_ImageSize.x + SettingsSectionWidth, size.y };
 
         ImVec2 pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());

@@ -5,8 +5,12 @@ void PortSetup::Show() noexcept
 {
     m_Open = true;
     RenderWindow::SetThemePopup();
-    ImGui::Begin("Port Setup", &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
+    // // only applies for the first time
+    const ImVec2 dpSize = ImGui::GetIO().DisplaySize;
+    ImGui::SetNextWindowPos({ (dpSize.x - WindowSize.x) / 2.f, (dpSize.y - WindowSize.y) / 2.f }, ImGuiCond_Once);
+
+    ImGui::Begin("Port Setup", &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     const ImVec2 pos      = ImGui::GetWindowPos();
     const ImVec2 size     = ImGui::GetWindowSize();
     const ImVec2 mousePos = ImGui::GetMousePos();

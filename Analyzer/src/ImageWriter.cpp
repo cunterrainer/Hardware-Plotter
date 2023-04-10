@@ -9,6 +9,12 @@ bool ImageWriter::SaveImage()
     ImGui::SetNextWindowFocus();
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
+    // only applies for the first time
+    const ImVec2 initSize = { ((float)m_Image->Width() + SettingsSectionWidth) * 0.75f, (float)m_Image->Height() * 0.75f };
+    const ImVec2 dpSize = ImGui::GetIO().DisplaySize;
+    ImGui::SetNextWindowSize(initSize, ImGuiCond_Once);
+    ImGui::SetNextWindowPos({ (dpSize.x - initSize.x) / 2.f, (dpSize.y - initSize.y) / 2.f }, ImGuiCond_Once);
+
     ImGui::Begin("Image writer", nullptr, ImGuiWindowFlags_NoCollapse);
     CalcProperties();
     ImGui::SetWindowSize(m_WindowSize);

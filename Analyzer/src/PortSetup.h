@@ -10,6 +10,7 @@
 class PortSetup
 {
 private:
+    static constexpr ImVec2 WindowSize{ 301, 282 };
     static inline const char* const DeviceStr   = "Device";
     static inline const char* const BaudRateStr = "Baud Rate";
     static inline const char* const DataBitsStr = "Data Bits";
