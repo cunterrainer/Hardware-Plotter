@@ -11,6 +11,12 @@
 #include "Image.h"
 #include "RenderWindow.h"
 
+#ifdef WINDOW
+    #define DEFAULT_PATH "\\plot.png"
+#elif defined(LINUX)
+    #define DEFAULT_PATH "/plot.png"
+#endif
+
 class ImageWriter
 {
 private:
@@ -18,7 +24,7 @@ private:
     static constexpr float  SettingsSectionWidth = 350;
 private:
     Image* m_Image;
-    std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
+    std::string m_Path = std::filesystem::current_path().string() + DEFAULT_PATH;
     std::string m_DisplayPath = m_Path;
     mutable std::mutex m_Mutex;
     bool m_Open = false;
