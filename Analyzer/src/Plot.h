@@ -94,6 +94,9 @@ public:
             }
         }
         ImGui::SameLine();
+        if (ImGui::Button("Clear", { 150, 0 }))
+            m_Graphs.clear();
+        ImGui::SameLine();
         ImGui::Checkbox("Cleanup Graphs", &m_CleanupGraphs);
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("Cleanup graphs by removing elements that have a similar y value.\n(Improves performance, however you may encounter bugs or the graphs might not look like what you expect)");

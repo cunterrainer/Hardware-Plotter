@@ -11,7 +11,7 @@
 #include "Image.h"
 #include "RenderWindow.h"
 
-#ifdef WINDOW
+#ifdef WINDOWS
     #define DEFAULT_PATH "\\plot.png"
 #elif defined(LINUX)
     #define DEFAULT_PATH "/plot.png"
