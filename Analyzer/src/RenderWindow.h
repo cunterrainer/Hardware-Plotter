@@ -69,8 +69,8 @@ public:
 	inline bool  ConnectClicked() const noexcept { return m_ConnectClicked;   }
 	inline bool  ShowDebugInfo()  const noexcept { return m_DebugInfoChecked; }
 	inline void  ResetConnectClicked()  noexcept { m_ConnectClicked = false;  }
-	inline size_t GetNumOfPorts() const noexcept { return m_Ports.size();     }
-	std::string GetSelectedPort() const          { return m_Ports[(size_t)PortSetupWindow::SelectedPort].com; }
+	inline size_t NumOfPorts()    const noexcept { return m_Ports.size();     }
+	std::string  SelectedPort()   const          { return m_Ports[(size_t)PortSetupWindow::SelectedPort].com; }
 
 	static void SetButtonRed(bool condition) noexcept;
 	static void ResetButtonColor() noexcept;

@@ -51,7 +51,7 @@ int main()
                 plots.Delete();
             }
             // try to connect
-            else if (window.GetNumOfPorts() > 0 && !serial.Connect(window.GetSelectedPort()))
+            else if (window.NumOfPorts() > 0 && !serial.Connect(window.SelectedPort()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());
