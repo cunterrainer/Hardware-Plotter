@@ -17,9 +17,12 @@ bool ImageWriter::SaveImage()
     ImGui::SameLine();
     const ImVec2 currsorPos = ImGui::GetCursorPos();
 
-    ImGui::Text("%s", m_DisplayPath.c_str());
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("%s", m_Path.c_str());
+    {
+        std::lock_guard lock(m_Mutex);
+        ImGui::Text("%s", m_DisplayPath.c_str());
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("%s", m_Path.c_str());
+    }
 
     ImGui::SameLine(m_WindowSize.x - PathButtonSize.x - m_ItemSpacing.x);
     if (ImGui::Button("Path", PathButtonSize))

@@ -1,4 +1,5 @@
 #pragma once
+#include <mutex>
 #include <algorithm>
 #include <filesystem>
 
@@ -19,6 +20,7 @@ private:
     Image* m_Image;
     std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
     std::string m_DisplayPath = m_Path;
+    mutable std::mutex m_Mutex;
     bool m_Open = false;
 
     ImVec2 m_ImageSize;
@@ -38,6 +40,7 @@ private:
         nfdresult_t result = NFD_SaveDialog("png;jpg;jpeg", NULL, &savePath);
         if (result == NFD_OKAY)
         {
+            std::lock_guard lock(m_Mutex);
             m_Path = savePath;
             m_DisplayPath = m_Path;
             free(savePath);
@@ -61,6 +64,7 @@ private:
 
     inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*, int)) const
     {
+        std::lock_guard lock(m_Mutex);
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data(), m_Image->Width() * Image::NumOfChannels))
             WriteImageDisplayError();
         else
@@ -69,6 +73,7 @@ private:
 
     inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*)) const
     {
+        std::lock_guard lock(m_Mutex);
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data()))
             WriteImageDisplayError();
         else
@@ -77,20 +82,31 @@ private:
 
     inline void SaveImageToFile()
     {
-        std::filesystem::path path(m_Path);
+        std::filesystem::path path;
+        {
+            std::lock_guard lock(m_Mutex);
+            path = m_Path;
+        }
         std::string extension = path.extension().string();
         std::transform(extension.begin(), extension.end(), extension.begin(), [](unsigned char c) { return std::tolower(c); });
 
         if (m_UpscaleOnWrite)
         {
-            const std::string errorMsg = m_Image->ScaleUp(m_NewWidth, m_NewHeight);
+            int w = 0;
+            int h = 0;
+            {
+                std::lock_guard lock(m_Mutex);
+                w = m_NewWidth;
+                h = m_NewHeight;
+            }
+            const std::string errorMsg = m_Image->ScaleUp(w, h); // No other function changes values of image
             if (!errorMsg.empty())
             {
                 Err << errorMsg << Endl;
                 MsgBoxError(errorMsg.c_str());
             }
             else
-                Log << "Successfully resized the image w: " << m_NewWidth << " h: " << m_NewHeight << " c: " << Image::NumOfChannels << Endl;
+                Log << "Successfully resized the image w: " << w << " h: " << h << " c: " << Image::NumOfChannels << Endl;
         }
         if (extension == ".jpg" || extension == ".jpeg")
             WriteImage(stbi_write_jpg);
@@ -102,17 +118,23 @@ private:
             WriteImage(stbi_write_png);
         else
         {
-            m_Path += ".png";
+            {
+                std::lock_guard lock(m_Mutex);
+                m_Path += ".png";
+            }
             WriteImage(stbi_write_png);
         }
     }
 
     inline void CalcProperties()
     {
-        if (m_NewHeight == 0 && m_NewWidth == 0)
         {
-            m_NewHeight = m_Image->Height();
-            m_NewWidth = m_Image->Width();
+            std::lock_guard lock(m_Mutex);
+            if (m_NewHeight == 0 && m_NewWidth == 0)
+            {
+                m_NewHeight = m_Image->Height();
+                m_NewWidth = m_Image->Width();
+            }
         }
 
         const ImVec2 size = ImGui::GetWindowSize();
@@ -123,6 +145,7 @@ private:
         ImVec2 pathWidth = ImGui::CalcTextSize(m_DisplayPath.c_str());
         if (pathWidth.x > PathButtonSize.x - m_ItemSpacing.x * 2)
         {
+            std::lock_guard lock(m_Mutex);
             while (m_DisplayPath.size() > 4 && pathWidth.x > SettingsSectionWidth - PathButtonSize.x - m_ItemSpacing.x * 2)
             {
                 m_DisplayPath.pop_back();
@@ -150,6 +173,7 @@ private:
             ImGui::SameLine(m_WindowSize.x - m_BtnWidth - m_ItemSpacing.x);
             if (ImGui::Checkbox("Keep aspect ratio", &m_KeepAspectRatio) && m_KeepAspectRatio)
             {
+                std::lock_guard lock(m_Mutex);
                 m_NewHeight = m_Image->Height();
                 m_NewWidth = m_Image->Width();
             }
@@ -157,6 +181,7 @@ private:
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##WidthInput", &m_NewWidth) && m_KeepAspectRatio)
             {
+                std::lock_guard lock(m_Mutex);
                 m_NewWidth = std::max(m_NewWidth, 1);
                 m_NewHeight = static_cast<int>((float)m_NewWidth / m_AspectRatio);
                 m_NewHeight = std::max(m_NewHeight, 1);
@@ -165,6 +190,7 @@ private:
             ImGui::SetNextItemWidth(m_BtnWidth);
             if (ImGui::InputInt("##HeightInput", &m_NewHeight))
             {
+                std::lock_guard lock(m_Mutex);
                 m_NewHeight = std::max(m_NewHeight, 1);
                 m_NewWidth = static_cast<int>((float)m_NewHeight * m_AspectRatio);
                 m_NewWidth = std::max(m_NewWidth, 1);
@@ -176,6 +202,7 @@ public:
 
     inline void Close()
     {
+        std::lock_guard lock(m_Mutex);
         m_NewWidth = 0;
         m_NewHeight = 0;
         m_KeepAspectRatio = true;
