@@ -11,7 +11,6 @@
 #include "Log.h"
 #include "SerialLinux.h"
 #include "RenderWindow.h"
-#include "PortSetupWindow.h"
 
 namespace Serial
 {
@@ -46,15 +45,15 @@ namespace Serial
     }
     
 
-    bool Serial::Connect(std::string portName) noexcept
+    bool Serial::Connect(const PortSettings& settings) noexcept
     {
-        m_SerialPort = open(portName.c_str(), O_RDONLY);
+        m_SerialPort = open(settings.Port.c_str(), O_RDONLY);
         if (m_SerialPort < 0)
         {
-            m_LastErrorMsg = "[Serial] Failed to open port '" + portName + "' " + GetError();
+            m_LastErrorMsg = "[Serial] Failed to open port '" + settings.Port + "' " + GetError();
             return false;
         }
-        Log << "[Serial] Successfully opened port '" << portName << "' (" << m_SerialPort << ')' << Endl;
+        Log << "[Serial] Successfully opened port '" << settings.Port << "' (" << m_SerialPort << ')' << Endl;
 
         termios2 tty;
         if(ioctl(m_SerialPort, TCGETS2, &tty) != 0)
@@ -66,7 +65,7 @@ namespace Serial
 
         std::memset(&tty, 0, sizeof(tty));
         tty.c_cflag &= ~PARENB; // Clear parity bit, disabling parity
-        switch(PortSetupWindow::SelectedParity)
+        switch(settings.Parity)
         {
             case 1:
                 tty.c_cflag |= PARENB; // enable parity
@@ -91,11 +90,11 @@ namespace Serial
         }
 
         tty.c_cflag &= ~CSTOPB; // Clear stop field, only one stop bit used in communication
-        if(PortSetupWindow::SelectedStopBits == 1)
+        if(settings.StopBits == 1)
             tty.c_cflag |= CSTOPB; // Use two stop bits
 
         tty.c_cflag &= ~CSIZE; // Clear all the size bits
-        switch(PortSetupWindow::SelectedDataBits)
+        switch(settings.DataBits)
         {
             case 0:
                 tty.c_cflag |= CS5; // 5 bits per byte
@@ -118,8 +117,8 @@ namespace Serial
 
         tty.c_cflag &= ~CBAUD;
         tty.c_cflag |= CBAUDEX;
-        tty.c_ispeed = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
-        tty.c_ospeed = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
+        tty.c_ispeed = BaudRateMap.at(settings.BaudRate);
+        tty.c_ospeed = BaudRateMap.at(settings.BaudRate);
 
         tty.c_lflag &= ~ICANON; // dont receive data line by line
         tty.c_lflag &= ~ECHO; // Disable echo
