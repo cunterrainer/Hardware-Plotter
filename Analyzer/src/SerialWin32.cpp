@@ -50,7 +50,7 @@ namespace Serial
     {
         //Try to connect to the given port
         settings.Port = "\\\\.\\" + settings.Port;
-        m_SerialHandle = CreateFileA(settings.Port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        m_SerialHandle = CreateFileA(settings.Port.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
             m_LastErrorMsg = "[Serial] Handle was not attached. '" + settings.Port + "' " + GetWinError();
