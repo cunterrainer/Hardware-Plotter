@@ -44,7 +44,6 @@ flags {
 }
 staticruntime "on"
 removeunreferencedcodedata "on"
-defines "USING_IMGUI"
 
 include "Analyzer"
 include "Dependencies/GLFW"
