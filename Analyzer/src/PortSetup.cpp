@@ -1,7 +1,7 @@
 #include "PortSetup.h"
 #include "RenderWindow.h"
 
-void PortSetup::Show(std::string_view ports)
+void PortSetup::Show() noexcept
 {
     m_Open = true;
     RenderWindow::SetThemePopup();
@@ -14,19 +14,19 @@ void PortSetup::Show(std::string_view ports)
         ImGui::SetWindowFocus();
 
     PlaceText(DeviceStr);
-    ImGui::Combo("##DeviceCombo", &SelectedPort, ports.data());
+    ImGui::Combo("##DeviceCombo", &m_SelectedPort, m_PortsString.c_str());
 
     PlaceText(BaudRateStr);
-    ImGui::Combo("##BaudCombo", &SelectedBaudRate, Serial::Serial::BaudRates.data());
+    ImGui::Combo("##BaudCombo", &m_Settings.BaudRate, Serial::Serial::BaudRates.data());
 
     PlaceText(DataBitsStr);
-    ImGui::Combo("##DataCombo", &SelectedDataBits, "5\0""6\0""7\0""8\0");
+    ImGui::Combo("##DataCombo", &m_Settings.DataBits, "5\0""6\0""7\0""8\0");
 
     PlaceText(StopBitsStr);
-    ImGui::Combo("##StopCombo", &SelectedStopBits, "1\0""2\0");
+    ImGui::Combo("##StopCombo", &m_Settings.StopBits, "1\0""2\0");
 
     PlaceText(ParityStr);
-    ImGui::Combo("##ParityCombo", &SelectedParity, "None\0Odd\0Even\0Mark\0Space\0");
+    ImGui::Combo("##ParityCombo", &m_Settings.Parity, "None\0Odd\0Even\0Mark\0Space\0");
 
     ImGui::NewLine();
     ImGui::NewLine();

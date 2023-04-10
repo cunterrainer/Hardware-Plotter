@@ -37,8 +37,6 @@ private:
 	};
 private:
 	GLFWwindow* m_Window = nullptr;
-	std::vector<Serial::Port> m_Ports = Serial::PortListener::GetPorts();
-	std::string m_PortsString;
 
 	bool m_SaveAllClicked   = false;
 	bool m_ConnectClicked   = false;
@@ -53,8 +51,6 @@ private:
 	void ImGuiStartFrame() const noexcept;
 	void ImGuiRender() const noexcept;
 	void ImGuiSetTheme() const noexcept;
-
-	std::string BuildPortsString() const noexcept;
 public:
 	RenderWindow(int width = 1600, int height = 920, const char* title = "Analyzer", GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL) noexcept;
 	~RenderWindow() noexcept;
@@ -63,14 +59,12 @@ public:
 	inline bool IsOpen()     const noexcept { return !glfwWindowShouldClose(m_Window);      }
 	inline void EndFrame()   const noexcept { Clear(); ImGuiRender(); PollEvents(); Swap(); }
 	inline ImVec2 Size() const noexcept { const ImGuiIO& io = ImGui::GetIO(); return { io.DisplaySize.x, io.DisplaySize.y }; }
-	void Show(bool connected) noexcept;
+	void Show(bool connected, PortSetup* portSetup) noexcept;
 
-	inline bool& SaveAllClicked()       noexcept { return m_SaveAllClicked;   }
-	inline bool  ConnectClicked() const noexcept { return m_ConnectClicked;   }
-	inline bool  ShowDebugInfo()  const noexcept { return m_DebugInfoChecked; }
-	inline void  ResetConnectClicked()  noexcept { m_ConnectClicked = false;  }
-	inline size_t NumOfPorts()    const noexcept { return m_Ports.size();     }
-	std::string  SelectedPort()   const          { return m_Ports[(size_t)PortSetup::SelectedPort].com; }
+	inline bool& SaveAllClicked()         noexcept { return m_SaveAllClicked;           }
+	inline bool  ConnectClicked()   const noexcept { return m_ConnectClicked;           }
+	inline bool  ShowDebugInfo()    const noexcept { return m_DebugInfoChecked;         }
+	inline void  ResetConnectClicked()    noexcept { m_ConnectClicked = false;          }
 
 	static void SetButtonRed(bool condition) noexcept;
 	static void ResetButtonColor() noexcept;

@@ -18,7 +18,7 @@
 #include "RenderWindow.h"
 
 
-RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept : m_PortsString(BuildPortsString())
+RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
 {
     glfwSetErrorCallback([](int error, const char* description){ Err << "[GLFW] " << error << ": " << description << Endl; });
 
@@ -222,16 +222,7 @@ void RenderWindow::ImGuiSetTheme() const noexcept
 }
 
 
-std::string RenderWindow::BuildPortsString() const noexcept
-{
-    std::string content;
-    for (const Serial::Port& port : m_Ports)
-        content += port.com + '\n' + port.device + '\0';
-    return content;
-}
-
-
-void RenderWindow::Show(bool connected) noexcept
+void RenderWindow::Show(bool connected, PortSetup* portSetup) noexcept
 {
     ImGuiStartFrame();
     const float width = Size().x;
@@ -246,23 +237,19 @@ void RenderWindow::Show(bool connected) noexcept
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(BtnSize.x);
-    ImGui::Combo("##PortCombo", &PortSetup::SelectedPort, m_PortsString.c_str());
+    ImGui::Combo("##PortCombo", &portSetup->SelectedPort(), portSetup->PortsString());
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(BtnSize.x);
-    ImGui::Combo("baud", &PortSetup::SelectedBaudRate, Serial::Serial::BaudRates.data());
+    ImGui::Combo("baud", &portSetup->SelectedBaudRate(), Serial::Serial::BaudRates.data());
 
     ImGui::SameLine();
     if (ImGui::Button("Port Setup", BtnSize) || PortSetup::IsOpen())
-        PortSetup::Show(m_PortsString);
+        portSetup->Show();
 
     ImGui::SameLine();
     if (ImGui::Button("Update ports", BtnSize))
-    {
-        m_Ports = Serial::PortListener::GetPorts();
-        m_PortsString = BuildPortsString();
-        PortSetup::SelectedPort = 0;
-    }
+        portSetup->UpdatePorts();
 
     ImGui::SameLine();
     if (connected && ImGui::Button("Save all", BtnSize))

@@ -8,7 +8,6 @@
 
 #include "Log.h"
 #include "SerialWin32.h"
-#include "PortSetupWindow.h"
 
 namespace Serial
 {
@@ -47,17 +46,17 @@ namespace Serial
     }
 
 
-    bool Serial::Connect(std::string portName) noexcept
+    bool Serial::Connect(PortSettings settings) noexcept
     {
         //Try to connect to the given port
-        portName = "\\\\.\\" + portName;
-        m_SerialHandle = CreateFileA(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        settings.Port = "\\\\.\\" + settings.Port;
+        m_SerialHandle = CreateFileA(settings.Port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (m_SerialHandle == INVALID_HANDLE_VALUE)
         {
-            m_LastErrorMsg = "[Serial] Handle was not attached. '" + portName + "' " + GetWinError();
+            m_LastErrorMsg = "[Serial] Handle was not attached. '" + settings.Port + "' " + GetWinError();
             return false;
         }
-        Log << "[Serial] Successfully connected to port '" << portName << "'" << Endl;
+        Log << "[Serial] Successfully connected to port '" << settings.Port << "'" << Endl;
 
         //If connected we try to set the comm parameters
         DCB dcbSerialParams;
@@ -69,10 +68,10 @@ namespace Serial
         Log << "[Serial] Successfully got current serial parameters" << Endl;
 
         //Define serial connection parameters for the arduino board
-        dcbSerialParams.BaudRate = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
-        dcbSerialParams.ByteSize = (BYTE)(PortSetupWindow::SelectedDataBits+5);
-        dcbSerialParams.StopBits = (BYTE)(PortSetupWindow::SelectedStopBits == 0 ? ONESTOPBIT : TWOSTOPBITS); // ONESTOPBIT -- default
-        dcbSerialParams.Parity = (BYTE)PortSetupWindow::SelectedParity; // NOPARITY -- default
+        dcbSerialParams.BaudRate = BaudRateMap.at(settings.BaudRate);
+        dcbSerialParams.ByteSize = (BYTE)(settings.DataBits+5);
+        dcbSerialParams.StopBits = (BYTE)(settings.StopBits == 0 ? ONESTOPBIT : TWOSTOPBITS); // ONESTOPBIT -- default
+        dcbSerialParams.Parity = (BYTE)settings.Parity; // NOPARITY -- default
         //Setting the DTR to Control_Enable ensures that the Arduino is properly
         //reset upon establishing a connection
         dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
