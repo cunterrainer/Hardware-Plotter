@@ -13,9 +13,12 @@
 
 #include "Log.h"
 #include "Arial.h"
+#include "Serial.h"
 #include "RenderWindow.h"
+#include "PortSetupWindow.h"
 
-RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept
+
+RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept : m_PortsString(BuildPortsString())
 {
     glfwSetErrorCallback([](int error, const char* description){ Err << "[GLFW] " << error << ": " << description << Endl; });
 
@@ -99,6 +102,7 @@ void RenderWindow::ImGuiRender() const noexcept
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 
 void RenderWindow::ImGuiSetTheme() const noexcept
 {
@@ -217,6 +221,64 @@ void RenderWindow::ImGuiSetTheme() const noexcept
     ImGui::SetColorEditOptions(colorEditFlags);
 }
 
+
+std::string RenderWindow::BuildPortsString() const noexcept
+{
+    std::string content;
+    for (const Serial::Port& port : m_Ports)
+        content += port.com + '\n' + port.device + '\0';
+    return content;
+}
+
+
+void RenderWindow::Show(bool connected) noexcept
+{
+    ImGuiStartFrame();
+    const float width = Size().x;
+
+    ImGui::SetNextWindowPos({ 0, 0 });
+    ImGui::SetNextWindowSize({ width, SettingsHeight });
+    ImGui::Begin("##Settings", nullptr, IMGUI_WINDOW_FLAGS);
+
+    RenderWindow::SetButtonRed(connected);
+    m_ConnectClicked = ImGui::Button(connected ? "Disconnect" : "Connect", BtnSize);
+    RenderWindow::ResetButtonColor();
+
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(BtnSize.x);
+    ImGui::Combo("##PortCombo", &PortSetupWindow::SelectedPort, m_PortsString.c_str());
+
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(BtnSize.x);
+    ImGui::Combo("baud", &PortSetupWindow::SelectedBaudRate, Serial::Serial::BaudRates.data());
+
+    ImGui::SameLine();
+    if (ImGui::Button("Port Setup", BtnSize) || PortSetupWindow::IsOpen())
+        PortSetupWindow::Show(m_PortsString);
+
+    ImGui::SameLine();
+    if (ImGui::Button("Update ports", BtnSize))
+    {
+        m_Ports = Serial::PortListener::GetPorts();
+        m_PortsString = BuildPortsString();
+        PortSetupWindow::SelectedPort = 0;
+    }
+
+    ImGui::SameLine();
+    if (connected && ImGui::Button("Save all", BtnSize))
+        m_SaveAllClicked = true;
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Debug info", &m_DebugInfoChecked);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Shows the number of y/x values every graph has.\nI left it in on purpose because it might be useful for some people.\nIt just isn't pleasant to look at.");
+    
+    ImGui::SameLine(width - 250);
+    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+}
+
+
 void RenderWindow::SetButtonRed(bool condition) noexcept
 {
     if (condition)
@@ -249,6 +311,7 @@ void RenderWindow::SetThemeWindow() noexcept
     style->WindowBorderSize = 0.0f;
     style->WindowRounding = 0.0f;
 }
+
 
 #ifdef WINDOWS
     int MsgBoxError(const char* message) { return MessageBoxA(NULL, message, "Error", MB_OK | MB_ICONERROR | MB_APPLMODAL); }
