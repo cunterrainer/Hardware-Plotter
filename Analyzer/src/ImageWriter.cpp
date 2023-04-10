@@ -1,10 +1,9 @@
 #include "Thread.h"
 #include "ImageWriter.h"
 
-bool ImageWriter::SaveImage(Image* img)
+bool ImageWriter::SaveImage()
 {
     RenderWindow::SetThemePopup();
-    m_Image = img;
     m_Open = true;
     m_ItemSpacing = ImGui::GetStyle().ItemSpacing;
     ImGui::SetNextWindowFocus();
@@ -32,7 +31,7 @@ bool ImageWriter::SaveImage(Image* img)
         Thread::Dispatch(&ImageWriter::SaveImageToFile, this);
 
     ImGui::SameLine();
-    const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 }) || img->Width() <= 0 || img->Height() <= 0;
+    const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 }) || m_Image->Width() <= 0 || m_Image->Height() <= 0;
     NextLine();
     Upscalar();
     ImGui::End();

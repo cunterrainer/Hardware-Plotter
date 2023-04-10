@@ -24,8 +24,8 @@ private:
     ImVec2 m_ImageSize;
     ImVec2 m_WindowSize;
     ImVec2 m_ItemSpacing;
-    float  m_BtnWidth;
-    float  m_AspectRatio;
+    float  m_BtnWidth = 0;
+    float  m_AspectRatio = 0;
 
     bool m_UpscaleOnWrite = false;
     bool m_KeepAspectRatio = true;
@@ -172,6 +172,8 @@ private:
         }
     }
 public:
+    inline explicit ImageWriter(Image* img) : m_Image(img) {}
+
     inline void Close()
     {
         m_NewWidth = 0;
@@ -186,5 +188,5 @@ public:
         return m_Open;
     }
 
-    bool SaveImage(Image* img);
+    bool SaveImage();
 };

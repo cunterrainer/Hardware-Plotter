@@ -18,8 +18,7 @@ private:
     std::unordered_map<std::string, Plot<double>> m_Plots;
     float m_YOffset;
     Image m_Image;
-    ImageWriter m_ImageWriter;
-    bool m_SavingImage = false;
+    ImageWriter m_ImageWriter{ &m_Image };
 private:
     inline void CreateImage(ImVec2 windowSize) 
     {
@@ -62,7 +61,7 @@ public:
     {
         if (!m_Image.Created())
             CreateImage(windowSize);
-        if (m_ImageWriter.SaveImage(&m_Image))
+        if (m_ImageWriter.SaveImage())
         {
             m_Image.Reset();
             for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)

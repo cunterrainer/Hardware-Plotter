@@ -33,7 +33,7 @@ private:
     T m_GreatestY = std::numeric_limits<T>::lowest();
     T m_LowestY = std::numeric_limits<T>::max();
     Image m_Image;
-    ImageWriter m_ImageWriter;
+    ImageWriter m_ImageWriter{ &m_Image };
 private:
     inline void CalculateYRange()
     {
@@ -87,7 +87,7 @@ public:
         if (ImGui::Button("Save", { 150,0 }) || m_ImageWriter.IsOpen())
         {
             m_Image.Create({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
-            if (m_ImageWriter.SaveImage(&m_Image))
+            if (m_ImageWriter.SaveImage())
             {
                 ResetImage();
                 m_ImageWriter.Close();
