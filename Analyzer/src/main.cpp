@@ -14,6 +14,7 @@
 #include "RenderWindow.h"
 #include "Profiler.h"
 #include "PlotManager.h"
+#include "Thread.h"
 
 
 std::vector<std::string_view> SplitStringByChar(const std::string_view& str, char c)

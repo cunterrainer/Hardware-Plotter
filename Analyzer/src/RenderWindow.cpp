@@ -1,5 +1,7 @@
 #ifdef WINDOWS
     #include <Windows.h>
+    #undef max // windows macros
+    #undef min // windows macros
 #elif defined(LINUX)
     #include <locale>
     #include <sstream>

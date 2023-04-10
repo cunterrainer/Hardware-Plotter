@@ -3,6 +3,7 @@
 #include <thread>
 
 #include "Log.h"
+#include "ImageWriter.h"
 
 namespace Thread
 {
@@ -11,7 +12,8 @@ namespace Thread
     inline std::thread Thread(ThreadWait);
     inline std::mutex Mutex;
     inline bool Stop = false;
-    inline void(*ThreadFunc)() = nullptr;
+    inline ImageWriter* Instance = nullptr;
+    inline void(ImageWriter::*ThreadFunc)() = nullptr;
 
     // for internal use
     inline void ThreadWait()
@@ -24,9 +26,10 @@ namespace Thread
                 if (ThreadFunc != nullptr)
                 {
                     Mutex.unlock();
-                    ThreadFunc();
+                    (Instance->*ThreadFunc)();
                     Mutex.lock();
                     ThreadFunc = nullptr;
+                    Instance = nullptr;
                 }
                 else if (Stop)
                     return;
@@ -35,12 +38,13 @@ namespace Thread
         }
     }
 
-    inline void Dispatch(void(*func)())
+    inline void Dispatch(void(ImageWriter::*func)(), ImageWriter* instance)
     {
         std::lock_guard lock(Mutex);
         if (ThreadFunc == nullptr)
         {
             Log << "[Thread] Main thread(" << std::this_thread::get_id() << ") successfully dispatched a task to worker thread" << Endl;
+            Instance = instance;
             ThreadFunc = func;
             return;
         }

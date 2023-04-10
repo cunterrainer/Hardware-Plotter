@@ -6,6 +6,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <Windows.h>
+#undef max // windows macros
+#undef min // windows macros
 
 #include "Log.h"
 #include "PortSettings.h"

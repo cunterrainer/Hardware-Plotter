@@ -8,6 +8,8 @@
 
 #ifdef WINDOWS
     #include <Windows.h>
+    #undef max // windows macros
+    #undef min // windows macros
     #define GetWinError() Logger::Error(GetLastError())
 #elif defined(LINUX)
     #include <errno.h>

@@ -2,14 +2,12 @@
 #include <algorithm>
 #include <filesystem>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb/stb_image_write.h"
 #include "ImGui/imgui.h"
 #include "nfd/nfd.h"
 
 #include "Log.h"
 #include "Image.h"
-#include "Thread.h"
 #include "RenderWindow.h"
 
 class ImageWriter
@@ -18,23 +16,23 @@ private:
     static constexpr ImVec2 PathButtonSize{ 100, 0 };
     static constexpr float  SettingsSectionWidth = 350;
 private:
-    static inline Image* m_Image;
-    static inline std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
-    static inline std::string m_DisplayPath = m_Path;
-    static inline bool m_Open = false;
+    Image* m_Image;
+    std::string m_Path = std::filesystem::current_path().string() + "\\plot.png";
+    std::string m_DisplayPath = m_Path;
+    bool m_Open = false;
 
-    static inline ImVec2 m_ImageSize;
-    static inline ImVec2 m_WindowSize;
-    static inline ImVec2 m_ItemSpacing;
-    static inline float  m_BtnWidth;
-    static inline float  m_AspectRatio;
+    ImVec2 m_ImageSize;
+    ImVec2 m_WindowSize;
+    ImVec2 m_ItemSpacing;
+    float  m_BtnWidth;
+    float  m_AspectRatio;
 
-    static inline bool m_UpscaleOnWrite = false;
-    static inline bool m_KeepAspectRatio = true;
-    static inline int  m_NewWidth = 0;
-    static inline int  m_NewHeight = 0;
+    bool m_UpscaleOnWrite = false;
+    bool m_KeepAspectRatio = true;
+    int  m_NewWidth = 0;
+    int  m_NewHeight = 0;
 private:
-    static inline void SaveFileDialog()
+    inline void SaveFileDialog()
     {
         nfdchar_t* savePath = NULL;
         nfdresult_t result = NFD_SaveDialog("png;jpg;jpeg", NULL, &savePath);
@@ -54,14 +52,14 @@ private:
         }
     }
 
-    static inline void WriteImageDisplayError()
+    inline void WriteImageDisplayError() const
     {
         const std::string errorMsg = "Failed to write to file: " + m_Path + " w: " + std::to_string(m_Image->Width()) + " h: " + std::to_string(m_Image->Height()) + " c: " + std::to_string(Image::NumOfChannels);
         Err << errorMsg << Endl;
         MsgBoxError(errorMsg.c_str());
     }
 
-    static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*, int))
+    inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*, int)) const
     {
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data(), m_Image->Width() * Image::NumOfChannels))
             WriteImageDisplayError();
@@ -69,7 +67,7 @@ private:
             Log << "Successfully wrote image to file '" << m_Path.c_str() << "' w: " << m_Image->Width() << " h: " << m_Image->Height() << " c: " << Image::NumOfChannels << Endl;
     }
 
-    static inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*))
+    inline void WriteImage(int(*write_func)(const char*, int, int, int, const void*)) const
     {
         if (!write_func(m_Path.c_str(), m_Image->Width(), m_Image->Height(), Image::NumOfChannels, m_Image->Data()))
             WriteImageDisplayError();
@@ -77,7 +75,7 @@ private:
             Log << "Successfully wrote image to file '" << m_Path.c_str() << "' w: " << m_Image->Width() << " h: " << m_Image->Height() << " c: " << Image::NumOfChannels << Endl;
     }
 
-    static inline void SaveImageToFile()
+    inline void SaveImageToFile()
     {
         std::filesystem::path path(m_Path);
         std::string extension = path.extension().string();
@@ -109,7 +107,7 @@ private:
         }
     }
 
-    static inline void CalcProperties()
+    inline void CalcProperties()
     {
         if (m_NewHeight == 0 && m_NewWidth == 0)
         {
@@ -137,13 +135,13 @@ private:
         }
     }
 
-    static inline void NextLine()
+    inline void NextLine() const
     {
         ImGui::NewLine();
         ImGui::SameLine(m_ImageSize.x + m_ItemSpacing.x);
     }
 
-    static inline void Upscalar()
+    inline void Upscalar()
     {
         ImGui::SetNextItemWidth(m_BtnWidth);
         ImGui::Checkbox("Upscale image", &m_UpscaleOnWrite);
@@ -174,7 +172,7 @@ private:
         }
     }
 public:
-    static inline void Reset()
+    inline void Close()
     {
         m_NewWidth = 0;
         m_NewHeight = 0;
@@ -183,48 +181,10 @@ public:
         m_Open = false;
     }
 
-    static inline bool IsOpen()
+    inline bool IsOpen() const
     {
         return m_Open;
     }
 
-    static inline bool SaveImage(Image* img)
-    {
-        RenderWindow::SetThemePopup();
-        m_Image = img;
-        m_Open = true;
-        m_ItemSpacing = ImGui::GetStyle().ItemSpacing;
-        ImGui::SetNextWindowFocus();
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
-        ImGui::Begin("Image writer", nullptr);
-        CalcProperties();
-        ImGui::SetWindowSize(m_WindowSize);
-        ImGui::Image((void*)(intptr_t)m_Image->GetGpuImage(), m_ImageSize);
-
-        ImGui::SameLine();
-        const ImVec2 currsorPos = ImGui::GetCursorPos();
-
-        ImGui::Text("%s", m_DisplayPath.c_str());
-        if (ImGui::IsItemHovered())
-            ImGui::SetTooltip("%s", m_Path.c_str());
-
-        ImGui::SameLine(m_WindowSize.x - PathButtonSize.x - m_ItemSpacing.x);
-        if (ImGui::Button("Path", PathButtonSize))
-            Thread::Dispatch(SaveFileDialog);
-
-        ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + m_ItemSpacing.y });
-        m_BtnWidth = (SettingsSectionWidth - 3*m_ItemSpacing.x) * 0.5f;
-        if (ImGui::Button("Save", { m_BtnWidth, 0 }))
-            Thread::Dispatch(SaveImageToFile);
-
-        ImGui::SameLine();
-        const bool close = ImGui::Button("Cancel", { m_BtnWidth, 0 }) || img->Width() <= 0 || img->Height() <= 0;
-        NextLine();
-        Upscalar();
-        ImGui::End();
-        ImGui::PopStyleVar();
-        RenderWindow::SetThemeWindow();
-        return close;
-    }
+    bool SaveImage(Image* img);
 };
