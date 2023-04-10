@@ -76,7 +76,6 @@ public:
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
         ImGui::SetNextWindowSize(size);
-        ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowPos({ 0, yOffset });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
@@ -92,7 +91,7 @@ public:
             {
                 m_SaveClicked = true;
                 m_Image.Create({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
-                if (ImageWriter::SaveImage({ size.x, size.y - 29 }, &m_Image))
+                if (ImageWriter::SaveImage(&m_Image))
                 {
                     m_SaveClicked = false;
                     ResetImage();

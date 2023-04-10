@@ -64,7 +64,7 @@ public:
         if (m_SavingImage || !ImageWriter::IsOpen())
         {
             m_SavingImage = true;
-            if (ImageWriter::SaveImage({windowSize.x, windowSize.y-29}, &m_Image))
+            if (ImageWriter::SaveImage(&m_Image))
             {
                 m_SavingImage = false;
                 m_Image.Reset();

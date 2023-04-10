@@ -205,7 +205,7 @@ void RenderWindow::ImGuiSetTheme() const noexcept
     style->TabRounding = 3.0f;
 
     style->WindowTitleAlign = ImVec2(0.0f, 0.5f);
-    style->WindowMenuButtonPosition = ImGuiDir_None;
+    style->WindowMenuButtonPosition = ImGuiDir_Right;
     style->ColorButtonPosition = ImGuiDir_Left;
     style->ButtonTextAlign = ImVec2(0.5f, 0.5f);
     style->SelectableTextAlign = ImVec2(0.0f, 0.0f);
