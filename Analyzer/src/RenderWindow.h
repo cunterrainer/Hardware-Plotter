@@ -7,7 +7,7 @@
 #include "ImGui/imgui.h"
 
 #include "Serial.h"
-#include "PortSetupWindow.h"
+#include "PortSetup.h"
 
 #define IMGUI_WINDOW_FLAGS ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar
 
@@ -70,7 +70,7 @@ public:
 	inline bool  ShowDebugInfo()  const noexcept { return m_DebugInfoChecked; }
 	inline void  ResetConnectClicked()  noexcept { m_ConnectClicked = false;  }
 	inline size_t NumOfPorts()    const noexcept { return m_Ports.size();     }
-	std::string  SelectedPort()   const          { return m_Ports[(size_t)PortSetupWindow::SelectedPort].com; }
+	std::string  SelectedPort()   const          { return m_Ports[(size_t)PortSetup::SelectedPort].com; }
 
 	static void SetButtonRed(bool condition) noexcept;
 	static void ResetButtonColor() noexcept;

@@ -5,11 +5,9 @@
 
 #include "Serial.h"
 
-class PortSetupWindow
+class PortSetup
 {
 private:
-    static constexpr float TextWidth = 30.f;
-    static constexpr ImVec2 WindowSize{ 300, 290 };
     static inline const char* const DeviceStr   = "Device";
     static inline const char* const BaudRateStr = "Baud Rate";
     static inline const char* const DataBitsStr = "Data Bits";
@@ -22,7 +20,7 @@ public:
     static inline int SelectedStopBits = 0;
     static inline int SelectedParity   = 0;
 private:
-    static inline bool Open = false;
+    static inline bool m_Open = false;
 private:
     static inline void PlaceText(const char* str)
     {
@@ -32,5 +30,5 @@ private:
     }
 public:
     static void Show(std::string_view ports);
-    static inline bool IsOpen() { return Open; }
+    static inline bool IsOpen() { return m_Open; }
 };

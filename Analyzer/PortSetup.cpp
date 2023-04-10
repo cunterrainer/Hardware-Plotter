@@ -1,18 +1,17 @@
-#include "PortSetupWindow.h"
+#include "PortSetup.h"
 #include "RenderWindow.h"
 
-void PortSetupWindow::Show(std::string_view ports)
+void PortSetup::Show(std::string_view ports)
 {
+    m_Open = true;
     RenderWindow::SetThemePopup();
-    Open = true;
-    const ImGuiIO& io = ImGui::GetIO();
-    const ImVec2 pos{ (io.DisplaySize.x - WindowSize.x) / 2.f, (io.DisplaySize.y - WindowSize.y) / 2.f };
+    ImGui::Begin("Port Setup", &m_Open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+    const ImVec2 pos      = ImGui::GetWindowPos();
+    const ImVec2 size     = ImGui::GetWindowSize();
     const ImVec2 mousePos = ImGui::GetMousePos();
-    if (mousePos.x < pos.x || mousePos.x > pos.x + WindowSize.x || mousePos.y < pos.y || mousePos.y > pos.y + WindowSize.y)
-        ImGui::SetNextWindowFocus();
-    ImGui::SetNextWindowPos(pos);
-    ImGui::SetNextWindowSize(WindowSize);
-    ImGui::Begin("Port Setup", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    if (mousePos.x < pos.x || mousePos.x > pos.x + size.x || mousePos.y < pos.y || mousePos.y > pos.y + size.y)
+        ImGui::SetWindowFocus();
 
     PlaceText(DeviceStr);
     ImGui::Combo("##DeviceCombo", &SelectedPort, ports.data());
@@ -33,7 +32,7 @@ void PortSetupWindow::Show(std::string_view ports)
     ImGui::NewLine();
     ImGui::NewLine();
     ImGui::SetCursorPosX(155);
-    if (ImGui::Button("Ok", { 138, 35 })) Open = false;
+    if (ImGui::Button("Ok", { 138, 35 })) m_Open = false;
     ImGui::End();
     RenderWindow::SetThemeWindow();
 }

@@ -14,8 +14,8 @@
 #include "Log.h"
 #include "Arial.h"
 #include "Serial.h"
+#include "PortSetup.h"
 #include "RenderWindow.h"
-#include "PortSetupWindow.h"
 
 
 RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor* monitor, GLFWwindow* share) noexcept : m_PortsString(BuildPortsString())
@@ -246,22 +246,22 @@ void RenderWindow::Show(bool connected) noexcept
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(BtnSize.x);
-    ImGui::Combo("##PortCombo", &PortSetupWindow::SelectedPort, m_PortsString.c_str());
+    ImGui::Combo("##PortCombo", &PortSetup::SelectedPort, m_PortsString.c_str());
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(BtnSize.x);
-    ImGui::Combo("baud", &PortSetupWindow::SelectedBaudRate, Serial::Serial::BaudRates.data());
+    ImGui::Combo("baud", &PortSetup::SelectedBaudRate, Serial::Serial::BaudRates.data());
 
     ImGui::SameLine();
-    if (ImGui::Button("Port Setup", BtnSize) || PortSetupWindow::IsOpen())
-        PortSetupWindow::Show(m_PortsString);
+    if (ImGui::Button("Port Setup", BtnSize) || PortSetup::IsOpen())
+        PortSetup::Show(m_PortsString);
 
     ImGui::SameLine();
     if (ImGui::Button("Update ports", BtnSize))
     {
         m_Ports = Serial::PortListener::GetPorts();
         m_PortsString = BuildPortsString();
-        PortSetupWindow::SelectedPort = 0;
+        PortSetup::SelectedPort = 0;
     }
 
     ImGui::SameLine();
