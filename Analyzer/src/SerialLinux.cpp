@@ -11,6 +11,7 @@
 #include "Log.h"
 #include "SerialLinux.h"
 #include "RenderWindow.h"
+#include "PortSetupWindow.h"
 
 namespace Serial
 {
@@ -45,7 +46,7 @@ namespace Serial
     }
     
 
-    bool Serial::Connect(std::string portName, int selectedBaudrate) noexcept
+    bool Serial::Connect(std::string portName) noexcept
     {
         m_SerialPort = open(portName.c_str(), O_RDONLY);
         if (m_SerialPort < 0)
@@ -65,16 +66,60 @@ namespace Serial
 
         std::memset(&tty, 0, sizeof(tty));
         tty.c_cflag &= ~PARENB; // Clear parity bit, disabling parity
+        switch(PortSetupWindow::SelectedParity)
+        {
+            case 1:
+                tty.c_cflag |= PARENB; // enable parity
+                tty.c_cflag |= PARODD; // set parity odd
+                break;
+            case 2:
+                tty.c_cflag |= PARENB;
+                tty.c_cflag &= ~PARODD; // set parity even
+                break;
+            case 3:
+                tty.c_cflag |= PARENB;
+                tty.c_cflag |= CMSPAR;
+                tty.c_cflag |= PARODD; // set mark parity
+                break;
+            case 4:
+                tty.c_cflag |= PARENB;
+                tty.c_cflag |= CMSPAR;
+                tty.c_cflag &= ~PARODD; // set space parity
+                break;
+            default:
+                break;
+        }
+
         tty.c_cflag &= ~CSTOPB; // Clear stop field, only one stop bit used in communication
+        if(PortSetupWindow::SelectedStopBits == 1)
+            tty.c_cflag |= CSTOPB; // Use two stop bits
+
         tty.c_cflag &= ~CSIZE; // Clear all the size bits
-        tty.c_cflag |= CS8; // 8 bits per byte
+        switch(PortSetupWindow::SelectedDataBits)
+        {
+            case 0:
+                tty.c_cflag |= CS5; // 5 bits per byte
+                break;
+            case 1:
+                tty.c_cflag |= CS6; // 6 bits per byte
+                break;
+            case 2:
+                tty.c_cflag |= CS7; // 7 bits per byte
+                break;
+            case 3:
+                tty.c_cflag |= CS8; // 8 bits per byte
+                break;
+            default:
+                m_LastErrorMsg = "[Serial]{SelectedDataBits} default case! Not allowed to happen!";
+                return false;
+        }
         tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control
         tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
 
         tty.c_cflag &= ~CBAUD;
         tty.c_cflag |= CBAUDEX;
-        tty.c_ispeed = BaudRateMap.at(selectedBaudrate);
-        tty.c_ospeed = BaudRateMap.at(selectedBaudrate);;
+        tty.c_ispeed = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
+        tty.c_ospeed = BaudRateMap.at(PortSetupWindow::SelectedBaudRate);
 
         tty.c_lflag &= ~ICANON; // dont receive data line by line
         tty.c_lflag &= ~ECHO; // Disable echo
