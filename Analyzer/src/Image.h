@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb/stb_image_resize.h"
 #include "GLFW/glfw3.h"
 

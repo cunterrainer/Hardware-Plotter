@@ -12,9 +12,9 @@
 #include "Clang.h"
 #include "Log.h"
 #include "RenderWindow.h"
-#include "SettingsWindow.h"
 #include "Profiler.h"
 #include "PlotManager.h"
+#include "Thread.h"
 
 
 std::vector<std::string_view> SplitStringByChar(const std::string_view& str, char c)
@@ -36,16 +36,16 @@ std::vector<std::string_view> SplitStringByChar(const std::string_view& str, cha
 
 int main()
 {
-    Serial::Serial serial;
     std::string data;
-    SettingsWindow settings;
-    PlotManager plots(SettingsWindow::Height);
-    const RenderWindow window;
+    Serial::Serial serial;
+    PlotManager plots(RenderWindow::SettingsHeight);
+    PortSetup portSetup;
+    RenderWindow window;
 
     while (window.IsOpen())
     {
-        window.StartFrame();
-        if (settings.ConnectClicked(window.Size().x, serial.IsConnected()))
+        window.Show(serial.IsConnected(), &portSetup);
+        if (window.ConnectClicked())
         {
             if (serial.IsConnected())
             {
@@ -53,12 +53,13 @@ int main()
                 plots.Delete();
             }
             // try to connect
-            else if (settings.GetNumOfPorts() > 0 && !serial.Connect(settings.GetSelectedPort()))
+            else if (!serial.Connect(portSetup.Settings()))
             {
                 Err << serial.GetLastErrorMsg() << Endl;
                 MsgBoxError(serial.GetLastErrorMsg().data());
             }
             data.clear();
+            window.ResetConnectClicked();
         }
 
         const std::string_view readData = serial.ReadData();
@@ -112,9 +113,9 @@ int main()
             data.assign(&data[index+1]);
         }
         plots.CleanupGraphs();
-        plots.Render(window.Size(), settings.DebugInfoSelected());
-        if(settings.SaveAllClicked())
-            settings.SaveAllClicked() = !plots.SaveAllPlots(window.Size());
+        plots.Render(window.Size(), window.ShowDebugInfo());
+        if(window.SaveAllClicked())
+            window.SaveAllClicked() = !plots.SaveAllPlots(window.Size());
         window.EndFrame();
     }
     Thread::Join();

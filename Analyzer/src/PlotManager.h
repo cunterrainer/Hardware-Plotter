@@ -10,6 +10,7 @@
 
 #include "Image.h"
 #include "Plot.h"
+#include "ImageWriter.h"
 
 class PlotManager
 {
@@ -17,7 +18,7 @@ private:
     std::unordered_map<std::string, Plot<double>> m_Plots;
     float m_YOffset;
     Image m_Image;
-    bool m_SavingImage = false;
+    ImageWriter m_ImageWriter{ &m_Image };
 private:
     inline void CreateImage(ImVec2 windowSize) 
     {
@@ -60,19 +61,13 @@ public:
     {
         if (!m_Image.Created())
             CreateImage(windowSize);
-        windowSize = { windowSize.x, windowSize.y - m_YOffset };
-        if (m_SavingImage || !ImageWriter::IsOpen())
+        if (m_ImageWriter.SaveImage())
         {
-            m_SavingImage = true;
-            if (ImageWriter::SaveImage({windowSize.x, windowSize.y-29}, &m_Image))
-            {
-                m_SavingImage = false;
-                m_Image.Reset();
-                for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)
-                    it->second.ResetImage();
-                ImageWriter::Reset();
-                return true;
-            }
+            m_Image.Reset();
+            for (auto it = m_Plots.begin(); it != m_Plots.end(); ++it)
+                it->second.ResetImage();
+            m_ImageWriter.Close();
+            return true;
         }
         return false;
     }

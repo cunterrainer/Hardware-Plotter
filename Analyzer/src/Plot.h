@@ -10,8 +10,6 @@
 #include "ImGui/imgui.h"
 #include "ImPlot/implot.h"
 
-#undef max // windows macros
-#undef min // windows macros
 #include "RenderWindow.h"
 #include "Graph.h"
 #include "ImageWriter.h"
@@ -35,6 +33,7 @@ private:
     T m_GreatestY = std::numeric_limits<T>::lowest();
     T m_LowestY = std::numeric_limits<T>::max();
     Image m_Image;
+    ImageWriter m_ImageWriter{ &m_Image };
 private:
     inline void CalculateYRange()
     {
@@ -76,7 +75,6 @@ public:
     inline void Render(ImVec2 size, float yOffset, const char* plotName, bool debugInfo)
     {
         ImGui::SetNextWindowSize(size);
-        ImGui::SetNextWindowBgAlpha(1);
         ImGui::SetNextWindowPos({ 0, yOffset });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin(plotName, nullptr, IMGUI_WINDOW_FLAGS);
@@ -86,20 +84,18 @@ public:
             m_Pause = !m_Pause;
         RenderWindow::ResetButtonColor();
         ImGui::SameLine();
-        if (ImGui::Button("Save", { 150,0 }) || m_SaveClicked)
+        if (ImGui::Button("Save", { 150,0 }) || m_ImageWriter.IsOpen())
         {
-            if (!ImageWriter::IsOpen() || m_SaveClicked)
+            m_Image.Create({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
+            if (m_ImageWriter.SaveImage())
             {
-                m_SaveClicked = true;
-                m_Image.Create({ size.x, size.y - 30 }, { 0, ImGui::GetIO().DisplaySize.y - size.y - yOffset + 2});
-                if (ImageWriter::SaveImage({ size.x, size.y - 29 }, &m_Image))
-                {
-                    m_SaveClicked = false;
-                    ResetImage();
-                    ImageWriter::Reset();
-                }
+                ResetImage();
+                m_ImageWriter.Close();
             }
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear", { 150, 0 }))
+            m_Graphs.clear();
         ImGui::SameLine();
         ImGui::Checkbox("Cleanup Graphs", &m_CleanupGraphs);
         if (ImGui::IsItemHovered())

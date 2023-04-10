@@ -6,8 +6,11 @@
 #include <string_view>
 #include <unordered_map>
 #include <Windows.h>
+#undef max // windows macros
+#undef min // windows macros
 
 #include "Log.h"
+#include "PortSettings.h"
 
 namespace Serial
 {
@@ -53,7 +56,7 @@ namespace Serial
         Serial(const Serial&) = delete;
         Serial& operator=(const Serial&) = delete;
 
-        bool Connect(std::string portName) noexcept;
+        bool Connect(PortSettings settings) noexcept;
         void Disconnect() noexcept;
         // ReadData has ownership of the string, if you need a copy do it manually
         std::string_view ReadData() noexcept;
