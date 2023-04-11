@@ -216,6 +216,17 @@ void RenderWindow::Show(bool connected, PortSetup* portSetup) noexcept
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("Shows the number of y/x values every graph has.\nI left it in on purpose because it might be useful for some people.\nIt just isn't pleasant to look at.");
     
+    ImGui::SameLine();
+    if(ImGui::Checkbox("VSync", &m_UsingVsync))
+    {
+        if(m_UsingVsync)
+            glfwSwapInterval(1);
+        else
+            glfwSwapInterval(0);
+    }
+    if(ImGui::IsItemHovered())
+        ImGui::SetTooltip("Disable/Enable vsync\nDisabling might help if the plots don't update frequent enought (Doesn't work on all devices)");
+
     ImGui::SameLine(width - 250);
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::End();

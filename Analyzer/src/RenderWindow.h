@@ -22,6 +22,7 @@ private:
 private:
 	GLFWwindow* m_Window = nullptr;
 
+	bool m_UsingVsync       = true;
 	bool m_SaveAllClicked   = false;
 	bool m_ConnectClicked   = false;
 	bool m_DebugInfoChecked = false;
