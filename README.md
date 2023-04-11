@@ -76,11 +76,11 @@ Start->Device Manager->Ports (e.g., COM1, COM3)
 ls /dev/tty*
 ```
 The board should either be `/dev/ttyACM0` or `/dev/ttyUSB0` if you have multiple entries you have to try it out manually.  
-If you have the drivers installed and the board connected to you pc but it still doesn't show up try to restart the pc or:
+If you have the drivers installed and the board connected to you pc but it still doesn't show up try to restart the pc or try:
 ```
 udevadm trigger
 ```
-and the check again
+and check again
 ## Plots don't show up
 This can have various reasons, one might be that the program doesn't receive properly formatted inputs, unfortunately that's something you have to check yourself because the application doesn't have a way to inform the user about wrongly formatted strings. If you still have problems even though your strings are properly formatted check that your not using a `\n` in `Serial.print()`. It is **not** advices to use this function for a newline, because for some reason, sometimes when using this the output gets corrupted. You can check if that's the case yourself by using the Arduino IDE's Serial Monitor. Simply open and close it a couple of times and you might see weird output (Make sure the proper baud rate is set). It is advised to use either `Serial.printf()` or `Serial.println()` for sending the `\n`. You can still use `Serial.print()` just don't use it for the newline.
 
@@ -89,13 +89,18 @@ This can have various reasons, one might be that the program doesn't receive pro
 ### Windows
 Nothing, everything is provided.
 ### Linux
-Following libraries have to be installed and accessible for the current user:
+Following libraries have to be installed and accessible to the current user:
+- xorg (should contain:)
+  - libx11
+  - libxcursor
+  - libxrandr
+  - libxinerama
+  - libxi
 - gtk-3
-- glib-2.0
-- gobject-2.0
-- X11
+- glib-2
+- libgobject-2.0 (only some distros)
 
-On most distros you can simply install them via your package manager
+On some distros you have to make sure to install the developement `-dev` versions.
 
 ## Using premake
 This is the prefered and only way if you want to have a visual studio project. The project uses premake as it's build system with the premake5 binaries already provided. I've tested building it with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.
