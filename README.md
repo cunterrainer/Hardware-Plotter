@@ -1,5 +1,5 @@
-# Analyzer
-This is an application that displays plots sent from an Arduino device. The application parses formatted strings received from the device and displays the data as plots, with the x-axis being the elapsed time since the connection started.
+# Plotter
+This is an application that can displays plots with information sent from a device. The application parses formatted strings received from the device and displays the data as plots, with the x-axis being the elapsed time since the connection started.
 
 The string should be in the format of `plot_name:y_label:graph_name:value\n`. However, all of these values except for `value` can be defaulted, thus there's no need to provide them if you don't want to.
 
@@ -18,8 +18,8 @@ Shows the number of coordinates every graphs has internally right next to it's n
 # Example Usage
 Here is an example of how to use this application:
 1. Connect your Arduino board to your computer.
-2. Open a serial communication program (e.g. Arduino IDE)
-3. Upload the following code to your Arduino board:
+2. Open an IDE or text editor (e.g. Arduino IDE)
+3. Upload the following code to your board:
 ```c++
 void setup() 
 {
@@ -59,7 +59,7 @@ You can save the plots as images by clicking the "Save Plot" button in the appli
 ![image info](./docs/image2.PNG)
 
 # Supported devices
-I've only been able to test it with an esp32 and an arduino uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
+I've only been able to test it with an esp32 and an Arduino Uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
 
 # Platforms
 Supported platforms:
@@ -113,10 +113,10 @@ vendor\premake5 --help
 ## Clone
 
 ```
-git clone https://github.com/pyvyx/Analyzer.git
+git clone https://github.com/pyvyx/Hardware-Plotter.git
 ```
 ```
-cd Analyzer
+cd Hardware-Plotter
 ```
 
 ## Visual Studio
