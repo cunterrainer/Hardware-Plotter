@@ -1,4 +1,4 @@
-# Plotter
+# Analyzer
 This is an application that can displays plots with information sent from a device. The application parses formatted strings received from the device and displays the data as plots, with the x-axis being the elapsed time since the connection started.
 
 The string should be in the format of `plot_name:y_label:graph_name:value\n`. However, all of these values except for `value` can be defaulted, thus there's no need to provide them if you don't want to.
