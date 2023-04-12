@@ -225,7 +225,7 @@ void RenderWindow::Show(bool connected, PortSetup* portSetup) noexcept
             glfwSwapInterval(0);
     }
     if(ImGui::IsItemHovered())
-        ImGui::SetTooltip("Disable/Enable vsync\nDisabling might help if the plots don't update frequent enought (Doesn't work on all devices)");
+        ImGui::SetTooltip("Enable/Disable vsync. Disabling might help if the plots don't update frequent enought\nIf the frame rate remains the same, check whether vsync is activated in the driver settings");
 
     ImGui::SameLine(width - 250);
     ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
