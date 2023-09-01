@@ -51,6 +51,10 @@ project "Analyzer"
             "X11"
         }
 
+    filter "system:macosx"
+        defines "GL_SILENCE_DEPRECATION"
+        linkoptions "-framework AppKit -framework iokit -framework OpenGl"
+
     --gcc* clang* msc*
     filter "toolset:msc*"
         warnings "High"

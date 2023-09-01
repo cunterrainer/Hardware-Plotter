@@ -31,6 +31,13 @@ RenderWindow::RenderWindow(int width, int height, const char* title, GLFWmonitor
     }
     Log << "Initialized GLFW" << Endl;
 
+    #ifdef MAC_OS
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    #endif
+
     // Create window with graphics context
     m_Window = glfwCreateWindow(width, height, title, monitor, share);
     if (m_Window == NULL)
@@ -80,7 +87,11 @@ bool RenderWindow::ImGuiInit(const char* iniFileName) const noexcept
     io.IniFilename = iniFileName;
 
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
-    if (!ImGui_ImplOpenGL3_Init("#version 130"))
+    #ifdef MAC_OS
+        if (!ImGui_ImplOpenGL3_Init("#version 330 core"))
+    #else
+        if (!ImGui_ImplOpenGL3_Init("#version 130"))
+    #endif
     {
         Err << "Failed to initialize ImGui OpenGL3 implementation" << Endl;
         return false;
@@ -291,4 +302,6 @@ void RenderWindow::SetThemeWindow() noexcept
         btn.result = 1;
         return Messagebox("Error", WidenString(message).c_str(), &btn, 1);
     }
+#elif defined(MAC_OS)
+    int MsgBoxError(const char*) { return 0; }
 #endif

@@ -6,6 +6,7 @@ BIN/
 
 Makefile
 *.make
+*.DS_STORE
 
 *.sln
 

@@ -68,4 +68,20 @@ project "glfw"
         }
 
    filter "system:macosx"
+        defines "_GLFW_COCOA"
+        files {
+            "src/cocoa_time.h",
+            "src/cocoa_time.c",
+            "src/posix_thread.h",
+            "src/posix_module.c",
+            "src/posix_thread.c",
+
+            "src/cocoa_platform.h",
+            "src/cocoa_joystick.h",
+            "src/cocoa_init.m",
+            "src/cocoa_joystick.m",
+            "src/cocoa_monitor.m",
+            "src/cocoa_window.m",
+            "src/nsgl_context.m"
+        }
    filter {}

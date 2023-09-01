@@ -18,6 +18,8 @@ filter "system:windows"
 filter "system:linux"
     platforms "x64"
     defines "LINUX"
+filter "system:macosx"
+    defines "MAC_OS"
 
 filter { "platforms:x64" }
     architecture "x64"

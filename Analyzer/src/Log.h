@@ -33,7 +33,7 @@ private:
 private:
     const char* const m_LogInfo;
     mutable bool m_NewLine = true;
-    mutable bool m_IsErr = false;
+    [[maybe_unused]]mutable bool m_IsErr = false;
 private:
     inline void SetOutputColor() const noexcept
     {
