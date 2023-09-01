@@ -303,5 +303,10 @@ void RenderWindow::SetThemeWindow() noexcept
         return Messagebox("Error", WidenString(message).c_str(), &btn, 1);
     }
 #elif defined(MAC_OS)
-    int MsgBoxError(const char*) { return 0; }
+    extern "C" void MessageBoxErrorMacOS(const char* message);
+    int MsgBoxError(const char* message)
+    {
+        MessageBoxErrorMacOS(message);
+        return 0;
+    }
 #endif
