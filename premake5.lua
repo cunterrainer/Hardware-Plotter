@@ -6,9 +6,7 @@ workspace "Analyzer"
     startproject "Analyzer"
 
 outputdir = "/BIN/%{cfg.buildcfg}/%{cfg.architecture}/"
--- get current working directory
-cwd = os.getcwd()
-
+cwd = os.getcwd() -- get current working directory
 targetdir(cwd .. outputdir .. "%{prj.name}/bin")
 objdir(cwd .. outputdir .. "%{prj.name}/bin-int")
 
