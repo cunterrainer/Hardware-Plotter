@@ -5,10 +5,10 @@ workspace "Analyzer"
     }
     startproject "Analyzer"
 
-outputdir = "/BIN/%{cfg.buildcfg}/%{cfg.architecture}/"
+outputdir = "/BIN/%{cfg.toolset}/%{cfg.shortname}/%{prj.name}/"
 cwd = os.getcwd() -- get current working directory
-targetdir(cwd .. outputdir .. "%{prj.name}/bin")
-objdir(cwd .. outputdir .. "%{prj.name}/bin-int")
+targetdir(cwd .. outputdir .. "bin")
+objdir(cwd .. outputdir .. "bin-int")
 
 filter "system:windows"
     platforms { "x64", "x86" }
