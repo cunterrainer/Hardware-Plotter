@@ -8,7 +8,7 @@ void MessageBoxErrorMacOS(const char* message)
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:@"Error"];
     [alert setInformativeText:msg];
-    [alert setAlertStyle:NSAlertStyleWarning];
+    [alert setAlertStyle:NSAlertStyleCritical];
 
     [alert runModal];
     [alert release];
