@@ -57,6 +57,7 @@ project "Analyzer"
     filter "system:macosx"
         defines "GL_SILENCE_DEPRECATION"
         linkoptions "-framework AppKit -framework iokit -framework OpenGl"
+        disablewarnings { "unknown-warning-option", "sign-conversion" }
         files "src/**.m"
 
     --gcc* clang* msc*
@@ -98,7 +99,9 @@ project "Analyzer"
     filter "toolset:gcc*"
         warnings "Extra"
         externalwarnings "Off"
-        linkgroups "on" -- activate position independent linking
+        filter "not system:macosx"
+            linkgroups "on" -- activate position independent linking
+        filter {}
         enablewarnings {
             "noexcept",
             "strict-null-sentinel",
