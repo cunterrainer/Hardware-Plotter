@@ -62,9 +62,11 @@ You can save the plots as images by clicking the "Save Plot" button in the appli
 I've only been able to test it with an esp32 and an Arduino Uno, however other devices should work fine aswell, since all the application does is to parse the provided string, thus as long as the string is properly formatted it shouldn't be an issue to use something else.
 
 # Platforms
-Supported platforms:
 - [x] Windows
 - [X] Linux
+- [X] macOS
+
+If you are on linux the default build configuration is not posix compliant however if you need your build to be compliant see the 'Build' section for assistence on how to build it.
 
 # Troubleshooting
 ## Device isn't listed
@@ -101,13 +103,30 @@ Following libraries have to be installed and accessible to the current user:
 - libgobject-2.0 (only some distros)
 
 On some distros you have to make sure to install the developement `-dev` versions.
+### macOS
+You need to install `premake5` manually, the suggested way is to use homebrew
+```
+brew install premake
+```
 
 ## Using premake
 This is the prefered and only way if you want to have a visual studio project. The project uses premake as it's build system with the premake5 binaries already provided. I've tested building it with visual studio, clang and gcc, however other compilers might work aswell, just give it a try.
 
 For additional information use:
+
+Windows
 ```
-vendor\premake5 --help
+vendor\premake5.exe --help
+```
+
+Linux
+```
+vendor/premake5 --help
+```
+
+macOS
+```
+premake5 --help
 ```
 
 ## Clone
@@ -128,13 +147,30 @@ This should generate a .sln file
 
 ## Make
 
+Windows
 ```
 vendor\premake5.exe gmake [cc]
 ```
 
-GCC should already be the default compiler, however you can explicitly specify it if you'd like.  
+Linux
+```
+vendor/premake5 gmake [cc]
+```
+
+macOS
+```
+premake5 gmake [cc]
+```
+
+GCC should be the default compiler on Windows and Linux, macOS uses clang as default, however you can explicitly specify it if you'd like.  
 GCC:   --cc=gcc  
-Clang: --cc=clang
+Clang: --cc=clang  
+There are also other compilers available however building has only been tested with gcc, clang and msvc
+
+If you need a posix compliant build on linux add the --posix flag
+```
+vendor/premake5 gmake [cc] --posix
+```
 
 ### Build
 
@@ -147,7 +183,11 @@ Configurations:
  - release_x86
  - release_x64
 
-`-j` flag tells make to compile multithreaded
+On Apple silicon:
+ - debug (default, the same as just using `make`)
+ - release
+
+`-j` flag utilises multithreaded compilation
 
 ```
 make help
@@ -157,6 +197,6 @@ for additional information
 ## Using build script
 If your just interested in building the project (without project files) you can use the provided script in `scripts\`. This script has to be executed from the main directory.
 ```
-scripts\build.py [cc]
+python scripts/build.py [cc]
 ```
-Replace `[cc]` with either `gcc` or `clang`
+Replace `[cc]` with either `gcc` or `clang` or leave it empty to build both

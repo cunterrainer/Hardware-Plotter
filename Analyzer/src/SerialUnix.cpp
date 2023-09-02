@@ -1,4 +1,4 @@
-#if defined(LINUX) && !defined(POSIX_COMPLIANT)
+#if defined(POSIX_COMPLIANT) || defined(MAC_OS)
 #include <string>
 #include <vector>
 #include <chrono>
@@ -6,10 +6,11 @@
 #include <filesystem>
 #include <string_view>
 #include <fcntl.h>
+#include <termios.h>
 #include <sys/ioctl.h>
 
 #include "Log.h"
-#include "SerialLinux.h"
+#include "SerialUnix.h"
 #include "RenderWindow.h"
 
 namespace Serial
@@ -55,13 +56,13 @@ namespace Serial
         }
         Log << "[Serial] Successfully opened port '" << settings.Port << "' (" << m_SerialPort << ')' << Endl;
 
-        termios2 tty;
-        if(ioctl(m_SerialPort, TCGETS2, &tty) != 0)
+        struct termios tty;
+
+        if(tcgetattr(m_SerialPort, &tty) != 0)
         {
-            m_LastErrorMsg = "[Serial] Failed to get termios2 " + GetError();
-            return false;
+            m_LastErrorMsg = "[Serial] Failed to receive termios attributes " + GetError();
         }
-        Log << "[Serial] Received termios2" << Endl;
+        Log << "[Serial] Successfully received termios attributes" << Endl;
 
         std::memset(&tty, 0, sizeof(tty));
         tty.c_cflag &= ~PARENB; // Clear parity bit, disabling parity
@@ -75,20 +76,10 @@ namespace Serial
                 tty.c_cflag |= PARENB;
                 tty.c_cflag &= ~PARODD; // set parity even
                 break;
-            case 3:
-                tty.c_cflag |= PARENB;
-                tty.c_cflag |= CMSPAR;
-                tty.c_cflag |= PARODD; // set mark parity
-                break;
-            case 4:
-                tty.c_cflag |= PARENB;
-                tty.c_cflag |= CMSPAR;
-                tty.c_cflag &= ~PARODD; // set space parity
-                break;
             default:
                 break;
         }
-
+        
         tty.c_cflag &= ~CSTOPB; // Clear stop field, only one stop bit used in communication
         if(settings.StopBits == 1)
             tty.c_cflag |= CSTOPB; // Use two stop bits
@@ -115,11 +106,6 @@ namespace Serial
         tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control
         tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
 
-        tty.c_cflag &= ~CBAUD;
-        tty.c_cflag |= CBAUDEX;
-        tty.c_ispeed = BaudRateMap.at(settings.BaudRate);
-        tty.c_ospeed = BaudRateMap.at(settings.BaudRate);
-
         tty.c_lflag &= ~ICANON; // dont receive data line by line
         tty.c_lflag &= ~ECHO; // Disable echo
         tty.c_lflag &= ~ECHOE; // Disable erasure
@@ -134,12 +120,15 @@ namespace Serial
         tty.c_cc[VTIME] = 0;
         tty.c_cc[VMIN] = 0;
 
-        if(ioctl(m_SerialPort, TCSETS2, &tty) != 0)
+        cfsetispeed(&tty, BaudRateMap.at(settings.BaudRate));
+        cfsetospeed(&tty, BaudRateMap.at(settings.BaudRate));
+        
+        if(tcsetattr(m_SerialPort, TCSANOW, &tty) != 0)
         {
-            m_LastErrorMsg = "[Serial] Failed to set termios2 settings " + GetError();
-            return false;
+            m_LastErrorMsg = "[Serial] Failed to set termios attributes " + GetError();
         }
-        Log << "[Serial] Successfully set termios2 settings" << Endl;
+        Log << "[Serial] Successfully set termios attributes" << Endl;
+        
         m_Connected = true;
         m_StartTime = std::chrono::steady_clock::now();
         return true;
@@ -216,7 +205,7 @@ namespace Serial
             if(path.size() < 11)
                 continue;
             const std::string_view tty(&path[5], 6);
-            if(tty == "ttyUSB" || tty == "ttyACM")
+            if(tty == "ttyUSB" || tty == "ttyACM" || (tty[0] == 'c' && tty[1] == 'u'))
                 ports.push_back({path, std::string()});
         }
         return ports;

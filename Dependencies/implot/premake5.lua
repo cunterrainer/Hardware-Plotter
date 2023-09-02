@@ -1,6 +1,7 @@
 project "ImPlot"
     kind "StaticLib"
     language "C++"
+    cppdialect "C++17"
 
     files {
         "src/**.cpp",

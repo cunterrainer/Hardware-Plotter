@@ -11,7 +11,7 @@
     #undef max // windows macros
     #undef min // windows macros
     #define GetWinError() Logger::Error(GetLastError())
-#elif defined(LINUX)
+#elif defined(LINUX) || defined(MAC_OS)
     #include <errno.h>
     #include <unistd.h>
     #define GetError() Logger::Error(errno)
@@ -43,7 +43,7 @@ private:
                 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
                 SetConsoleTextAttribute(hConsole, OutputColorLightRed);
             }
-        #elif defined(LINUX)
+        #elif defined(LINUX) || defined(MAC_OS)
             if(m_IsErr && isatty(STDOUT_FILENO))
                 std::cout << "\033[1;31m";
         #endif
@@ -57,7 +57,7 @@ private:
                 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
                 SetConsoleTextAttribute(hConsole, OutputColorWhite);
             }
-        #elif defined(LINUX)
+        #elif defined(LINUX) || defined(MAC_OS)
             if(m_IsErr && isatty(STDOUT_FILENO))
                 std::cout << "\033[0m";
         #endif

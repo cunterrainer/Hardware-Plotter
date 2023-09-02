@@ -33,6 +33,9 @@ project "Analyzer"
         "ImPlot"
     }
 
+    filter "options:posix"
+        defines "POSIX_COMPLIANT"
+
     filter "system:windows"
         links {
             "gdi32",
@@ -50,6 +53,12 @@ project "Analyzer"
             "gobject-2.0",
             "X11"
         }
+
+    filter "system:macosx"
+        defines "GL_SILENCE_DEPRECATION"
+        linkoptions "-framework AppKit -framework iokit -framework OpenGl"
+        disablewarnings { "sign-conversion" }
+        files "src/**.m"
 
     --gcc* clang* msc*
     filter "toolset:msc*"
@@ -90,7 +99,9 @@ project "Analyzer"
     filter "toolset:gcc*"
         warnings "Extra"
         externalwarnings "Off"
-        linkgroups "on" -- activate position independent linking
+        filter "not system:macosx"
+            linkgroups "on" -- activate position independent linking
+        filter {}
         enablewarnings {
             "noexcept",
             "strict-null-sentinel",
@@ -109,12 +120,13 @@ project "Analyzer"
     filter "toolset:clang*"
         warnings "Extra"
         externalwarnings "Everything"
+        linkgroups "off"
         enablewarnings {
             "array-bounds",
             "long-long",
             "implicit-fallthrough", 
         }
-        disablewarnings {"cast-align", "sign-conversion"}
+        disablewarnings {"cast-align", "sign-conversion", "unknown-warning-option"}
         defines "CLANG"
     filter {}
 

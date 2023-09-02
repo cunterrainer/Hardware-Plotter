@@ -27,4 +27,6 @@ project "nativefiledialog"
         }
 
    filter "system:macosx"
+        files "src/nfd_cocoa.m"
+        disablewarnings "deprecated-declarations"
    filter {}

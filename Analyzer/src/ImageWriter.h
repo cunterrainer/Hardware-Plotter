@@ -13,7 +13,7 @@
 
 #ifdef WINDOWS
     #define DEFAULT_PATH "\\plot.png"
-#elif defined(LINUX)
+#elif defined(LINUX) || defined(MAC_OS)
     #define DEFAULT_PATH "/plot.png"
 #endif
 

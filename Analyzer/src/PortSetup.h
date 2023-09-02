@@ -50,7 +50,7 @@ public:
     inline const PortSettings& Settings() noexcept 
     {
         if(!m_Ports.empty())
-            m_Settings.Port = m_Ports[m_SelectedPort].com;
+            m_Settings.Port = m_Ports[(unsigned int)m_SelectedPort].com;
         return m_Settings;
     }
 

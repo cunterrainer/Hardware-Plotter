@@ -32,7 +32,13 @@ bool ImageWriter::SaveImage()
 
     ImGui::SameLine(m_WindowSize.x - PathButtonSize.x - m_ItemSpacing.x);
     if (ImGui::Button("Path", PathButtonSize))
-        Thread::Dispatch(&ImageWriter::SaveFileDialog, this);
+    {
+        #if defined(WINDOWS) || defined(LINUX)
+            Thread::Dispatch(&ImageWriter::SaveFileDialog, this);
+        #elif defined(MAC_OS)
+            SaveFileDialog();
+        #endif
+    }
 
     ImGui::SetCursorPos({ currsorPos.x, currsorPos.y + ImGui::GetItemRectSize().y + m_ItemSpacing.y });
     m_BtnWidth = (SettingsSectionWidth - 3 * m_ItemSpacing.x) * 0.5f;

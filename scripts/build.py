@@ -1,9 +1,13 @@
-from ast import arg
-import os, shutil
+import os, shutil, sys, platform
 import subprocess as sp
-from termcolor import colored
-from sys import argv, platform
-
+from sys import argv
+try:
+    from termcolor import colored
+except ImportError:
+    print("Failed to import 'termcolor' trying to install it")
+    sp.check_call([sys.executable, "-m", "pip", "install", 'termcolor'])
+finally:
+    from termcolor import colored
 
 def cls():
     os.system('cls' if os.name=='nt' else 'clear')
@@ -19,13 +23,23 @@ def ExecProcess(args):
     for arg in args:
         print(arg, end=" ")
     print()
-    process = sp.Popen(args, stdout=sp.PIPE, stderr=sp.PIPE, universal_newlines=True)
-    stdout, stderr = process.communicate()
-    if process.returncode == 0:
-        print(colored(f"Stdout:\n{stdout}\nStderr:\n{stderr}\nReturn code: {process.returncode}", "green"), end="\n\n")
-    else:
-        print(colored(f"Stdout:\n{stdout}\nStderr:\n{stderr}\nReturn code: {process.returncode}", "red"), end="\n\n")
-    return process.returncode == 0
+
+    errors = ""
+    popen = sp.Popen(args, stdout=sp.PIPE, stderr=sp.PIPE, universal_newlines=True)
+    for stdoutLine in iter(popen.stdout.readline, ""):
+        print(colored(stdoutLine, "green"), end="")
+    for stderrLine in iter(popen.stderr.readline, ""):
+        errors += stderrLine
+        print(colored(stderrLine, "red"), end="")
+    popen.stdout.close()
+    code = popen.wait()
+    print("Return code: {}".format(code))
+
+    if len(errors) > 0:
+        print(colored("\n#################################################################################", "yellow"))
+        print(colored(f"Stderr: (The same as above just put all in one place)\n{errors}", "red"))
+    print("\n", end='')
+    return code == 0
 
 
 def ExecProcessList(argsList):
@@ -48,27 +62,34 @@ def main():
             elif arg.lower() == "clang":
                 useClang = True
 
-    if platform == "win32":
+    if sys.platform == "win32":
         exePath = "vendor/premake5.exe"
-    elif platform == "linux":
+    elif sys.platform == "linux":
         exePath = "vendor/premake5"
+    elif sys.platform == "darwin":
+        exePath = "premake5"
     else:
-        print("Unsupported operating system: " + platform)
+        print("Unsupported operating system: " + sys.platform)
         return
 
     cls()
     binDir = "BIN/"
-    gccProc = [[exePath, "gmake", "--cc=gcc"], ["make", "-j", "config=debug_x64"], ["make", "-j", "config=release_x64"]]
-    clangProc = [[exePath, "gmake", "--cc=clang"],
-                 ["make", "-j", "config=debug_x64"], ["make", "-j", "config=release_x64"],
-                 ["make", "-j", "config=debug_x86"], ["make", "-j", "config=release_x86"]]
+
+    if platform.processor() == "arm":
+        gccProc = [[exePath, "gmake", "--cc=gcc"], ["make", "-j", "config=debug"], ["make", "-j", "config=release"]]
+        clangProc = [[exePath, "gmake", "--cc=clang"], ["make", "-j", "config=debug"], ["make", "-j", "config=release"]]
+    else:
+        gccProc = [[exePath, "gmake", "--cc=gcc"], ["make", "-j", "config=debug_x64"], ["make", "-j", "config=release_x64"]]
+        clangProc = [[exePath, "gmake", "--cc=clang"],
+                     ["make", "-j", "config=debug_x64"], ["make", "-j", "config=release_x64"],
+                     ["make", "-j", "config=debug_x86"], ["make", "-j", "config=release_x86"]]
 
     if useGcc:
-        RemoveFolder(binDir)
+        RemoveFolder(binDir + "gcc/")
         if not ExecProcessList(gccProc):
             return
     if useClang:
-        RemoveFolder(binDir)
+        RemoveFolder(binDir + "clang/")
         ExecProcessList(clangProc)
 
 
