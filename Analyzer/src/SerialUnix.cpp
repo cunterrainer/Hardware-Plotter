@@ -10,7 +10,7 @@
 #include <sys/ioctl.h>
 
 #include "Log.h"
-#include "SerialMacOS.h"
+#include "SerialUnix.h"
 #include "RenderWindow.h"
 
 namespace Serial
