@@ -1,4 +1,4 @@
-#ifdef MAC_OS
+#if defined(UNIX_COMPLIANT) || defined(MAC_OS)
 #pragma once
 #include <vector>
 #include <string>

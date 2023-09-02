@@ -1,4 +1,4 @@
-#ifdef MAC_OS
+#if defined(UNIX_COMPLIANT) || defined(MAC_OS)
 #include <string>
 #include <vector>
 #include <chrono>

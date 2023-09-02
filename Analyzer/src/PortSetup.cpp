@@ -30,7 +30,7 @@ void PortSetup::Show() noexcept
     ImGui::Combo("##StopCombo", &m_Settings.StopBits, "1\0""2\0");
 
     PlaceText(ParityStr);
-    #ifdef MAC_OS
+    #ifdef defined(UNIX_COMPLIANT) || defined(MAC_OS)
         ImGui::Combo("##ParityCombo", &m_Settings.Parity, "None\0Odd\0Even\0");
     #elif defined(WINDOWS) || defined(LINUX)
         ImGui::Combo("##ParityCombo", &m_Settings.Parity, "None\0Odd\0Even\0Mark\0Space\0");

@@ -1,4 +1,4 @@
-#ifdef LINUX
+#if defined(LINUX) && !defined(UNIX_COMPLIANT)
 #pragma once
 #include <vector>
 #include <string>

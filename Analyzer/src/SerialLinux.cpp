@@ -1,4 +1,4 @@
-#ifdef LINUX
+#if defined(LINUX) && !defined(UNIX_COMPLIANT)
 #include <string>
 #include <vector>
 #include <chrono>
