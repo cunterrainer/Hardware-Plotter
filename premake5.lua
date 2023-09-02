@@ -10,6 +10,11 @@ cwd = os.getcwd() -- get current working directory
 targetdir(cwd .. outputdir .. "bin")
 objdir(cwd .. outputdir .. "bin-int")
 
+newoption {
+    trigger = "posix",
+    description = "Use the posix compliant serial interface"
+}
+
 filter "system:windows"
     platforms { "x64", "x86" }
     defines "WINDOWS"

@@ -1,4 +1,4 @@
-#if defined(LINUX) && !defined(UNIX_COMPLIANT)
+#if defined(LINUX) && !defined(POSIX_COMPLIANT)
 #pragma once
 #include <vector>
 #include <string>

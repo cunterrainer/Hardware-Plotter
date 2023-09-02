@@ -33,6 +33,9 @@ project "Analyzer"
         "ImPlot"
     }
 
+    filter "options:posix"
+        defines "POSIX_COMPLIANT"
+
     filter "system:windows"
         links {
             "gdi32",
