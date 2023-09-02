@@ -57,7 +57,7 @@ project "Analyzer"
     filter "system:macosx"
         defines "GL_SILENCE_DEPRECATION"
         linkoptions "-framework AppKit -framework iokit -framework OpenGl"
-        disablewarnings { "unknown-warning-option", "sign-conversion" }
+        disablewarnings { "sign-conversion" }
         files "src/**.m"
 
     --gcc* clang* msc*
@@ -120,12 +120,13 @@ project "Analyzer"
     filter "toolset:clang*"
         warnings "Extra"
         externalwarnings "Everything"
+        linkgroups "off"
         enablewarnings {
             "array-bounds",
             "long-long",
             "implicit-fallthrough", 
         }
-        disablewarnings {"cast-align", "sign-conversion"}
+        disablewarnings {"cast-align", "sign-conversion", "unknown-warning-option"}
         defines "CLANG"
     filter {}
 
