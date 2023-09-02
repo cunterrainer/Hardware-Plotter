@@ -95,6 +95,7 @@ project "Analyzer"
             "vla",
             "shift-overflow"
         }
+        disablewarnings "unknown-warning-option"
 
     filter "toolset:gcc*"
         warnings "Extra"
@@ -126,7 +127,7 @@ project "Analyzer"
             "long-long",
             "implicit-fallthrough", 
         }
-        disablewarnings {"cast-align", "sign-conversion", "unknown-warning-option"}
+        disablewarnings {"cast-align", "sign-conversion"}
         defines "CLANG"
     filter {}
 
