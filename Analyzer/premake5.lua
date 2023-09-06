@@ -1,7 +1,6 @@
 project "Analyzer"
     language "C++"
     cppdialect "C++17"
-    defines "_CRT_SECURE_NO_WARNINGS"
 
     files {
         "src/**.cpp",
@@ -37,6 +36,7 @@ project "Analyzer"
         defines "POSIX_COMPLIANT"
 
     filter "system:windows"
+        defines "_CRT_SECURE_NO_WARNINGS"
         links {
             "gdi32",
             "opengl32",
