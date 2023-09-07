@@ -26,8 +26,6 @@ filter "system:windows"
 filter "system:linux"
     platforms "x64"
     defines "LINUX"
-    filter { "system:linux", "options:wayland" }
-        defines "WAYLAND"
 filter "system:macosx"
     defines "MAC_OS"
 

@@ -154,7 +154,7 @@ vendor\premake5.exe gmake [cc]
 
 Linux
 ```
-vendor/premake5 gmake [cc]
+vendor/premake5 gmake [cc] [options]
 ```
 
 macOS
@@ -167,7 +167,9 @@ GCC:   --cc=gcc
 Clang: --cc=clang  
 There are also other compilers available however building has only been tested with gcc, clang and msvc
 
-If you need a posix compliant build on linux add the --posix flag
+### Options
+`--posix` If you need a posix compliant build  
+`--wayland` If you want to use wayland instead of X11
 ```
 vendor/premake5 gmake [cc] --posix
 ```
