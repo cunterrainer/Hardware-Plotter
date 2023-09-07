@@ -45,6 +45,7 @@ project "glfw"
             "src/wgl_context.c"
         }
 
+
     function wayland_generate (protocol_file, output_file)
         local cmd1 = "wayland-scanner client-header " .. protocol_file .. " " .. output_file .. ".h"
         local cmd2 = "wayland-scanner private-code "  .. protocol_file .. " ".. output_file .. "-code.h"
@@ -60,8 +61,7 @@ project "glfw"
         return result:gsub('[\n\r]', '')
     end
 
-
-    filter "system:linux"
+    filter { "system:linux", "options:wayland" }
         defines "_GLFW_WAYLAND"
         files {
             "src/posix_time.h",
@@ -93,27 +93,27 @@ project "glfw"
         wayland_generate(wayland_protocols_base .. "/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml", "src/wayland-idle-inhibit-unstable-v1-client-protocol")
 
 
-    -- filter "system:linux"
-    --     defines "_GLFW_X11"
-    --     files {
-    --         "src/posix_time.h",
-    --         "src/posix_thread.h",
-    --         "src/posix_module.c",
-    --         "src/posix_time.c",
-    --         "src/posix_thread.c",
+    filter { "system:linux", "not options:wayland" }
+        defines "_GLFW_X11"
+        files {
+            "src/posix_time.h",
+            "src/posix_thread.h",
+            "src/posix_module.c",
+            "src/posix_time.c",
+            "src/posix_thread.c",
 
-    --         "src/x11_platform.h",
-    --         "src/xkb_unicode.h",
-    --         "src/x11_init.c",
-    --         "src/x11_monitor.c",
-    --         "src/x11_window.c",
-    --         "src/xkb_unicode.c",
-    --         "src/glx_context.c",
-    --         "src/linux_joystick.c",
-    --         "src/linux_joystick.h",
-    --         "src/posix_poll.h",
-    --         "src/posix_poll.c"
-    --     }
+            "src/x11_platform.h",
+            "src/xkb_unicode.h",
+            "src/x11_init.c",
+            "src/x11_monitor.c",
+            "src/x11_window.c",
+            "src/xkb_unicode.c",
+            "src/glx_context.c",
+            "src/linux_joystick.c",
+            "src/linux_joystick.h",
+            "src/posix_poll.h",
+            "src/posix_poll.c"
+        }
 
    filter "system:macosx"
         defines "_GLFW_COCOA"
