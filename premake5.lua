@@ -15,12 +15,19 @@ newoption {
     description = "Use the posix compliant serial interface"
 }
 
+newoption {
+    trigger = "wayland",
+    description = "Use wayland instead of X11"
+}
+
 filter "system:windows"
     platforms { "x64", "x86" }
     defines "WINDOWS"
 filter "system:linux"
     platforms "x64"
     defines "LINUX"
+    filter { "system:linux", "options:wayland" }
+        defines "WAYLAND"
 filter "system:macosx"
     defines "MAC_OS"
 

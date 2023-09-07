@@ -193,8 +193,47 @@ void RenderWindow::Show(bool connected, PortSetup* portSetup) noexcept
 {
     ImGuiStartFrame();
     const float width = Size().x;
+    
+    #ifdef WAYLAND
+        // Decorations
+        ImGui::SetNextWindowPos({ 0, 0 });
+        ImGui::SetNextWindowSize({ width, SettingsHeight });
+        ImGui::Begin("##WaylandDecorations", nullptr, IMGUI_WINDOW_FLAGS);
+        ImGui::Text("Analyzer");
+        static bool s_Maximised = false;
+        static const char* s_MaxBtnContent = "[_]";
 
-    ImGui::SetNextWindowPos({ 0, 0 });
+        ImGui::SameLine(width - 135);
+        if (ImGui::Button("__", { 35, 0 }))
+            glfwIconifyWindow(m_Window);
+        ImGui::SameLine();
+        if (ImGui::Button(s_MaxBtnContent, { 35, 0 }))
+        {
+            if (s_Maximised)
+            {
+                glfwRestoreWindow(m_Window);
+                s_MaxBtnContent = "[_]";
+            }
+            else
+            {
+                glfwMaximizeWindow(m_Window);
+                s_MaxBtnContent = "|  |";
+            }
+            s_Maximised = !s_Maximised;
+        }
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ColorLightRed);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ColorLightRed);
+        if (ImGui::Button("X", { 35, 0 }))
+            glfwSetWindowShouldClose(m_Window, 1);
+        ImGui::PopStyleColor(2);
+        ImGui::End();
+
+        ImGui::SetNextWindowPos({ 0, SettingsHeight });
+    #else
+        ImGui::SetNextWindowPos({ 0, 0 });
+    #endif
+
     ImGui::SetNextWindowSize({ width, SettingsHeight });
     ImGui::Begin("##Settings", nullptr, IMGUI_WINDOW_FLAGS);
 
