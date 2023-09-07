@@ -102,6 +102,7 @@ Following libraries have to be installed and accessible to the current user:
 - glib-2
 - libgobject-2.0 (only some distros)
 
+To build the Wayland version instead if X11 you need to have `wayland`, `wayland-scanner`, `wayland-protocols` and `wayland-client` installed.  
 On some distros you have to make sure to install the developement `-dev` versions.
 ### macOS
 You need to install `premake5` manually, the suggested way is to use homebrew
@@ -168,11 +169,8 @@ Clang: --cc=clang
 There are also other compilers available however building has only been tested with gcc, clang and msvc
 
 ### Options
-`--posix` If you need a posix compliant build  
-`--wayland` If you want to use wayland instead of X11
-```
-vendor/premake5 gmake [cc] --posix
-```
+`--posix` For a posix compliant build  
+`--wayland` To use Wayland instead of X11
 
 ### Build
 
