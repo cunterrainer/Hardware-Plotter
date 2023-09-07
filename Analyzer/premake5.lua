@@ -1,7 +1,6 @@
 project "Analyzer"
     language "C++"
     cppdialect "C++17"
-    defines "_CRT_SECURE_NO_WARNINGS"
 
     files {
         "src/**.cpp",
@@ -36,7 +35,11 @@ project "Analyzer"
     filter "options:posix"
         defines "POSIX_COMPLIANT"
 
+    filter { "system:linux", "options:wayland" }
+        defines "WAYLAND"
+
     filter "system:windows"
+        defines "_CRT_SECURE_NO_WARNINGS"
         links {
             "gdi32",
             "opengl32",
@@ -64,7 +67,6 @@ project "Analyzer"
     filter "toolset:msc*"
         warnings "High"
         externalwarnings "Default"
-        disablewarnings {}
         buildoptions { "/sdl" }
         defines "MSC"
 
@@ -100,9 +102,9 @@ project "Analyzer"
     filter "toolset:gcc*"
         warnings "Extra"
         externalwarnings "Off"
-        filter "not system:macosx"
+        filter { "toolset:gcc*", "not system:macosx" }
             linkgroups "on" -- activate position independent linking
-        filter {}
+        filter "toolset:gcc*"
         enablewarnings {
             "noexcept",
             "strict-null-sentinel",

@@ -45,7 +45,73 @@ project "glfw"
             "src/wgl_context.c"
         }
 
-    filter "system:linux"
+
+    function GetOS()
+	    -- ask LuaJIT first
+	    if jit then
+		    return jit.os
+	    end
+
+	    -- Unix, Linux variants
+	    local fh,err = assert(io.popen("uname -o 2>/dev/null","r"))
+	    if fh then
+		    osname = fh:read()
+	    end
+
+	    return osname or "Windows"
+    end
+
+    function wayland_generate (protocol_file, output_file)
+        local cmd1 = "wayland-scanner client-header " .. protocol_file .. " " .. output_file .. ".h"
+        local cmd2 = "wayland-scanner private-code "  .. protocol_file .. " ".. output_file .. "-code.h"
+        prebuildcommands(cmd1)
+        prebuildcommands(cmd2)
+        files { output_file .. ".h", output_file .. "-code.h" }
+    end
+
+    function pkg_get_variable (moduleName, varName)
+        local handle = io.popen("pkg-config " .. moduleName .. " --variable=" .. varName)
+        local result = handle:read("*a")
+        handle:close()
+        return result:gsub('[\n\r]', '')
+    end
+
+    filter { "system:linux", "options:wayland" }
+        defines "_GLFW_WAYLAND"
+        files {
+            "src/posix_time.h",
+            "src/posix_thread.h",
+            "src/posix_module.c",
+            "src/posix_time.c",
+            "src/posix_thread.c",
+            "src/linux_joystick.c",
+            "src/linux_joystick.h",
+            "src/posix_poll.h",
+            "src/posix_poll.c",
+
+            "src/wl_platform.h",
+            "src/xkb_unicode.h",
+            "src/xkb_unicode.c",
+            "src/wl_init.c",
+            "src/wl_monitor.c",
+            "src/wl_window.c"
+        }
+
+        if GetOS():lower():match("linux") and _OPTIONS["wayland"] then
+            local wayland_protocols_base = pkg_get_variable("wayland-protocols", "pkgdatadir"):sub(2)
+            local wayland_client_pkgdatadir = pkg_get_variable("wayland-client", "pkgdatadir")
+
+            wayland_generate(wayland_client_pkgdatadir .. "/wayland.xml", "src/wayland-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/stable/xdg-shell/xdg-shell.xml", "src/wayland-xdg-shell-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "src/wayland-xdg-decoration-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/stable/viewporter/viewporter.xml", "src/wayland-viewporter-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/relative-pointer/relative-pointer-unstable-v1.xml", "src/wayland-relative-pointer-unstable-v1-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "src/wayland-pointer-constraints-unstable-v1-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml", "src/wayland-idle-inhibit-unstable-v1-client-protocol")
+        end
+
+
+    filter { "system:linux", "not options:wayland" }
         defines "_GLFW_X11"
         files {
             "src/posix_time.h",

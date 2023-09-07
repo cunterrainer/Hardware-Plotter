@@ -36,9 +36,13 @@ std::vector<std::string_view> SplitStringByChar(const std::string_view& str, cha
 
 int main()
 {
+    #ifdef WAYLAND
+        PlotManager plots(RenderWindow::SettingsHeight*2);
+    #else
+        PlotManager plots(RenderWindow::SettingsHeight);
+    #endif
     std::string data;
     Serial::Serial serial;
-    PlotManager plots(RenderWindow::SettingsHeight);
     PortSetup portSetup;
     RenderWindow window;
 
