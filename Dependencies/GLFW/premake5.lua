@@ -97,7 +97,7 @@ project "glfw"
             "src/wl_window.c"
         }
 
-        if GetOS():lower():match("linux") then
+        if GetOS():lower():match("linux") and _OPTIONS["wayland"] then
             local wayland_protocols_base = pkg_get_variable("wayland-protocols", "pkgdatadir"):sub(2)
             local wayland_client_pkgdatadir = pkg_get_variable("wayland-client", "pkgdatadir")
 
