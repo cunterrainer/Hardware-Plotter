@@ -45,11 +45,20 @@ project "glfw"
             "src/wgl_context.c"
         }
 
-    function OnLinux()
-        local handle = io.popen("uname")
-        local result = handle:read("*a")
-        handle:close()
-        return result and result:match("^Linux")
+
+    function GetOS()
+	    -- ask LuaJIT first
+	    if jit then
+		    return jit.os
+	    end
+
+	    -- Unix, Linux variants
+	    local fh,err = assert(io.popen("uname -o 2>/dev/null","r"))
+	    if fh then
+		    osname = fh:read()
+	    end
+
+	    return osname or "Windows"
     end
 
     function wayland_generate (protocol_file, output_file)
@@ -87,7 +96,8 @@ project "glfw"
             "src/wl_monitor.c",
             "src/wl_window.c"
         }
-        if OnLinux() then
+
+        if GetOS():lower():match("linux") then
             local wayland_protocols_base = pkg_get_variable("wayland-protocols", "pkgdatadir"):sub(2)
             local wayland_client_pkgdatadir = pkg_get_variable("wayland-client", "pkgdatadir")
 
