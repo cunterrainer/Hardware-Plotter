@@ -45,6 +45,12 @@ project "glfw"
             "src/wgl_context.c"
         }
 
+    function OnLinux()
+        local handle = io.popen("uname")
+        local result = handle:read("*a")
+        handle:close()
+        return result and result:match("^Linux")
+    end
 
     function wayland_generate (protocol_file, output_file)
         local cmd1 = "wayland-scanner client-header " .. protocol_file .. " " .. output_file .. ".h"
@@ -81,16 +87,18 @@ project "glfw"
             "src/wl_monitor.c",
             "src/wl_window.c"
         }
-        local wayland_protocols_base = pkg_get_variable("wayland-protocols", "pkgdatadir"):sub(2)
-        local wayland_client_pkgdatadir = pkg_get_variable("wayland-client", "pkgdatadir")
+        if OnLinux() then
+            local wayland_protocols_base = pkg_get_variable("wayland-protocols", "pkgdatadir"):sub(2)
+            local wayland_client_pkgdatadir = pkg_get_variable("wayland-client", "pkgdatadir")
 
-        wayland_generate(wayland_client_pkgdatadir .. "/wayland.xml", "src/wayland-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/stable/xdg-shell/xdg-shell.xml", "src/wayland-xdg-shell-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "src/wayland-xdg-decoration-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/stable/viewporter/viewporter.xml", "src/wayland-viewporter-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/unstable/relative-pointer/relative-pointer-unstable-v1.xml", "src/wayland-relative-pointer-unstable-v1-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "src/wayland-pointer-constraints-unstable-v1-client-protocol")
-        wayland_generate(wayland_protocols_base .. "/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml", "src/wayland-idle-inhibit-unstable-v1-client-protocol")
+            wayland_generate(wayland_client_pkgdatadir .. "/wayland.xml", "src/wayland-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/stable/xdg-shell/xdg-shell.xml", "src/wayland-xdg-shell-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml", "src/wayland-xdg-decoration-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/stable/viewporter/viewporter.xml", "src/wayland-viewporter-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/relative-pointer/relative-pointer-unstable-v1.xml", "src/wayland-relative-pointer-unstable-v1-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml", "src/wayland-pointer-constraints-unstable-v1-client-protocol")
+            wayland_generate(wayland_protocols_base .. "/unstable/idle-inhibit/idle-inhibit-unstable-v1.xml", "src/wayland-idle-inhibit-unstable-v1-client-protocol")
+        end
 
 
     filter { "system:linux", "not options:wayland" }
