@@ -27,6 +27,7 @@ filter "system:linux"
     platforms "x64"
     defines "LINUX"
 filter "system:macosx"
+    platforms "universal"
     defines "MAC_OS"
 
 filter { "platforms:x64" }

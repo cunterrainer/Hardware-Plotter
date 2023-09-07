@@ -185,9 +185,9 @@ Configurations:
  - release_x86
  - release_x64
 
-On Apple silicon:
- - debug (default, the same as just using `make`)
- - release
+MacOS:
+ - debug_universal (default, the same as just using `make`)
+ - release_universal
 
 `-j` flag utilises multithreaded compilation
 
