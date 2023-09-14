@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <string_view>
+#include <sstream>
 
 #include "ImGui/imgui.h"
 
@@ -38,6 +39,17 @@ private:
             content += port.com + '\n' + port.device + '\0';
         return content;
     }
+
+    std::vector<std::string> SplitString(const std::string& str, char c) const
+    {
+        std::stringstream test(str);
+        std::string segment;
+        std::vector<std::string> seglist;
+
+        while (std::getline(test, segment, c))
+            seglist.push_back(segment);
+        return seglist;
+    }
 public:
     PortSetup() : m_PortsString(BuildPortsString()) {}
 
@@ -46,6 +58,14 @@ public:
     inline int&        SelectedPort()      noexcept { return m_SelectedPort;         }
     inline const char* PortsString() const noexcept { return m_PortsString.c_str();  }
     inline const std::vector<Serial::Port>& Ports() const noexcept { return m_Ports; }
+
+
+    inline const std::vector<std::string>& PortsVector() const noexcept
+    {
+        static std::vector<std::string> vec;
+        vec = SplitString(m_PortsString, '\0');
+        return vec;
+    }
 
     inline const PortSettings& Settings() noexcept 
     {
