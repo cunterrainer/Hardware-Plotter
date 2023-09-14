@@ -34,7 +34,7 @@ std::vector<std::string_view> SplitStringByChar(const std::string_view& str, cha
 }
 
 
-int main()
+int a()
 {
     #ifdef WAYLAND
         PlotManager plots(RenderWindow::SettingsHeight*2);

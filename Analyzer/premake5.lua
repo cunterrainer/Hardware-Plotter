@@ -13,6 +13,7 @@ project "Analyzer"
         "src",
         "vendor",
         "../Dependencies/GLFW/include",
+        "../Dependencies/FTXUI/include",
         "../Dependencies/ImGui/include",
         "../Dependencies/implot/include",
         "../Dependencies/nativefiledialog/include"
@@ -29,7 +30,8 @@ project "Analyzer"
         "glfw",
         "nativefiledialog",
         "ImGui",
-        "ImPlot"
+        "ImPlot",
+        "FTXUI"
     }
 
     filter "options:posix"
@@ -65,7 +67,8 @@ project "Analyzer"
 
     --gcc* clang* msc*
     filter "toolset:msc*"
-        warnings "High"
+        --warnings "High"
+        warnings "off"
         externalwarnings "Default"
         buildoptions { "/sdl" }
         defines "MSC"

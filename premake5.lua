@@ -58,6 +58,7 @@ removeunreferencedcodedata "on"
 
 include "Analyzer"
 include "Dependencies/GLFW"
+include "Dependencies/FTXUI"
 include "Dependencies/ImGui"
 include "Dependencies/implot"
 include "Dependencies/nativefiledialog"
