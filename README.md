@@ -133,7 +133,7 @@ premake5 --help
 ## Clone
 
 ```
-git clone https://github.com/pyvyx/Hardware-Plotter.git
+git clone https://github.com/cunterrainer/Hardware-Plotter.git
 ```
 ```
 cd Hardware-Plotter
